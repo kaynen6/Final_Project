@@ -33,9 +33,10 @@ function loadData(map){
         success: function(response){
             //create attribute array
             var meanAtts = processData(response);
-            createPropSymbols(response,map,meanAtts);
-            console.log(meanAtts);
+            //display symbols for a default date
             
+            console.log(meanAtts);
+            createPropSymbols(response,map,meanAtts);
         }
     });
     //load max data
@@ -48,7 +49,7 @@ function loadData(map){
         }
     });
     //load the min data
-    $.ajax("data/UHIDailySummaries/Means12-16.geojson", {
+    $.ajax("data/UHIDailySummaries/Mins12-16.geojson", {
         dataType: "json",
         success: function(response){
             //create attribute array
@@ -80,16 +81,22 @@ function processData(data){
 function createPropSymbols(response, map, attributes){   
     //create a Leaflet GeoJSON layer and add it to the map
     L.geoJson(response, {
+        //hopefully filtering the data for default date
+        filter: function(feature, layer){
+            if (feature.properties.year == 2016 && feature.properties.month == 01 && feature.properties.day == 01) {
+                return true;
+            }
+        },
         //point to layer converts each point feature to layer to use circle marker
         pointToLayer: function(feature, latlng){
             return pointToLayer(feature, latlng, attributes);
-        }
+        }  
     }).addTo(map);
 };  
 
 
 //initial symbolization when map loads for first time
-function pointToLayer(feature, latlng, attributes){
+function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
     //create marker options w/ defualt styling
     var options = {
         radius: 8,
@@ -99,17 +106,16 @@ function pointToLayer(feature, latlng, attributes){
         opacity: 1,
         fillOpacity: 0.3 //soften the opacity a little to see other points and map through point feature
     };
-    //define the attribute to grab //this is the year, must be changed or made dynamic
-    var attribute = attributes[0]; 
+    //define the attribute to grab year, month, day
+    //var year = attributes[7]; 
+    //var month = attributes[8];
+    //var day = attributes[9];
     //grab the properties of the attribute
-    var attValue = Number(feature.properties[attribute]);
-    //update current year
-    currentYear = year;    
+    var attValue = Number(feature.properties["HI"]);
+    console.log(attValue);
     //define radius via func to calculate based on attribute data
     options.radius = calcPropRadius(attValue);
-    //add commas and dollar $ign. 
-    var newAttValue = "$" + addCommas(attValue);
-    //create circleMarker
+   //create circleMarker
     var layer = L.circleMarker(latlng, options);
     //create popup content string
     var popupContent = "";
@@ -135,6 +141,21 @@ function pointToLayer(feature, latlng, attributes){
     });
     return layer;
 };
+
+
+//calculate radius for proportional symbols
+function calcPropRadius(attValue) {
+    //scale factor for even symbol size adjustments
+    var scaleFactor = 30;
+    //area based on attribute value and scale factor
+    var area = attValue / scaleFactor;
+    //radius is calc based on area
+    var radius = Math.sqrt(area/Math.PI);
+    return radius;
+};
+
+
+
 
 
 
