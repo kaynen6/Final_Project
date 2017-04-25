@@ -32,7 +32,7 @@ function loadData(map){
         dataType: "json",
         success: function(response){
             //create attribute array
-            var meanAtts = processData(response);
+            var meanAtts, meanMin, meanMax = processData(response);
             //display symbols for a default date
             
             console.log(meanAtts);
@@ -73,7 +73,13 @@ function processData(data){
     for (var attribute in properties){
         attributes.push(attribute);
     };
-    return attributes;
+    //get data for all temperature types
+    var temps = data.features.properties["HI"];
+    temps = temps + data.features.properties["AT"]
+    //find min and max of temp data
+    var min = Math.min(temps);
+    var max = Math.max(temps);
+    return attributes, min, max;
 };
 
 
@@ -85,7 +91,7 @@ function createPropSymbols(response, map, attributes){
         pointToLayer: function(feature, latlng){
             return pointToLayer(feature, latlng, attributes);
         },
-        //hopefully filtering the data for default date
+        //filtering the data for default date - make this interactive at some point
         filter: function(feature, layer){
             if (feature.properties.year == 2016 && feature.properties.month == 01 && feature.properties.day == 01) {
                 return true
@@ -105,18 +111,21 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
         color: "#000",
         weight: 0.5,
         opacity: 1,
-        fillOpacity: 0.3 //soften the opacity a little to see other points and map through point feature
+        fillOpacity: 0.8
     };
     //define the attribute to grab year, month, day
     //var year = attributes[7]; 
     //var month = attributes[8];
     //var day = attributes[9];
-    //grab the properties of the attribute
+    
+    //grab the properties of the attribute - MAKE INTERACTIVE - CHANGE "HI" TO VARIABLE tempType
     var attValue = feature.properties["HI"];
     console.log(attValue);
     //define radius via func to calculate based on attribute data
     options.radius = calcPropRadius(attValue);
     console.log(options.radius);
+    //define fill color for each based on attValue (temp)
+    options.fillColor = calcColorScale(attValue);
    //create circleMarker
     var layer = L.circleMarker(latlng, options);
     //create popup content string
@@ -148,13 +157,21 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
 //calculate radius for proportional symbols
 function calcPropRadius(attValue) {
     //scale factor for even symbol size adjustments
-    var scaleFactor = 100;
+    var scaleFactor = 25;
     //area based on attribute value and scale factor
     var area = Math.abs(attValue) * scaleFactor;
     //radius is calc based on area
     var radius = Math.sqrt(area/Math.PI);
     return radius;
 };
+
+//function to calculate color scale value
+function calcColorScale(prop, attvalue){
+    //diverging color array from colorbrewer
+    var markerColors = ['#ca0020','#f4a582','#f7f7f7','#92c5de','#0571b0'];
+    //determine classes of attValue
+    
+}
 
 
 
