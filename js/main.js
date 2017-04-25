@@ -21,9 +21,8 @@ function createMap(){
     $('#ajaxloader').show();
     //function to load data from files
     loadData(map);
-    
-};
 
+};
 
 //function to load geojson data with ajax
 function loadData(map){
@@ -34,7 +33,7 @@ function loadData(map){
             //create attribute array
             var meanAtts = processData(response);
             //display symbols for a default date
-            
+
             console.log(meanAtts);
             createPropSymbols(response,map,meanAtts);
         }
@@ -69,6 +68,11 @@ function processData(data){
     var attributes = [];
     //properties of the first feature in the dataset
     var properties = data.features[0].properties;
+    // if (properties == "null"){
+    //   properties = 0
+    // } else {
+    //   properties = data.features[0].properties;
+    // };
     //push each attribute name into attributes array
     for (var attribute in properties){
         attributes.push(attribute);
@@ -78,7 +82,7 @@ function processData(data){
 
 
 //create proportional sybols form geojson data properties
-function createPropSymbols(response, map, attributes){   
+function createPropSymbols(response, map, attributes){
     //create a Leaflet GeoJSON layer and add it to the map
     L.geoJson(response, {
         //point to layer converts each point feature to layer to use circle marker
@@ -91,9 +95,8 @@ function createPropSymbols(response, map, attributes){
                 return true
             }
         }
-          
     }).addTo(map);
-};  
+};
 
 
 //initial symbolization when map loads for first time
@@ -108,7 +111,7 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
         fillOpacity: 0.3 //soften the opacity a little to see other points and map through point feature
     };
     //define the attribute to grab year, month, day
-    //var year = attributes[7]; 
+    //var year = attributes[7];
     //var month = attributes[8];
     //var day = attributes[9];
     //grab the properties of the attribute
@@ -121,7 +124,7 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
     var layer = L.circleMarker(latlng, options);
     //create popup content string
     var popupContent = "";
-    //add panel content variable 
+    //add panel content variable
     var panelContent = "";
     //add text and year and value to panelcontent
     //bind the popup content to the layer and add an offset radius option
@@ -138,7 +141,7 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
             this.closePopup();
         },
         click: function(){
-            $("#___WhateverPanelDIV___").html(panelContent);
+            $("#panelid").html(panelContent);
         }
     });
     return layer;
@@ -156,9 +159,14 @@ function calcPropRadius(attValue) {
     return radius;
 };
 
+function createSequenceControls(map, attributes){
+	$('#panelid').append('<input class="range-slider" type="range">');
 
+  $('.range-slider').attr({
+  //max, min, value, step
+  });
+  $('#panelid').append('<button class="skip" id="reverse">Reverse</button>');
+  $('#panelid').append('<button class="skip" id="forward">Skip</button>');
 
-
-
-
+}
 $(document).ready(initialize);

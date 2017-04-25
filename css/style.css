@@ -3,13 +3,48 @@
 
 #mapid {
     height: 600px;
-    width: 40%;
+    width: 60%;
     top: 20px;
     display: inline-block;
-    padding: 20px;
+    padding: 10px;
     z-index: 10;
 }
 
+#panelid {
+  height: 600px;
+  width: 20%;
+  top: 20px;
+  padding: 10px;
+  display: inline-block;
+  vertical-align: top;
+  text-align: center;
+  line-height: 42px;
+  background-color: white;
+  border-style: dashed;
+}
+
+/*#feedback{
+  height: 30px;
+  width: 30px;
+  left: 50%;
+  top: 50%;
+  display: inline-flex;
+  z-index: 8000;
+}*/
+
+.range-slider{
+  width: 40%
+};
+
+#forward {
+  float: right;
+  font-family:"Georgia", Helvetica, sans-serif;
+}
+
+#reverse {
+  float: left;
+  font-family:"Georgia", Helvetica, sans-serif;;
+}
 
 
 #ajaxloader
