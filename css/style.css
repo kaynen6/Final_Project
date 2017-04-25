@@ -13,9 +13,8 @@
 #panelid {
   height: 600px;
   width: 20%;
-  top: 20px;
   padding: 10px;
-  display: inline-block;
+  display: inline-flex;
   vertical-align: top;
   text-align: center;
   line-height: 42px;

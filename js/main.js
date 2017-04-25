@@ -68,11 +68,6 @@ function processData(data){
     var attributes = [];
     //properties of the first feature in the dataset
     var properties = data.features[0].properties;
-    // if (properties == "null"){
-    //   properties = 0
-    // } else {
-    //   properties = data.features[0].properties;
-    // };
     //push each attribute name into attributes array
     for (var attribute in properties){
         attributes.push(attribute);
@@ -116,9 +111,38 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
     //var day = attributes[9];
     //grab the properties of the attribute
     var attValue = feature.properties["HI"];
+    /* Possible idea for color, size scheme for creating prop symbols */
+    //   if (attValue > 10){
+    //     layer = L.circleMarker(latlng,{
+    //       radius: options.radius,
+    //       fillColor: "#a6cee3",
+    //       weight: 1,
+    //       opacity: 1,
+    //       fillOpacity: 0.4
+    //     });
+    //   return layer;
+    // } else if (attValue < 10){
+    //   layer = L.circleMarker(latlng,{
+    //     radius: options.radius,
+    //     fillColor: "#1f78b4",
+    //     weight: 1,
+    //     opacity: 1,
+    //     fillOpacity: 0.4
+    //   });
+    // return layer;
+    // } else {
+    //   layer = L.circleMarker(latlng,options)
+    // };
+
+    // if (feature.properties["HI"] !== 0){
+    //   feature.properties["HI"] = 0
+    // } else {
+    //   feature.properties["HI"] = feature.properties["HI"]
+    // };
     console.log(attValue);
     //define radius via func to calculate based on attribute data
     options.radius = calcPropRadius(attValue);
+    // if (calcPropRadius(attValue) = "NaN")
     console.log(options.radius);
    //create circleMarker
     var layer = L.circleMarker(latlng, options);
