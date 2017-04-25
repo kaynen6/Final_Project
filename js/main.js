@@ -81,16 +81,17 @@ function processData(data){
 function createPropSymbols(response, map, attributes){   
     //create a Leaflet GeoJSON layer and add it to the map
     L.geoJson(response, {
-        //hopefully filtering the data for default date
-        filter: function(feature, layer){
-            if (feature.properties.year == 2016 && feature.properties.month == 01 && feature.properties.day == 01) {
-                return true;
-            }
-        },
         //point to layer converts each point feature to layer to use circle marker
         pointToLayer: function(feature, latlng){
             return pointToLayer(feature, latlng, attributes);
-        }  
+        },
+        //hopefully filtering the data for default date
+        filter: function(feature, layer){
+            if (feature.properties.year == 2016 && feature.properties.month == 01 && feature.properties.day == 01) {
+                return true
+            }
+        }
+          
     }).addTo(map);
 };  
 
@@ -111,10 +112,11 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
     //var month = attributes[8];
     //var day = attributes[9];
     //grab the properties of the attribute
-    var attValue = Number(feature.properties["HI"]);
+    var attValue = feature.properties["HI"];
     console.log(attValue);
     //define radius via func to calculate based on attribute data
     options.radius = calcPropRadius(attValue);
+    console.log(options.radius);
    //create circleMarker
     var layer = L.circleMarker(latlng, options);
     //create popup content string
@@ -146,9 +148,9 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
 //calculate radius for proportional symbols
 function calcPropRadius(attValue) {
     //scale factor for even symbol size adjustments
-    var scaleFactor = 30;
+    var scaleFactor = 100;
     //area based on attribute value and scale factor
-    var area = attValue / scaleFactor;
+    var area = Math.abs(attValue) * scaleFactor;
     //radius is calc based on area
     var radius = Math.sqrt(area/Math.PI);
     return radius;
