@@ -32,10 +32,13 @@ function loadData(map){
         dataType: "json",
         success: function(response){
             //create attribute array
-            var meanAtts, meanMin, meanMax = processData(response);
+            var meanAtts = processData(response);
             //display symbols for a default date
-            
             console.log(meanAtts);
+            //find min max for the data to color with
+            findMinMax(response);
+            //find average baseline temp of 4 points furtherest away (max,min lat long?)
+            
             createPropSymbols(response,map,meanAtts);
         }
     });
@@ -64,7 +67,6 @@ function loadData(map){
 
 //create an attributes array from data
 function processData(data){
-    console.log(data);
     //empty array to hold attribute data
     var attributes = [];
     //properties of the first feature in the dataset
@@ -73,13 +75,7 @@ function processData(data){
     for (var attribute in properties){
         attributes.push(attribute);
     };
-    //get data for all temperature types
-    var temps = data.features.properties["HI"];
-    temps = temps + data.features.properties["AT"]
-    //find min and max of temp data
-    var min = Math.min(temps);
-    var max = Math.max(temps);
-    return attributes, min, max;
+    return attributes;
 };
 
 
@@ -125,7 +121,7 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
     options.radius = calcPropRadius(attValue);
     console.log(options.radius);
     //define fill color for each based on attValue (temp)
-    options.fillColor = calcColorScale(attValue);
+    //options.fillColor = calcColorVals(attValue);
    //create circleMarker
     var layer = L.circleMarker(latlng, options);
     //create popup content string
@@ -166,14 +162,27 @@ function calcPropRadius(attValue) {
 };
 
 //function to calculate color scale value
-function calcColorScale(prop, attvalue){
+function calcScale(prop, attvalue){
     //diverging color array from colorbrewer
     var markerColors = ['#ca0020','#f4a582','#f7f7f7','#92c5de','#0571b0'];
     //determine classes of attValue
     
 }
 
-
+//function to find min max temps of the dataset
+function findMinMax(data){
+    //find min and max
+    var temp = [];
+    data.features.forEach(function(item){
+        temp.push(Number(item.properties["HI"]));
+        //(Number(data.feature.properties["HI"]));
+        temp.push(Number(item.properties["AT"]));                  
+    });
+    var min = Math.min(temp);
+    var max = Math.max(temp);
+    console.log(min);
+    console.log(max);
+}
 
 
 
