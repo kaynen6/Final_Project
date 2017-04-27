@@ -82,12 +82,6 @@ function processData(data){
     var attributes = [];
     //properties of the first feature in the dataset
     var properties = data.features[0].properties;
-    console.log(properties);
-    // if (properties == "null"){
-    //   properties = 0
-    // } else {
-    //   properties = data.features[0].properties;
-    // };
     //push each attribute name into attributes array
     for (var attribute in properties){
         attributes.push(attribute);
@@ -141,6 +135,7 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
     //define radius via func to calculate based on attribute data
     options.radius = calcPropRadius(attValue);
     // console.log(options.radius);
+
    //create circleMarker
     var layer = L.circleMarker(latlng, options);
     //create popup content string
