@@ -49,6 +49,7 @@ function loadData(map){
             console.log(meanAtts);
             createPropSymbols(response,map,meanAtts);
             createSequenceControls(map, meanAtts);
+            setChart(meanAtts);
         }
     });
     //load max data
@@ -56,9 +57,11 @@ function loadData(map){
         dataType: "json",
         success: function(response){
             //create attribute array
-            var maxAtts = processData(response)
+            var maxAtts = processData(response);
+            console.log(maxAtts);
             // console.log(maxAtts);
             // createSequenceControls(map);
+            // setChart(maxAtts, colorScale)
         }
     });
     //load the min data
@@ -69,6 +72,7 @@ function loadData(map){
             var minAtts = processData(response)
             // console.log(minAtts);
             // createSequenceControls(map);
+            // setChart(minAtts, colorScale)
             //hide loading spinner affordance
             $('#ajaxloader').hide();
         }
@@ -83,8 +87,11 @@ function processData(data){
     //properties of the first feature in the dataset
     var properties = data.features[0].properties;
     //push each attribute name into attributes array
+    // Right now pushing HI & tair, but test for interactions
     for (var attribute in properties){
+      if (attribute.indexOf("HI")>-1 || attribute.indexOf("tair")>-1 || attribute.indexOf("year")>-1){
         attributes.push(attribute);
+      };
     };
     return attributes;
 };
@@ -135,6 +142,7 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
     //define radius via func to calculate based on attribute data
     options.radius = calcPropRadius(attValue);
     // console.log(options.radius);
+
    //create circleMarker
     var layer = L.circleMarker(latlng, options);
     //create popup content string
@@ -162,6 +170,7 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
     return layer;
 };
 
+
 //calculate radius for proportional symbols
 function calcPropRadius(attValue) {
     //scale factor for even symbol size adjustments
@@ -177,7 +186,7 @@ function createSequenceControls(map, attributes){
 	$('#panel1').append('<input class="range-slider" type="range">');
 
   $('.range-slider').attr({
-    max: 6,
+    max: 4,
     min: 0,
     value: 0,
     step: 1
@@ -194,10 +203,10 @@ function createSequenceControls(map, attributes){
 
 		if ($(this).attr('id') == 'forward'){
 			index++;
-			index = index > 6 ? 0 : index;
+			index = index > 4 ? 0 : index;
 		} else if ($(this).attr('id') == 'reverse'){
 			index--;
-			index = index < 0 ? 6 : index;
+			index = index < 0 ? 4 : index;
 		};
 		$('.range-slider').val(index);
 		updatePropSymbols(map, attributes[index]);
@@ -222,9 +231,9 @@ function updatePropSymbols(map, attribute){
 			var popupContent = "<p><b>Temperature:</b> " + parseFloat(props.HI).toFixed(2) + "</p>";
 			var year = props.year;
       var month = props.month;
-      console.log(props.month);
+      // console.log(props.month);
       var day = props.day;
-      console.log(attribute);
+      // console.log(attribute);
 			popupContent += "<p><b>Temperature for " + month + "/" + day + "/" + year + ":</b> " + parseFloat(props[attribute]).toFixed(2)+ " %</p>";
 
 			layer.bindPopup(popupContent, {
@@ -234,4 +243,53 @@ function updatePropSymbols(map, attribute){
 	});
 };
 
+function setChart(data){
+  var chartWidth = window.innerWidth * 0.425,
+      chartHeight = 100,
+      leftPadding = 25,
+      rightPadding = 2,
+      topBottomPadding = 5,
+      chartInnerWidth = chartWidth - leftPadding - rightPadding,
+      chartInnerHeight = chartHeight - topBottomPadding * 2,
+      translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
+
+  var yScale = d3.scaleLinear()
+      .range([chartInnerHeight, 0])
+      .domain([-50,120]);
+
+  var chart = d3.select("panel2")
+      .append("svg")
+      .attr("width", chartWidth)
+      .attr("height", chartHeight)
+      .attr("class", "chart");
+
+  var chartBackground = chart.append("rect")
+      .attr("class", "chartBackground")
+      .attr("width", chartInnerWidth)
+      .attr("height", chartInnerHeight)
+      .attr("transform", translate);
+
+  // Creating a vertical axis generator for the bar chart
+  var yAxis = d3.axisLeft()
+      .scale(yScale);
+
+  // Placing the axis
+  var axis = chart.append("g")
+      .attr("class", "axis")
+      .attr("transform", translate)
+      .call(yAxis);
+
+  // Creating a frame for the chart border
+  var chartFrame = chart.append("rect")
+      .attr("class", "chartFrame")
+      .attr("width", chartInnerWidth)
+      .attr("height", chartInnerHeight)
+      .attr("transform", translate);
+
+  alert("Do you know where this is going?");
+
+  // loading geojson
+  //
+  //
+};
 $(document).ready(initialize);
