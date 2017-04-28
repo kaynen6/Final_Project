@@ -135,10 +135,6 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
     //define radius via func to calculate based on attribute data
     options.radius = calcPropRadius(attValue);
     // console.log(options.radius);
-<<<<<<< HEAD
-=======
-
->>>>>>> refs/remotes/origin/master
    //create circleMarker
     var layer = L.circleMarker(latlng, options);
     //create popup content string
@@ -238,52 +234,4 @@ function updatePropSymbols(map, attribute){
 	});
 };
 
-<<<<<<< HEAD
-=======
-// function createLegend(map, attributes){
-// 	var LegendControl = L.Control.extend({
-// 		options: {
-// 			position: 'bottomright'
-// 		},
-//
-// 		onAdd: function(map){
-// 			// Creating a container for the legend control
-// 			var container = L.DomUtil.create('div', 'legend-control-container');
-// 			$(container).append('<div id = "temporal-legend">');
-//
-// 			var svg = '<svg id="attribute-legend" width="160px" height="70px">';
-//
-// 			var circles = {
-// 				max: 25,
-// 				mean: 37.5,
-// 				min: 50
-// 			};
-// 			// Creating a "for" loop to add each circle and text into a svg string
-// 			for (var circle in circles){
-// 				// Creating a circle string
-// 				svg += '<circle class="legend-circle" id="' + circle + '" fill="#2b8cbe" fill-opacity="0.8" stroke="#000000" cx="30"/>';
-//
-// 				// Creating a text string
-// 				svg += '<text id="' + circle + '-text" x="65" y="' + circles[circle] + '"></text>';
-// 			};
-//
-// 			svg += "</svg>";
-// 			$(container).append(svg);
-//
-// 			return container;
-// 		}
-// 	});
-// 	map.addControl(new LegendControl());
-// 	// updateLegend(map, attributes[0]);
-// };
-
-/* Some function to update the legend if we change from geoJsons */
-// function updateLegend(map, attribute){
-//
-// };
-
-// function setChart(data, colorScale){
-
-// };
->>>>>>> refs/remotes/origin/master
 $(document).ready(initialize);
