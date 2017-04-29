@@ -1,15 +1,92 @@
 
 /* Stylesheet by Jon Fok, Kayne Neigherbauer, Matt Smith 2017 */
 
+h1 {
+  font-size: 25px;
+  padding-top: 10px;
+  font-variant: small-caps;
+  text-align: center;
+  font-family:"Times New Roman", Helvetica, sans-serif;
+  background-color: none;
+  color: black;
+}
+
 #mapid {
-    height: 600px;
-    width: 40%;
+    height: 615px;
+    width: 60%;
     top: 20px;
     display: inline-block;
-    padding: 20px;
+    padding: 10px;
     z-index: 10;
 }
 
+#panel1 {
+  float: left;
+  height: 100px;
+  width: 500px;
+  top: 20px;
+  padding: 10px;
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+  text-align: center;
+  line-height: 42px;
+  background-color: white;
+  border-style: dashed;
+}
+
+#panel2 {
+  float: right;
+  height: 100px;
+  width: 500px;
+  right: 0px;
+  padding: 10px;
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+  text-align: center;
+  line-height: 42px;
+  background-color: white;
+  border: 3px solid #000000;
+}
+
+#legendid {
+  float:left;
+  height: 600px;
+  width: 20%;
+  top: 20px;
+  display: inline-block;
+  position: relative;
+  padding: 12px;
+  z-index: 10;
+  border-style: double;
+}
+
+/*#feedback{
+  height: 30px;
+  width: 30px;
+  left: 50%;
+  top: 50%;
+  display: inline-flex;
+  z-index: 8000;
+}*/
+
+.range-slider{
+  margin-top: 40px;
+  width: 400px;
+}
+
+#forward {
+  float: right;
+  margin-top: 40px;
+  font-family:"Georgia", Helvetica, sans-serif;
+}
+
+#reverse {
+  float: left;
+  margin-top: 40px;
+  font-family:"Georgia", Helvetica, sans-serif;;
+}
 
 
 #ajaxloader
