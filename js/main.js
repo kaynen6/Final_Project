@@ -34,7 +34,7 @@ function loadData(map){
             //create attribute array
             var meanAtts = processData(response);
             //display symbols for a default date
-            console.log(meanAtts);
+            //console.log(meanAtts);
             //find min max for the data to color with
             findMinMax(response);
             //find average baseline temp of 4 points furtherest away (max,min lat long?)
@@ -48,7 +48,7 @@ function loadData(map){
         success: function(response){
             //create attribute array
             var maxAtts = processData(response)
-            console.log(maxAtts);
+            //console.log(maxAtts);
         }
     });
     //load the min data
@@ -57,7 +57,7 @@ function loadData(map){
         success: function(response){
             //create attribute array
             var minAtts = processData(response)
-            console.log(minAtts);
+            //console.log(minAtts);
             //hide loading spinner affordance
             $('#ajaxloader').hide();
         }
@@ -116,10 +116,10 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
     
     //grab the properties of the attribute - MAKE INTERACTIVE - CHANGE "HI" TO VARIABLE tempType
     var attValue = feature.properties["HI"];
-    console.log(attValue);
+    //console.log(attValue);
     //define radius via func to calculate based on attribute data
     options.radius = calcPropRadius(attValue);
-    console.log(options.radius);
+    //console.log(options.radius);
     //define fill color for each based on attValue (temp)
     //options.fillColor = calcColorVals(attValue);
    //create circleMarker
@@ -163,25 +163,31 @@ function calcPropRadius(attValue) {
 
 //function to calculate color scale value
 function calcScale(prop, attvalue){
-    //diverging color array from colorbrewer
-    var markerColors = ['#ca0020','#f4a582','#f7f7f7','#92c5de','#0571b0'];
+   
     //determine classes of attValue
     
 }
 
 //function to find min max temps of the dataset
 function findMinMax(data){
-    //find min and max
+    //array to store all temp data
     var temp = [];
+    //grab all temp attribute values and put in the array
     data.features.forEach(function(item){
-        temp.push(Number(item.properties["HI"]));
-        //(Number(data.feature.properties["HI"]));
-        temp.push(Number(item.properties["AT"]));                  
+        if (parseFloat(item.properties["HI"])){
+            temp.push(Math.round(parseFloat(item.properties["HI"])*100)/100);
+        };
+        if (parseFloat(item.properties["AT"])){
+            temp.push(Math.round(parseFloat(item.properties["AT"])*100)/100);   
+        };
     });
-    var min = Math.min(temp);
-    var max = Math.max(temp);
-    console.log(min);
-    console.log(max);
+    //get min and max of all temps data
+    var min = Math.min(...temp);
+    var max = Math.max(...temp);
+    console.log(min,max);
+    //diverging color array from colorbrewer
+    var break1 = (min + max)/2
+    var markerColors = ['#ca0020','#f4a582','#f7f7f7','#92c5de','#0571b0'];
 }
 
 
