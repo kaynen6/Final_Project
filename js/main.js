@@ -2,6 +2,7 @@ function initialize(){
     var currentYear;
     var currentMonth;
     var currentDay;
+    var colorScale = ['#ca0020','#f4a582','#f7f7f7','#92c5de','#0571b0'];
 
     createMap();
 };
@@ -45,18 +46,11 @@ function loadData(map){
             //create attribute array
             var meanAtts = processData(response);
             //display symbols for a default date
-<<<<<<< HEAD
             //console.log(meanAtts);
-            //find min max for the data to color with
-            findMinMax(response);
             //find average baseline temp of 4 points furtherest away (max,min lat long?)
-            
-=======
-
             console.log(meanAtts);
->>>>>>> refs/remotes/origin/master
             createPropSymbols(response,map,meanAtts);
-            createSequenceControls(map, meanAtts);
+            createSequenceControls(response, map, meanAtts);
             setChart(meanAtts);
         }
     });
@@ -65,16 +59,14 @@ function loadData(map){
         dataType: "json",
         success: function(response){
             //create attribute array
-<<<<<<< HEAD
+
             var maxAtts = processData(response)
             //console.log(maxAtts);
-=======
             var maxAtts = processData(response);
             console.log(maxAtts);
             // console.log(maxAtts);
             // createSequenceControls(map);
             // setChart(maxAtts, colorScale)
->>>>>>> refs/remotes/origin/master
         }
     });
     //load the min data
@@ -83,13 +75,11 @@ function loadData(map){
         success: function(response){
             //create attribute array
             var minAtts = processData(response)
-<<<<<<< HEAD
+
             //console.log(minAtts);
-=======
             // console.log(minAtts);
             // createSequenceControls(map);
             // setChart(minAtts, colorScale)
->>>>>>> refs/remotes/origin/master
             //hide loading spinner affordance
             $('#ajaxloader').hide();
         }
@@ -148,16 +138,14 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
     //var month = attributes[8];
     //var day = attributes[9];
     
-    //grab the properties of the attribute - MAKE INTERACTIVE - CHANGE "HI" TO VARIABLE tempType
-    var attValue = feature.properties["HI"];
-<<<<<<< HEAD
+    //grab the properties of the attribute - MAKE INTERACTIVE - CHANGE "" TO VARIABLE tempType
+    var attValue = feature.properties["tair"];
     //console.log(attValue);
     //define radius via func to calculate based on attribute data
     options.radius = calcPropRadius(attValue);
     //console.log(options.radius);
     //define fill color for each based on attValue (temp)
     //options.fillColor = calcColorVals(attValue);
-=======
     if (attValue < 0){
       attValue = Math.abs(attValue);
     } else {
@@ -167,9 +155,7 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
     //define radius via func to calculate based on attribute data
     options.radius = calcPropRadius(attValue);
     // console.log(options.radius);
-
->>>>>>> refs/remotes/origin/master
-   //create circleMarker
+    //create circleMarker
     var layer = L.circleMarker(latlng, options);
     //create popup content string
     var popupContent = "";
@@ -208,37 +194,25 @@ function calcPropRadius(attValue) {
     return radius;
 };
 
-<<<<<<< HEAD
-//function to calculate color scale value
-function calcScale(prop, attvalue){
-   
-    //determine classes of attValue
-    
-}
 
 //function to find min max temps of the dataset
-function findMinMax(data){
+function calcColorBreaks(data,attribute){
     //array to store all temp data
-    var temp = [];
+    var temps = [];
     //grab all temp attribute values and put in the array
     data.features.forEach(function(item){
-        if (parseFloat(item.properties["HI"])){
-            temp.push(Math.round(parseFloat(item.properties["HI"])*100)/100);
-        };
-        if (parseFloat(item.properties["AT"])){
-            temp.push(Math.round(parseFloat(item.properties["AT"])*100)/100);   
+        if (parseFloat(item.properties[attribute])){
+            temps.push(Math.round(parseFloat(item.properties[attribute])*100)/100);
         };
     });
     //get min and max of all temps data
-    var min = Math.min(...temp);
-    var max = Math.max(...temp);
-    console.log(min,max);
-    //diverging color array from colorbrewer
-    var break1 = (min + max)/2
-    var markerColors = ['#ca0020','#f4a582','#f7f7f7','#92c5de','#0571b0'];
-}
-=======
-function createSequenceControls(map, attributes){
+    //var min = Math.min(...temps);
+    //var max = Math.max(...temps);
+    var colorBreaks = chroma.limits(temps,'e',5);
+    return colorBreaks;  
+};
+
+function createSequenceControls(data,map, attributes){
 	$('#panel1').append('<input class="range-slider" type="range">');
 
   $('.range-slider').attr({
@@ -265,7 +239,7 @@ function createSequenceControls(map, attributes){
 			index = index < 0 ? 4 : index;
 		};
 		$('.range-slider').val(index);
-		updatePropSymbols(map, attributes[index]);
+		updatePropSymbols(data,map, attributes[index]);
 	});
 
 	$('.range-slider').on('input', function(){
@@ -276,22 +250,46 @@ function createSequenceControls(map, attributes){
 
 /* Creating a function to update the proportional symbols when activated
 by the sequence slider */
-function updatePropSymbols(map, attribute){
+function updatePropSymbols(data, map, attribute){
   map.eachLayer(function(layer){
 		if (layer.feature && layer.feature.properties[attribute]){
 			var props = layer.feature.properties;
 			var radius = calcPropRadius(props[attribute]);
 			layer.setRadius(radius);
-
-// Creating a popup for each of the data points with information
+            var year = props.year;
+            var month = props.month;
+            // console.log(props.month);
+            var day = props.day;
+            var temp = parseFloat(props[attribute]).toFixed(2);
+            var colorBreaks = calcColorBreaks(data, year, month, day);
+            var options = { radius: 8,
+                            fillColor: function(){
+                                if (temp < colorBreaks[1]){
+                                    return colorScale[0];
+                                }
+                                else if (temp < colorBreaks[2]){
+                                    return colorScale[1];    
+                                }
+                                else if (temp < colorBreaks[3]){
+                                    return colorScale[2];
+                                }
+                                else if (temp < colorBreaks[4]){
+                                    return colorScale[3];
+                                }
+                                else {
+                                    return colorScale[4];
+                                };
+                            },
+                            color: "#000",
+                            weight: 0.5,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        };
+            layer.setStyle(options);
+            // Creating a popup for each of the data points with information
 			var popupContent = "<p><b>Temperature:</b> " + parseFloat(props.HI).toFixed(2) + "</p>";
-			var year = props.year;
-      var month = props.month;
-      // console.log(props.month);
-      var day = props.day;
-      // console.log(attribute);
+			// console.log(attribute);
 			popupContent += "<p><b>Temperature for " + month + "/" + day + "/" + year + ":</b> " + parseFloat(props[attribute]).toFixed(2)+ " %</p>";
->>>>>>> refs/remotes/origin/master
 
 			layer.bindPopup(popupContent, {
 				offset: new L.Point(0,-radius)
