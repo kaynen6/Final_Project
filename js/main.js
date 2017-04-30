@@ -2,7 +2,7 @@ function initialize(){
     var currentYear;
     var currentMonth;
     var currentDay;
-    var colorScale = ['#ca0020','#f4a582','#f7f7f7','#92c5de','#0571b0'];
+    
 
     createMap();
 };
@@ -48,10 +48,11 @@ function loadData(map){
             //display symbols for a default date
             //console.log(meanAtts);
             //find average baseline temp of 4 points furtherest away (max,min lat long?)
-            console.log(meanAtts);
-            createPropSymbols(response,map,meanAtts);
-            createSequenceControls(response, map, meanAtts);
-            setChart(meanAtts);
+            //if (attChoice == "mean"){
+                createSymbols(response,map,meanAtts);
+                createSequenceControls(response, map, meanAtts);
+                setChart(meanAtts);
+            //};
         }
     });
     //load max data
@@ -59,11 +60,7 @@ function loadData(map){
         dataType: "json",
         success: function(response){
             //create attribute array
-
-            var maxAtts = processData(response)
-            //console.log(maxAtts);
             var maxAtts = processData(response);
-            console.log(maxAtts);
             // console.log(maxAtts);
             // createSequenceControls(map);
             // setChart(maxAtts, colorScale)
@@ -75,9 +72,6 @@ function loadData(map){
         success: function(response){
             //create attribute array
             var minAtts = processData(response)
-
-            //console.log(minAtts);
-            // console.log(minAtts);
             // createSequenceControls(map);
             // setChart(minAtts, colorScale)
             //hide loading spinner affordance
@@ -88,27 +82,26 @@ function loadData(map){
 
 //create an attributes array from data
 function processData(data){
-    //empty array to hold attribute data
+    //empty array to hold attribute index names
     var attributes = [];
     //properties of the first feature in the dataset
     var properties = data.features[0].properties;
     //push each attribute name into attributes array
     // Right now pushing HI & tair, but test for interactions
     for (var attribute in properties){
-      if (attribute.indexOf("HI")>-1 || attribute.indexOf("tair")>-1 || attribute.indexOf("year")>-1){
+      //if (attribute.indexOf("HI")>-1 || attribute.indexOf("tair")>-1 || attribute.indexOf("year")>-1){
         attributes.push(attribute);
-      };
     };
     return attributes;
 };
 
 
 //create proportional sybols form geojson data properties
-function createPropSymbols(response, map, attributes){
+function createSymbols(response, map, attributes){
     //create a Leaflet GeoJSON layer and add it to the map
     L.geoJson(response, {
         //point to layer converts each point feature to layer to use circle marker
-        pointToLayer: function(feature, latlng){
+        pointToLayer: function(feature, latlng, attributes){
             return pointToLayer(feature, latlng, attributes);
         },
         //filtering the data for default date - make this interactive at some point
@@ -123,38 +116,26 @@ function createPropSymbols(response, map, attributes){
 
 
 //initial symbolization when map loads for first time
-function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
+function pointToLayer(feature, latlng, attributes,){
+    //grab the properties of the attribute tair - default
+    var attValue = feature.properties["tair"];
     //create marker options w/ defualt styling
     var options = {
         radius: 8,
-        fillColor: "#91bfdb",
+        fillColor: "lightblue",
         color: "#000",
         weight: 0.5,
         opacity: 1,
         fillOpacity: 0.8
-    };
-    //define the attribute to grab year, month, day
-    //var year = attributes[7];
-    //var month = attributes[8];
-    //var day = attributes[9];
-    
-    //grab the properties of the attribute - MAKE INTERACTIVE - CHANGE "" TO VARIABLE tempType
-    var attValue = feature.properties["tair"];
+    };    
     //console.log(attValue);
-    //define radius via func to calculate based on attribute data
-    options.radius = calcPropRadius(attValue);
-    //console.log(options.radius);
-    //define fill color for each based on attValue (temp)
-    //options.fillColor = calcColorVals(attValue);
-    if (attValue < 0){
-      attValue = Math.abs(attValue);
+    /*if (attValue < 0){
+        attValue = Math.abs(attValue);
     } else {
-      attValue = attValue;
-    };
-    // console.log(attValue);
+        attValue = attValue;
+    }; */
     //define radius via func to calculate based on attribute data
-    options.radius = calcPropRadius(attValue);
-    // console.log(options.radius);
+    //options.radius = calcPropRadius(attValue);
     //create circleMarker
     var layer = L.circleMarker(latlng, options);
     //create popup content string
@@ -184,7 +165,7 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
 
 
 //calculate radius for proportional symbols
-function calcPropRadius(attValue) {
+/*function calcPropRadius(attValue) {
     //scale factor for even symbol size adjustments
     var scaleFactor = 25;
     //area based on attribute value and scale factor
@@ -192,43 +173,27 @@ function calcPropRadius(attValue) {
     //radius is calc based on area
     var radius = Math.sqrt(area/Math.PI);
     return radius;
-};
+};*/
 
 
-//function to find min max temps of the dataset
-function calcColorBreaks(data,attribute){
-    //array to store all temp data
-    var temps = [];
-    //grab all temp attribute values and put in the array
-    data.features.forEach(function(item){
-        if (parseFloat(item.properties[attribute])){
-            temps.push(Math.round(parseFloat(item.properties[attribute])*100)/100);
-        };
-    });
-    //get min and max of all temps data
-    //var min = Math.min(...temps);
-    //var max = Math.max(...temps);
-    var colorBreaks = chroma.limits(temps,'e',5);
-    return colorBreaks;  
-};
 
 function createSequenceControls(data,map, attributes){
 	$('#panel1').append('<input class="range-slider" type="range">');
 
-  $('.range-slider').attr({
-    max: 4,
-    min: 0,
-    value: 0,
-    step: 1
-  });
+    $('.range-slider').attr({
+        max: 4,
+        min: 0,
+        value: 0,
+        step: 1
+    });
 
-  $('#panel1').append('<button class="skip" id="reverse">Reverse</button>');
-  $('#panel1').append('<button class="skip" id="forward">Skip</button>');
+    $('#panel1').append('<button class="skip" id="reverse">Reverse</button>');
+    $('#panel1').append('<button class="skip" id="forward">Skip</button>');
 
-  $('#reverse').html('<img src="img/reverse.png">');
-  $('#forward').html('<img src="img/forward.png">');
+    $('#reverse').html('<img src="img/reverse.png">');
+    $('#forward').html('<img src="img/forward.png">');
 
-  $('.skip').click(function(){
+    $('.skip').click(function(){
 		var index = $('.range-slider').val();
 
 		if ($(this).attr('id') == 'forward'){
@@ -244,42 +209,18 @@ function createSequenceControls(data,map, attributes){
 
 	$('.range-slider').on('input', function(){
 		var index = $(this).val();
-		updatePropSymbols(map, attributes[index]);
-		});
+		updatePropSymbols(data, map, attributes[index]);
+    });
 };
 
 /* Creating a function to update the proportional symbols when activated
 by the sequence slider */
 function updatePropSymbols(data, map, attribute){
-  map.eachLayer(function(layer){
+    map.eachLayer(function(layer){
 		if (layer.feature && layer.feature.properties[attribute]){
 			var props = layer.feature.properties;
-			var radius = calcPropRadius(props[attribute]);
-			layer.setRadius(radius);
-            var year = props.year;
-            var month = props.month;
-            // console.log(props.month);
-            var day = props.day;
-            var temp = parseFloat(props[attribute]).toFixed(2);
-            var colorBreaks = calcColorBreaks(data, year, month, day);
-            var options = { radius: 8,
-                            fillColor: function(){
-                                if (temp < colorBreaks[1]){
-                                    return colorScale[0];
-                                }
-                                else if (temp < colorBreaks[2]){
-                                    return colorScale[1];    
-                                }
-                                else if (temp < colorBreaks[3]){
-                                    return colorScale[2];
-                                }
-                                else if (temp < colorBreaks[4]){
-                                    return colorScale[3];
-                                }
-                                else {
-                                    return colorScale[4];
-                                };
-                            },
+			var options = { radius: 8,
+                            fillColor: "lightblue",
                             color: "#000",
                             weight: 0.5,
                             opacity: 1,
@@ -292,7 +233,7 @@ function updatePropSymbols(data, map, attribute){
 			popupContent += "<p><b>Temperature for " + month + "/" + day + "/" + year + ":</b> " + parseFloat(props[attribute]).toFixed(2)+ " %</p>";
 
 			layer.bindPopup(popupContent, {
-				offset: new L.Point(0,-radius)
+				offset: new L.Point(0,-layer.options.radius)
 			});
 		};
 	});
@@ -341,7 +282,7 @@ function setChart(data){
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
 
-  alert("Do you know where this is going?");
+  //alert("Do you know where this is going?");
 
   // loading geojson
   //
