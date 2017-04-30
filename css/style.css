@@ -45,7 +45,7 @@ h1 {
 }
 
 /* Panel & Panel container*/
-#panel{
+#panelcontainer{
   width: 60%;
   height: 120px;
 
@@ -64,11 +64,11 @@ h1 {
   */
 }
 
-/*#panelchart {
+#panelchart {
 display:inline-block;
  float: left;
   height: 100px;
-  width: 600px;
+  width: 96%;
   padding: 10px;
   vertical-align: top;
   text-align: center;
@@ -78,7 +78,7 @@ display:inline-block;
    float: center;
    top: 20px;
     display: inline-flex;
-}*/
+}
 
 .sequence-control-container{
   width: 300px;
@@ -87,12 +87,15 @@ display:inline-block;
   padding: 15px;
   line-height: 40px;
   text-align: center;
-  border: solid gray 2px;
+  border: solid #000000 2px;
   border-radius: 10px;
+  z-index: 10;
+  bottom: 30px;
 }
 
 .range-slider{
   width: 150px;
+  background-color: #000000;
 }
 
 /* Forward icon created by Futishia from the Noun Project */
@@ -107,6 +110,24 @@ display:inline-block;
   float: left;
   background-color: white;
   border-radius: 5px;
+}
+
+.chart {
+  background-color: white;
+  border: medium solid #252525;
+  float: right;
+  margin: 10px 20px 0 0;
+}
+
+.chartBackground {
+    fill: white;
+}
+
+.chartFrame {
+    fill: none;
+    stroke: #999;
+    stroke-width: 3px;
+    shape-rendering: crispEdges;
 }
 
 #ajaxloader
