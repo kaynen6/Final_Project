@@ -2,6 +2,7 @@ function initialize(){
     var currentYear;
     var currentMonth;
     var currentDay;
+    var colorScale = ['#ca0020','#f4a582','#f7f7f7','#92c5de','#0571b0'];
 
     createMap();
 };
@@ -46,10 +47,11 @@ function loadData(map){
             //create attribute array
             var meanAtts = processData(response);
             //display symbols for a default date
-
+            //console.log(meanAtts);
+            //find average baseline temp of 4 points furtherest away (max,min lat long?)
             console.log(meanAtts);
             createPropSymbols(response,map,meanAtts);
-            createSequenceControls(map, meanAtts);
+            createSequenceControls(response, map, meanAtts);
             setChart(meanAtts);
         }
     });
@@ -58,6 +60,9 @@ function loadData(map){
         dataType: "json",
         success: function(response){
             //create attribute array
+
+            var maxAtts = processData(response)
+            //console.log(maxAtts);
             var maxAtts = processData(response);
             console.log(maxAtts);
             // console.log(maxAtts);
@@ -71,6 +76,8 @@ function loadData(map){
         success: function(response){
             //create attribute array
             var minAtts = processData(response)
+
+            //console.log(minAtts);
             // console.log(minAtts);
             // createSequenceControls(map);
             // setChart(minAtts, colorScale)
@@ -82,7 +89,6 @@ function loadData(map){
 
 //create an attributes array from data
 function processData(data){
-    console.log(data);
     //empty array to hold attribute data
     var attributes = [];
     //properties of the first feature in the dataset
@@ -105,7 +111,7 @@ function createPropSymbols(response, map, attributes){
         pointToLayer: function(feature, latlng){
             return pointToLayer(feature, latlng, attributes);
         },
-        //hopefully filtering the data for default date
+        //filtering the data for default date - make this interactive at some point
         filter: function(feature, layer){
             if ( feature.properties.year == 2016  &&  feature.properties.month == 01 && feature.properties.day == 01) {
                 return true
@@ -124,14 +130,21 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
         color: "#000",
         weight: 0.5,
         opacity: 1,
-        fillOpacity: 0.3 //soften the opacity a little to see other points and map through point feature
+        fillOpacity: 0.8
     };
     //define the attribute to grab year, month, day
     //var year = attributes[7];
     //var month = attributes[8];
     //var day = attributes[9];
-    //grab the properties of the attribute
-    var attValue = feature.properties["HI"];
+
+    //grab the properties of the attribute - MAKE INTERACTIVE - CHANGE "" TO VARIABLE tempType
+    var attValue = feature.properties["tair"];
+    //console.log(attValue);
+    //define radius via func to calculate based on attribute data
+    options.radius = calcPropRadius(attValue);
+    //console.log(options.radius);
+    //define fill color for each based on attValue (temp)
+    //options.fillColor = calcColorVals(attValue);
     if (attValue < 0){
       attValue = Math.abs(attValue);
     } else {
@@ -141,8 +154,7 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
     //define radius via func to calculate based on attribute data
     options.radius = calcPropRadius(attValue);
     // console.log(options.radius);
-
-   //create circleMarker
+    //create circleMarker
     var layer = L.circleMarker(latlng, options);
     //create popup content string
     var popupContent = "";
@@ -163,7 +175,7 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
             this.closePopup();
         },
         click: function(){
-            $("#panel1").html(panelContent);
+            $("#panel").html(panelContent);
         }
     });
     return layer;
@@ -173,7 +185,7 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
 //calculate radius for proportional symbols
 function calcPropRadius(attValue) {
     //scale factor for even symbol size adjustments
-    var scaleFactor = 100;
+    var scaleFactor = 25;
     //area based on attribute value and scale factor
     var area = Math.abs(attValue) * scaleFactor;
     //radius is calc based on area
@@ -181,8 +193,25 @@ function calcPropRadius(attValue) {
     return radius;
 };
 
+//function to find min max temps of the dataset
+function calcColorBreaks(data,attribute){
+    //array to store all temp data
+    var temps = [];
+    //grab all temp attribute values and put in the array
+    data.features.forEach(function(item){
+        if (parseFloat(item.properties[attribute])){
+            temps.push(Math.round(parseFloat(item.properties[attribute])*100)/100);
+        };
+    });
+    //get min and max of all temps data
+    //var min = Math.min(...temps);
+    //var max = Math.max(...temps);
+    var colorBreaks = chroma.limits(temps,'e',5);
+    return colorBreaks;
+};
+
 function createSequenceControls(map, attributes){
-  var SequenceControl = L.Control.extend({
+	var SequenceControl = L.Control.extend({
 		options: {
 			position: 'bottomleft'
 		},
@@ -225,26 +254,51 @@ function createSequenceControls(map, attributes){
 				index = index < 0 ? 4 : index;
 			};
 			$('.range-slider').val(index);
-			updatePropSymbols(map, attributes[index]);
+			updatePropSymbols(data, map, attributes[index]);
 		});
 };
 
 /* Creating a function to update the proportional symbols when activated
 by the sequence slider */
-function updatePropSymbols(map, attribute){
+function updatePropSymbols(data, map, attribute){
   map.eachLayer(function(layer){
 		if (layer.feature && layer.feature.properties[attribute]){
 			var props = layer.feature.properties;
 			var radius = calcPropRadius(props[attribute]);
 			layer.setRadius(radius);
-
-// Creating a popup for each of the data points with information
-			var popupContent = "<p><b>Temperature:</b> " + parseFloat(props.tair).toFixed(2) + "</p>";
-			var year = props.year;
-      var month = props.month;
-      // console.log(props.month);
-      var day = props.day;
-      console.log(attribute);
+            var year = props.year;
+            var month = props.month;
+            // console.log(props.month);
+            var day = props.day;
+            var temp = parseFloat(props[attribute]).toFixed(2);
+            var colorBreaks = calcColorBreaks(data, year, month, day);
+            var options = { radius: 8,
+                            fillColor: function(){
+                                if (temp < colorBreaks[1]){
+                                    return colorScale[0];
+                                }
+                                else if (temp < colorBreaks[2]){
+                                    return colorScale[1];
+                                }
+                                else if (temp < colorBreaks[3]){
+                                    return colorScale[2];
+                                }
+                                else if (temp < colorBreaks[4]){
+                                    return colorScale[3];
+                                }
+                                else {
+                                    return colorScale[4];
+                                };
+                            },
+                            color: "#000",
+                            weight: 0.5,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        };
+            layer.setStyle(options);
+            // Creating a popup for each of the data points with information
+			var popupContent = "<p><b>Temperature:</b> " + parseFloat(props.HI).toFixed(2) + "</p>";
+			// console.log(attribute);
 			popupContent += "<p><b>Temperature for " + month + "/" + day + "/" + year + ":</b> " + parseFloat(props[attribute]).toFixed(2)+ " %</p>";
 
 			layer.bindPopup(popupContent, {
