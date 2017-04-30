@@ -220,7 +220,7 @@ function updatePropSymbols(data, map, attribute){
 		if (layer.feature && layer.feature.properties[attribute]){
 			var props = layer.feature.properties;
 			var options = { radius: 8,
-                            fillColor: lightblue,
+                            fillColor: "lightblue",
                             color: "#000",
                             weight: 0.5,
                             opacity: 1,
