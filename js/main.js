@@ -211,51 +211,52 @@ function calcColorBreaks(data,attribute){
 };
 
 function createSequenceControls(map, attributes){
-	var SequenceControl = L.Control.extend({
-		options: {
-			position: 'bottomleft'
-		},
+  var SequenceControl = L.Control.extend({
+    options: {
+      position: 'bottomleft'
+    },
 
-			onAdd: function (map){
-				// Creating a control container for the sequence control slider
-				var container = L.DomUtil.create('div', 'sequence-control-container');
-				$(container).append('<input class="range-slider" type="range">');
-				$(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
-				$(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
+      onAdd: function (map){
+        // Creating a control container for the sequence control slider
+        var container = L.DomUtil.create('div', 'sequence-control-container');
+        $(container).append('<input class="range-slider" type="range">');
+        $(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
+        $(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
 
-				return container;
-			}
-	});
+        return container;
+      }
+  });
 
-		map.addControl(new SequenceControl());
-		// Preventing any mouse event listeners on the map to occur
-		$('.range-slider').on('mousedown dblclick', function(e){
-			L.DomEvent.stopPropagation(e);
-		});
-		$('#reverse').html('<img src="img/reverse.png">');
-		$('#forward').html('<img src="img/forward.png">');
-		$('.range-slider').attr({'type':'range',
-												'max': 4,
-												'min': 0,
-												'step': 1,
-												'value': 0
-											});
-		$('.skip').on('mousedown dblclick', function(e){
-			L.DomEvent.stopPropagation(e);
-		});
-		$('.skip').click(function(){
-			var index = $('.range-slider').val();
+    map.addControl(new SequenceControl());
+    // Preventing any mouse event listeners on the map to occur
+    $('.range-slider').on('mousedown dblclick', function(e){
+      L.DomEvent.stopPropagation(e);
+    });
+    $('#reverse').html('<img src="img/reverse.png">');
+    $('#forward').html('<img src="img/forward.png">');
+    $('.range-slider').attr({'type':'range',
+                        'max': 4,
+                        'min': 0,
+                        'step': 1,
+                        'value': 0
+                      });
+    $('.skip').on('mousedown dblclick', function(e){
+      L.DomEvent.stopPropagation(e);
+    });
+    $('.skip').click(function(){
+      var index = $('.range-slider').val();
 
-			if ($(this).attr('id') == 'forward'){
-				index++;
-				index = index > 4 ? 0 : index;
-			} else if ($(this).attr('id') == 'reverse'){
-				index--;
-				index = index < 0 ? 4 : index;
-			};
-			$('.range-slider').val(index);
-			updatePropSymbols(data, map, attributes[index]);
-		});
+      if ($(this).attr('id') == 'forward'){
+        index++;
+        index = index > 4 ? 0 : index;
+      } else if ($(this).attr('id') == 'reverse'){
+        index--;
+        index = index < 0 ? 4 : index;
+      };
+      $('.range-slider').val(index);
+      updatePropSymbols(map, attributes[index]);
+      updateLegend(map, attributes[index]);
+    });
 };
 
 /* Creating a function to update the proportional symbols when activated
