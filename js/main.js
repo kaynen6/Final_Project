@@ -2,7 +2,7 @@ function initialize(){
     var currentYear;
     var currentMonth;
     var currentDay;
-    
+
 
     createMap();
 };
@@ -32,7 +32,8 @@ function createMap(){
 
     //show data load affordance spinner
     $('#ajaxloader').hide();
-    $('#legendid').append('<form action=""><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+    $('#legendid').append('<form><h5>Select A Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
+    $('#legendid').append('<form><h5>Select A Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
     //function to load data from files
     loadData(map);
 
@@ -40,10 +41,10 @@ function createMap(){
 
 //function to load geojson data with ajax
 function loadData(map){
-    //determine which radio button is checked
+    //determine which radio buttons are checked
     $('input[name=tempradio]').change(function(){
         if ($('input[value=mean]:checked')){
-             //start loading affordance 
+             //start loading affordance
             $('#ajaxloader').show();
             //load the Means data via ajax
             $.ajax("data/UHIDailySummaries/Means12-16.geojson", {
@@ -51,7 +52,6 @@ function loadData(map){
                 success: function(response){
                     //create attribute array
                     var meanAtts = processData(response);
-                    console.log(meanAtts);
                     createSymbols(response,map,meanAtts);
                     createSequenceControls(response, map, meanAtts);
                     setChart(meanAtts);
@@ -61,7 +61,7 @@ function loadData(map){
             });
         }
         else if ($('input[value=max]:checked')){
-            //start loading affordance 
+            //start loading affordance
             $('#ajaxloader').show();
             //load max data
             $.ajax("data/UHIDailySummaries/Maxes12-16.geojson", {
@@ -69,7 +69,7 @@ function loadData(map){
                 success: function(response){
                     //create attribute array
                     var maxAtts = processData(response);
-                    console.log(maxAtts);
+                    createSymbols(response,map,meanAtts);
                     createSequenceControls(map);
                     setChart(maxAtts, colorScale)
                     //hide loading affordance
@@ -78,21 +78,21 @@ function loadData(map){
             });
         }
         else if ($('input[value=min]:checked')){
-             //start loading affordance 
+             //start loading affordance
             $('#ajaxloader').show();
              //load the min data
             $.ajax("data/UHIDailySummaries/Mins12-16.geojson", {
                 dataType: "json",
                 success: function(response){
                     //create attribute array
-                    var minAtts = processData(response)
-                    console.log(minAtts);
+                    var minAtts = processData(response);
+                    createSymbols(response,map,meanAtts);
                     createSequenceControls(map);
                     setChart(minAtts, colorScale)
                     //hide loading spinner affordance
                     $('#ajaxloader').hide();
                 }
-            });    
+            });
         };
     });
 };
@@ -115,10 +115,16 @@ function processData(data){
 
 //create proportional sybols form geojson data properties
 function createSymbols(response, map, attributes){
+    //create an array for temperatures of given day
+    var temps = [];
     //create a Leaflet GeoJSON layer and add it to the map
-    L.geoJson(response, {
+    var geojson = L.geoJson(response, {
         //point to layer converts each point feature to layer to use circle marker
         pointToLayer: function(feature, latlng, attributes){
+            //push temps for that day into the temps array from above
+            if (feature.properties.year == 2016 && feature.properties.month == 01 && feature.properties.day == 01){
+                temps.push(feature.properties["tair"]);
+            };
             return pointToLayer(feature, latlng, attributes);
         },
         //filtering the data for default date - make this interactive at some point
@@ -129,6 +135,49 @@ function createSymbols(response, map, attributes){
             }
         }
     }).addTo(map);
+    console.log(geojson);
+    //get color scale breaks
+    var colorBreaks = calcColorBreaks(temps);
+    geojson.eachLayer(function(layer){
+        var temp = layer.feature.properties["tair"];
+        layer.setStyle({
+            fillColor: getColor(colorBreaks, temp)
+        });
+    });
+};
+
+function calcColorBreaks(temps){
+    //chroma.js determines class breaks from the array of temperatures (or any data) 
+    // here we use equal classes, 5 classes.
+    var colorBreaks = chroma.limits(temps,'e',5);
+    return colorBreaks;
+};
+
+//function to find min max temps of the dataset
+function getColor(colorBreaks, temp){
+    //color scale is from colorbrewer...
+    var colorScale = ['#0571b0','#92c5de','#f7f7f7','#f4a582','#ca0020'];
+    //find what class the temp value falls in and assign color
+    var color = function(){
+        if (temp < colorBreaks[0]){
+            return colorScale[0];
+        }
+        else if (temp < colorBreaks[1]){
+            return colorScale[1];    
+        }
+        else if (temp < colorBreaks[2]){
+            return colorScale[2];
+        }
+        else if (temp < colorBreaks[3]){
+            return colorScale[3];
+        }
+        else {
+            return colorScale[4];
+        };
+    console.log(color);
+    };
+    console.log(color);
+    return color;
 };
 
 //initial symbolization when map loads for first time
@@ -143,7 +192,7 @@ function pointToLayer(feature, latlng, attributes,){
         weight: 0.5,
         opacity: 1,
         fillOpacity: 0.8
-    };    
+    };
     //console.log(attValue);
     /*if (attValue < 0){
         attValue = Math.abs(attValue);
@@ -254,6 +303,8 @@ function updatePropSymbols(data, map, attribute){
 		};
 	});
 };
+
+
 
 function setChart(data){
   var chartWidth = window.innerWidth * 0.425,
