@@ -1,4 +1,3 @@
-
 /* Stylesheet by Jon Fok, Kayne Neigherbauer, Matt Smith 2017 */
 
 h1 {
@@ -13,13 +12,11 @@ h1 {
 
 #mapid {
     height: 615px;
-    width: 70%;
-    top: 0px;
+    width: 60%;
+    top: 20px;
     display: inline-block;
-    padding-left: 30px;
+    padding: 10px;
     z-index: 10;
-    border: 3px solid #000000;
-
 
 }
 /* Legend Container and Legendid*/
@@ -31,8 +28,8 @@ h1 {
 	 padding: 10px;
 	 border-style: dashed;
 	 border: 3px solid #000000;
+	
 }
-
 #legendid {
     right: 20%;
   height: 300px;
@@ -43,33 +40,44 @@ h1 {
   z-index: 10;
   border: 3px solid #000000;
   margin-top:100%;
+
 }
 
 /* Panel & Panel container*/
-#panelcontainer{
-  /*height: 120px;
-  width: 600%;
-
+#panelContainer{
+  width: 60%;
+  height: 120px;
   padding: 10px;
   display: inline-block;
   vertical-align: top;
   text-align: center;
   line-height: 42px;
   background-color: white;
-  border: 3px solid #000000;*/
+  border-bottom:3px solid #000000;
+  border-top:3px solid #000000;
+  border-right:3px solid #000000;
 
-  height: 615px;
-  width: 60%;
-  top: 20px;
-  display: inline-block;
-  padding: 10px;
-  z-index: 10;
-  border: 3px solid #000000;
   /*
   float: right;
   right: 600px;
   width: 600px;
   */
+}
+
+#panel1 {
+display:inline-block;
+ float: left;
+  height: 100px;
+  width: 600px;
+  padding: 10px;
+  vertical-align: top;
+  text-align: center;
+  line-height: 42px;
+  background-color: white;
+ 
+   float: center;
+   top: 20px;
+    display: inline-flex;
 }
 
 .sequence-control-container{
@@ -79,15 +87,12 @@ h1 {
   padding: 15px;
   line-height: 40px;
   text-align: center;
-  border: solid #000000 2px;
+  border: solid gray 2px;
   border-radius: 10px;
-  z-index: 10;
-  bottom: 30px;
 }
 
 .range-slider{
   width: 150px;
-  background-color: #000000;
 }
 
 /* Forward icon created by Futishia from the Noun Project */
@@ -105,10 +110,8 @@ h1 {
 }
 
 .chart {
-    background-color: rgba(128,128,128,.2);
-    border: medium solid #999;
-    float: right;
-    margin: 10px 20px 0 0;
+  float: right;
+  margin: 7px 20px 0 0;
 }
 
 .chartTitle {
@@ -116,12 +119,10 @@ h1 {
   font-size: 1.0em;
   font-weight: bold;
   font-variant: small-caps;
-
 }
 
 .chartBackground {
     fill: white;
-
 }
 
 .chartFrame {
