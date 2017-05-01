@@ -2,6 +2,7 @@ function initialize(){
     var currentYear;
     var currentMonth;
     var currentDay;
+    
 
     createMap();
 };
@@ -31,6 +32,7 @@ function createMap(){
 
     //show data load affordance spinner
     $('#ajaxloader').show();
+    $('#legendid').append('<form action=""><input type="radio" name="temptypes" value="max">Maximum Daily Temperatures<br><input type="radio" name="temptypes" value="mean">Mean Daily Temperatures<br><input type="radio" name="temptypes" value="min">Minimum Daily Temperatures</form>');
     //function to load data from files
     loadData(map);
 
@@ -45,11 +47,13 @@ function loadData(map){
             //create attribute array
             var meanAtts = processData(response);
             //display symbols for a default date
-
-            console.log(meanAtts);
-            createPropSymbols(response,map,meanAtts);
-            createSequenceControls(map, meanAtts);
-            setChart(meanAtts);
+            //console.log(meanAtts);
+            //find average baseline temp of 4 points furtherest away (max,min lat long?)
+            //if (attChoice == "mean"){
+                createSymbols(response,map,meanAtts);
+                createSequenceControls(response, map, meanAtts);
+                setChart(meanAtts);
+            //};
         }
     });
     //load max data
@@ -58,7 +62,6 @@ function loadData(map){
         success: function(response){
             //create attribute array
             var maxAtts = processData(response);
-            console.log(maxAtts);
             // console.log(maxAtts);
             // createSequenceControls(map);
             // setChart(maxAtts, colorScale)
@@ -70,7 +73,6 @@ function loadData(map){
         success: function(response){
             //create attribute array
             var minAtts = processData(response)
-            // console.log(minAtts);
             // createSequenceControls(map);
             // setChart(minAtts, colorScale)
             //hide loading spinner affordance
@@ -81,31 +83,29 @@ function loadData(map){
 
 //create an attributes array from data
 function processData(data){
-    console.log(data);
-    //empty array to hold attribute data
+    //empty array to hold attribute index names
     var attributes = [];
     //properties of the first feature in the dataset
     var properties = data.features[0].properties;
     //push each attribute name into attributes array
     // Right now pushing HI & tair, but test for interactions
     for (var attribute in properties){
-      if (attribute.indexOf("HI")>-1 || attribute.indexOf("tair")>-1 || attribute.indexOf("year")>-1){
+      //if (attribute.indexOf("HI")>-1 || attribute.indexOf("tair")>-1 || attribute.indexOf("year")>-1){
         attributes.push(attribute);
-      };
     };
     return attributes;
 };
 
 
 //create proportional sybols form geojson data properties
-function createPropSymbols(response, map, attributes){
+function createSymbols(response, map, attributes){
     //create a Leaflet GeoJSON layer and add it to the map
     L.geoJson(response, {
         //point to layer converts each point feature to layer to use circle marker
-        pointToLayer: function(feature, latlng){
+        pointToLayer: function(feature, latlng, attributes){
             return pointToLayer(feature, latlng, attributes);
         },
-        //hopefully filtering the data for default date
+        //filtering the data for default date - make this interactive at some point
         filter: function(feature, layer){
             if (feature.properties.year == 2016 && feature.properties.month == 01 && feature.properties.day == 01) {
                 return true
@@ -115,35 +115,28 @@ function createPropSymbols(response, map, attributes){
     }).addTo(map);
 };
 
-
 //initial symbolization when map loads for first time
-function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
+function pointToLayer(feature, latlng, attributes,){
+    //grab the properties of the attribute tair - default
+    var attValue = feature.properties["tair"];
     //create marker options w/ defualt styling
     var options = {
         radius: 8,
-        fillColor: "#91bfdb",
+        fillColor: "lightblue",
         color: "#000",
         weight: 0.5,
         opacity: 1,
-        fillOpacity: 0.3 //soften the opacity a little to see other points and map through point feature
-    };
-    //define the attribute to grab year, month, day
-    //var year = attributes[7];
-    //var month = attributes[8];
-    //var day = attributes[9];
-    //grab the properties of the attribute
-    var attValue = feature.properties["HI"];
-    if (attValue < 0){
-      attValue = Math.abs(attValue);
+        fillOpacity: 0.8
+    };    
+    //console.log(attValue);
+    /*if (attValue < 0){
+        attValue = Math.abs(attValue);
     } else {
-      attValue = attValue;
-    };
-    // console.log(attValue);
+        attValue = attValue;
+    }; */
     //define radius via func to calculate based on attribute data
-    options.radius = calcPropRadius(attValue);
-    // console.log(options.radius);
-
-   //create circleMarker
+    //options.radius = calcPropRadius(attValue);
+    //create circleMarker
     var layer = L.circleMarker(latlng, options);
     //create popup content string
     var popupContent = "";
@@ -172,33 +165,35 @@ function pointToLayer(feature, latlng, attributes, tempType, year, month, day){
 
 
 //calculate radius for proportional symbols
-function calcPropRadius(attValue) {
+/*function calcPropRadius(attValue) {
     //scale factor for even symbol size adjustments
-    var scaleFactor = 100;
+    var scaleFactor = 25;
     //area based on attribute value and scale factor
     var area = Math.abs(attValue) * scaleFactor;
     //radius is calc based on area
     var radius = Math.sqrt(area/Math.PI);
     return radius;
-};
+};*/
 
-function createSequenceControls(map, attributes){
+
+
+function createSequenceControls(data,map, attributes){
 	$('#panel1').append('<input class="range-slider" type="range">');
 
-  $('.range-slider').attr({
-    max: 4,
-    min: 0,
-    value: 0,
-    step: 1
-  });
+    $('.range-slider').attr({
+        max: 4,
+        min: 0,
+        value: 0,
+        step: 1
+    });
 
-  $('#panel1').append('<button class="skip" id="reverse">Reverse</button>');
-  $('#panel1').append('<button class="skip" id="forward">Skip</button>');
+    $('#panel1').append('<button class="skip" id="reverse">Reverse</button>');
+    $('#panel1').append('<button class="skip" id="forward">Skip</button>');
 
-  $('#reverse').html('<img src="img/reverse.png">');
-  $('#forward').html('<img src="img/forward.png">');
+    $('#reverse').html('<img src="img/reverse.png">');
+    $('#forward').html('<img src="img/forward.png">');
 
-  $('.skip').click(function(){
+    $('.skip').click(function(){
 		var index = $('.range-slider').val();
 
 		if ($(this).attr('id') == 'forward'){
@@ -209,35 +204,36 @@ function createSequenceControls(map, attributes){
 			index = index < 0 ? 4 : index;
 		};
 		$('.range-slider').val(index);
-		updatePropSymbols(map, attributes[index]);
+		updatePropSymbols(data,map, attributes[index]);
 	});
 
 	$('.range-slider').on('input', function(){
 		var index = $(this).val();
-		updatePropSymbols(map, attributes[index]);
-		});
+		updatePropSymbols(data, map, attributes[index]);
+    });
 };
 
 /* Creating a function to update the proportional symbols when activated
 by the sequence slider */
-function updatePropSymbols(map, attribute){
-  map.eachLayer(function(layer){
+function updatePropSymbols(data, map, attribute){
+    map.eachLayer(function(layer){
 		if (layer.feature && layer.feature.properties[attribute]){
 			var props = layer.feature.properties;
-			var radius = calcPropRadius(props[attribute]);
-			layer.setRadius(radius);
-
-// Creating a popup for each of the data points with information
+			var options = { radius: 8,
+                            fillColor: "lightblue",
+                            color: "#000",
+                            weight: 0.5,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        };
+            layer.setStyle(options);
+            // Creating a popup for each of the data points with information
 			var popupContent = "<p><b>Temperature:</b> " + parseFloat(props.HI).toFixed(2) + "</p>";
-			var year = props.year;
-      var month = props.month;
-      // console.log(props.month);
-      var day = props.day;
-      // console.log(attribute);
+			// console.log(attribute);
 			popupContent += "<p><b>Temperature for " + month + "/" + day + "/" + year + ":</b> " + parseFloat(props[attribute]).toFixed(2)+ " %</p>";
 
 			layer.bindPopup(popupContent, {
-				offset: new L.Point(0,-radius)
+				offset: new L.Point(0,-layer.options.radius)
 			});
 		};
 	});
@@ -286,7 +282,7 @@ function setChart(data){
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
 
-  alert("Do you know where this is going?");
+  //alert("Do you know where this is going?");
 
   // loading geojson
   //
