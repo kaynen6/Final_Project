@@ -4,6 +4,23 @@ function initialize(){
     var currentMonth;
     var currentDay;
 
+
+    //Creating the parameters for the chart area
+    var chartWidth = 694,
+        chartHeight = 146,
+        leftPadding = 5,
+        rightPadding = 5,
+        topBottomPadding = 10,
+
+        chartInnerWidth = chartWidth - leftPadding - rightPadding,
+        chartInnerHeight = chartHeight - topBottomPadding * 2,
+        translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
+
+    // Creating a scale to proportionally size the bars to the frame and for the axis
+    var yScale = d3.scaleLinear()
+        .range([chartInnerHeight, 0])
+        .domain([0,100]);
+
     createMap();
 };
 
@@ -197,7 +214,6 @@ function calcColorBreaks(data,attribute){
 };
 
 function createSequenceControls(data, map, attributes){
->>>>>>> refs/remotes/origin/master
   var SequenceControl = L.Control.extend({
     options: {
       position: 'bottomleft'
@@ -259,24 +275,7 @@ function updatePropSymbols(data, map, attribute){
             var day = props.day;
             var temp = parseFloat(props[attribute]).toFixed(2);
             var colorBreaks = calcColorBreaks(data, year, month, day);
-            var options = { radius: 8,
-                            fillColor: function(){
-                                if (temp < colorBreaks[1]){
-                                    return colorScale[0];
-                                }
-                                else if (temp < colorBreaks[2]){
-                                    return colorScale[1];
-                                }
-                                else if (temp < colorBreaks[3]){
-                                    return colorScale[2];
-                                }
-                                else if (temp < colorBreaks[4]){
-                                    return colorScale[3];
-                                }
-                                else {
-                                    return colorScale[4];
-                                };
-                            },
+
       			var options = { radius: 8,
                             fillColor: "lightblue",
                             color: "#000",
@@ -298,24 +297,7 @@ function updatePropSymbols(data, map, attribute){
 };
 
 function setChart(data){
-
-  //Creating the parameters for the chart area
-  var chartWidth = 694,
-      chartHeight = 146,
-      leftPadding = 5,
-      rightPadding = 5,
-      topBottomPadding = 10,
-
-      chartInnerWidth = chartWidth - leftPadding - rightPadding,
-      chartInnerHeight = chartHeight - topBottomPadding * 2,
-      translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
-
-  // Creating a scale to proportionally size the bars to the frame and for the axis
-  var yScale = d3.scaleLinear()
-      .range([chartInnerHeight, 0])
-      .domain([0,100]);
-
-  var chart = d3.select("panelContainer")
+  var chart = d3.select("body")
         .append("svg")
         .attr("width", chartWidth)
         .attr("height", chartHeight)
@@ -334,7 +316,11 @@ function setChart(data){
       .attr("class", function(d){
         return "bars " + d.tair;
       })
-      .attr("width", chartInnerWidth / data.length)
+      .attr("width", 20)
+      // .attr("x", function(d, i){
+      //   return i*
+      // })
+      .attr("height", 100);
 
   var chartTitle = chart.append("text")
       .attr("x", 85)
@@ -359,7 +345,28 @@ function setChart(data){
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
 
-  // updateChart(bars,data.length, colorScale);
+  updateChart(bars,data.length);
 };
+
+function updateChart(bars, n, colorScale){
+  bars.attr("x", function(d, i){
+          return i * (chartInnerWidth / n) + leftPadding;
+      })
+      // Resizing the bars in the chart based upon the update
+      .attr("height", function(d, i){
+          return chartInnerHeight - yScale(parseFloat(d.tair));
+      })
+      .attr("y", function(d, i){
+          return yScale(parseFloat(d.tair)) + topBottomPadding;
+      });
+      // // Recoloring the bars in the chart based upon the update
+      // .style("fill", function(d){
+      //     return choropleth(d, colorScale);
+      // });
+
+  var chartTitle = d3.selectAll(".chartTitle")
+      .text("Working Title");
+};
+
 
 $(document).ready(initialize);

@@ -13,10 +13,10 @@ h1 {
 
 #mapid {
     height: 615px;
-    width: 60%;
-    top: 20px;
+    width: 70%;
+    top: 0px;
     display: inline-block;
-    padding: 10px;
+    padding-left: 30px;
     z-index: 10;
     border: 3px solid #000000;
 
@@ -47,8 +47,8 @@ h1 {
 
 /* Panel & Panel container*/
 #panelcontainer{
-  width: 60%;
-  height: 120px;
+  /*height: 120px;
+  width: 600%;
 
   padding: 10px;
   display: inline-block;
@@ -56,8 +56,15 @@ h1 {
   text-align: center;
   line-height: 42px;
   background-color: white;
-  border: 3px solid #000000;
+  border: 3px solid #000000;*/
 
+  height: 615px;
+  width: 60%;
+  top: 20px;
+  display: inline-block;
+  padding: 10px;
+  z-index: 10;
+  border: 3px solid #000000;
   /*
   float: right;
   right: 600px;
@@ -98,8 +105,10 @@ h1 {
 }
 
 .chart {
-  float: right;
-  margin: 7px 20px 0 0;
+    background-color: rgba(128,128,128,.2);
+    border: medium solid #999;
+    float: right;
+    margin: 10px 20px 0 0;
 }
 
 .chartTitle {
@@ -107,11 +116,12 @@ h1 {
   font-size: 1.0em;
   font-weight: bold;
   font-variant: small-caps;
->>>>>>> refs/remotes/origin/master
+
 }
 
 .chartBackground {
     fill: white;
+
 }
 
 .chartFrame {
