@@ -13,11 +13,13 @@ h1 {
 
 #mapid {
     height: 615px;
-    width: 60%;
-    top: 20px;
+    width: 70%;
+    top: 0px;
     display: inline-block;
-    padding: 10px;
+    padding-left: 30px;
     z-index: 10;
+    border: 3px solid #000000;
+
 
 }
 /* Legend Container and Legendid*/
@@ -30,6 +32,7 @@ h1 {
 	 border-style: dashed;
 	 border: 3px solid #000000;
 }
+
 #legendid {
 	right: 20%;
   height: 300px;
@@ -40,13 +43,12 @@ h1 {
   z-index: 10;
   border: 3px solid #000000;
   margin-top:100%;
-
 }
 
 /* Panel & Panel container*/
-#panelContainer{
-  width: 60%;
-  height: 120px;
+#panelcontainer{
+  /*height: 120px;
+  width: 600%;
 
   padding: 10px;
   display: inline-block;
@@ -54,31 +56,21 @@ h1 {
   text-align: center;
   line-height: 42px;
   background-color: white;
-  border: 3px solid #000000;
+  border: 3px solid #000000;*/
 
+  height: 615px;
+  width: 60%;
+  top: 20px;
+  display: inline-block;
+  padding: 10px;
+  z-index: 10;
+  border: 3px solid #000000;
   /*
   float: right;
   right: 600px;
   width: 600px;
   */
 }
-
-/*#panel {
-display:inline-block;
- float: left;
-  height: 100px;
-  width: 600px;
-  padding: 10px;
-  vertical-align: top;
-  text-align: center;
-  line-height: 42px;
-  background-color: white;
-  border-style: dashed;
-   float: center;
-   top: 20px;
-    display: inline-flex;
-
-}*/
 
 .sequence-control-container{
   width: 300px;
@@ -87,12 +79,15 @@ display:inline-block;
   padding: 15px;
   line-height: 40px;
   text-align: center;
-  border: solid gray 2px;
+  border: solid #000000 2px;
   border-radius: 10px;
+  z-index: 10;
+  bottom: 30px;
 }
 
 .range-slider{
   width: 150px;
+  background-color: #000000;
 }
 
 /* Forward icon created by Futishia from the Noun Project */
@@ -110,8 +105,10 @@ display:inline-block;
 }
 
 .chart {
-  float: right;
-  margin: 7px 20px 0 0;
+    background-color: rgba(128,128,128,.2);
+    border: medium solid #999;
+    float: right;
+    margin: 10px 20px 0 0;
 }
 
 .chartTitle {
@@ -119,10 +116,12 @@ display:inline-block;
   font-size: 1.0em;
   font-weight: bold;
   font-variant: small-caps;
+
 }
 
 .chartBackground {
     fill: white;
+
 }
 
 .chartFrame {
