@@ -32,7 +32,7 @@ function initialize(){
     var currentYear;
     var currentMonth;
     var currentDay;
-    
+
 
     createMap();
 };
@@ -79,18 +79,12 @@ function loadData(map){
             //display symbols for a default date
             //console.log(meanAtts);
             //find average baseline temp of 4 points furtherest away (max,min lat long?)
-<<<<<<< HEAD
-            console.log(meanAtts);
-            createPropSymbols(response,map,meanAtts);
-            createSequenceControls(map, meanAtts);
-            setChart(meanAtts, colorScale);
-=======
+
             //if (attChoice == "mean"){
                 createSymbols(response,map,meanAtts);
                 createSequenceControls(response, map, meanAtts);
                 setChart(meanAtts);
             //};
->>>>>>> refs/remotes/origin/master
         }
     });
     //load max data
@@ -127,11 +121,7 @@ function processData(data){
     //push each attribute name into attributes array
     // Right now pushing HI & tair, but test for interactions
     for (var attribute in properties){
-<<<<<<< HEAD
-      if (attribute.indexOf("tair")>-1 || attribute.indexOf("year")>-1){
-=======
-      //if (attribute.indexOf("HI")>-1 || attribute.indexOf("tair")>-1 || attribute.indexOf("year")>-1){
->>>>>>> refs/remotes/origin/master
+      if (attribute.indexOf("HI")>-1 || attribute.indexOf("tair")>-1 || attribute.indexOf("year")>-1){
         attributes.push(attribute);
     };
     console.log(attributes);
@@ -168,18 +158,8 @@ function pointToLayer(feature, latlng, attributes,){
         weight: 0.5,
         opacity: 1,
         fillOpacity: 0.8
-<<<<<<< HEAD
     };
-    //define the attribute to grab year, month, day
-    //var year = attributes[7];
-    //var month = attributes[8];
-    //var day = attributes[9];
 
-    //grab the properties of the attribute - MAKE INTERACTIVE - CHANGE "" TO VARIABLE tempType
-    var attValue = feature.properties["tair"];
-=======
-    };    
->>>>>>> refs/remotes/origin/master
     //console.log(attValue);
     /*if (attValue < 0){
         attValue = Math.abs(attValue);
@@ -291,43 +271,6 @@ function createSequenceControls(map, attributes){
       $('.range-slider').val(index);
       updatePropSymbols(map, attributes[index]);
       updateLegend(map, attributes[index]);
-=======
-
-
-function createSequenceControls(data,map, attributes){
-	$('#panel1').append('<input class="range-slider" type="range">');
-
-    $('.range-slider').attr({
-        max: 4,
-        min: 0,
-        value: 0,
-        step: 1
-    });
-
-    $('#panel1').append('<button class="skip" id="reverse">Reverse</button>');
-    $('#panel1').append('<button class="skip" id="forward">Skip</button>');
-
-    $('#reverse').html('<img src="img/reverse.png">');
-    $('#forward').html('<img src="img/forward.png">');
-
-    $('.skip').click(function(){
-		var index = $('.range-slider').val();
-
-		if ($(this).attr('id') == 'forward'){
-			index++;
-			index = index > 4 ? 0 : index;
-		} else if ($(this).attr('id') == 'reverse'){
-			index--;
-			index = index < 0 ? 4 : index;
-		};
-		$('.range-slider').val(index);
-		updatePropSymbols(data,map, attributes[index]);
-	});
-
-	$('.range-slider').on('input', function(){
-		var index = $(this).val();
-		updatePropSymbols(data, map, attributes[index]);
->>>>>>> refs/remotes/origin/master
     });
 };
 
@@ -337,7 +280,6 @@ function updatePropSymbols(data, map, attribute){
     map.eachLayer(function(layer){
 		if (layer.feature && layer.feature.properties[attribute]){
 			var props = layer.feature.properties;
-<<<<<<< HEAD
 			var radius = calcPropRadius(props[attribute]);
 			layer.setRadius(radius);
             var year = props.year;
@@ -364,10 +306,8 @@ function updatePropSymbols(data, map, attribute){
                                     return colorScale[4];
                                 };
                             },
-=======
-			var options = { radius: 8,
+      			var options = { radius: 8,
                             fillColor: "lightblue",
->>>>>>> refs/remotes/origin/master
                             color: "#000",
                             weight: 0.5,
                             opacity: 1,
@@ -397,13 +337,6 @@ function setChart(data){
       chartInnerHeight = chartHeight - topBottomPadding * 2,
       translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
 
-<<<<<<< HEAD
-  // var chart = d3.select("panelchart")
-  //     .append("svg")
-  //     .attr("width", chartWidth)
-  //     .attr("height", chartHeight)
-  //     .attr("class", "chart");
-=======
   var yScale = d3.scaleLinear()
       .range([chartInnerHeight, 0])
       .domain([-50,120]);
@@ -438,43 +371,6 @@ function setChart(data){
       .attr("transform", translate);
 
   //alert("Do you know where this is going?");
-
-  // loading geojson
->>>>>>> refs/remotes/origin/master
-  //
-  // var yScale = d3.scaleLinear()
-  //   .range([0, chartHeight])
-  //   .domain([0, d3.max(data, function(d){ return d.tair;})]);
-  //
-  //   var chartBackground = chart.append("panelchart")
-  //       .attr("class", "chartBackground")
-  //       .attr("width", chartInnerWidth)
-  //       .attr("height", chartInnerHeight)
-  //       .attr("transform", translate);
-  //
-  // //set bars for each [fill in the blank]
-  // var bars = chart.selectAll(".bars")
-  //   .data(data)
-  //   .enter()
-  //   .append("rect")
-  //   .attr("class", function(d){
-  //       return "bars " + d.date;
-  //   })
-  //   .attr("width", chartWidth / data.length - 1)
-  //   .attr("x", function(d, i){
-  //       return i * (chartWidth / data.length);
-  //   })
-  //   .attr("height", function(d){
-  //       return yScale(d.tair);
-  //   })
-  //   .attr("y", function(d){
-  //       return chartHeight - yScale(d.tair);
-  //   });
-  // var chartFrame = chart.append("rect")
-  //     .attr("class", "chartFrame")
-  //     .attr("width", chartInnerWidth)
-  //     .attr("height", chartInnerHeight)
-  //     .attr("transform", translate);
 };
 
 $(document).ready(initialize);
