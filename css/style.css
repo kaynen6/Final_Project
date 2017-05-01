@@ -18,7 +18,10 @@ h1 {
     display: inline-block;
     padding: 10px;
     z-index: 10;
+<<<<<<< HEAD
     border: 3px solid #000000;
+=======
+>>>>>>> refs/remotes/origin/master
 
 }
 /* Legend Container and Legendid*/
@@ -42,6 +45,10 @@ h1 {
   z-index: 10;
   border: 3px solid #000000;
   margin-top:100%;
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/remotes/origin/master
 }
 
 /* Panel & Panel container*/
@@ -64,7 +71,11 @@ h1 {
   */
 }
 
+<<<<<<< HEAD
 #panelchart {
+=======
+/*#panel {
+>>>>>>> refs/remotes/origin/master
 display:inline-block;
  float: left;
   height: 100px;
@@ -78,7 +89,12 @@ display:inline-block;
    float: center;
    top: 20px;
     display: inline-flex;
+<<<<<<< HEAD
 }
+=======
+
+}*/
+>>>>>>> refs/remotes/origin/master
 
 .sequence-control-container{
   width: 300px;
@@ -87,15 +103,23 @@ display:inline-block;
   padding: 15px;
   line-height: 40px;
   text-align: center;
+<<<<<<< HEAD
   border: solid #000000 2px;
   border-radius: 10px;
   z-index: 10;
   bottom: 30px;
+=======
+  border: solid gray 2px;
+  border-radius: 10px;
+>>>>>>> refs/remotes/origin/master
 }
 
 .range-slider{
   width: 150px;
+<<<<<<< HEAD
   background-color: #000000;
+=======
+>>>>>>> refs/remotes/origin/master
 }
 
 /* Forward icon created by Futishia from the Noun Project */
@@ -110,6 +134,7 @@ display:inline-block;
   float: left;
   background-color: white;
   border-radius: 5px;
+<<<<<<< HEAD
 }
 
 .bar{
@@ -136,6 +161,20 @@ display:inline-block;
   border: medium solid #252525;
   float: right;
   margin: 10px 20px 0 0;
+=======
+}
+
+.chart {
+  float: right;
+  margin: 7px 20px 0 0;
+}
+
+.chartTitle {
+  font-family:"Times New Roman", Helvetica, sans-serif;
+  font-size: 1.0em;
+  font-weight: bold;
+  font-variant: small-caps;
+>>>>>>> refs/remotes/origin/master
 }
 
 .chartBackground {
@@ -147,7 +186,12 @@ display:inline-block;
     stroke: #999;
     stroke-width: 3px;
     shape-rendering: crispEdges;
+<<<<<<< HEAD
 }*/
+=======
+}
+
+>>>>>>> refs/remotes/origin/master
 
 #ajaxloader
 {

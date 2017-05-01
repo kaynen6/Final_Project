@@ -1,5 +1,6 @@
 function initialize(){
 
+<<<<<<< HEAD
     var parseDate = d3.timeParse("%Y-%m-%d %p");
 
     // d3.queue()
@@ -33,6 +34,11 @@ function initialize(){
     var currentMonth;
     var currentDay;
 
+=======
+    var currentYear;
+    var currentMonth;
+    var currentDay;
+>>>>>>> refs/remotes/origin/master
 
     createMap();
 };
@@ -81,9 +87,9 @@ function loadData(map){
             //find average baseline temp of 4 points furtherest away (max,min lat long?)
 
             //if (attChoice == "mean"){
-                createSymbols(response,map,meanAtts);
-                createSequenceControls(response, map, meanAtts);
-                setChart(meanAtts);
+            createSymbols(response, map, meanAtts);
+            createSequenceControls(response, map, meanAtts);
+            setChart(meanAtts);
             //};
         }
     });
@@ -120,9 +126,11 @@ function processData(data){
     var properties = data.features[0].properties;
     //push each attribute name into attributes array
     // Right now pushing HI & tair, but test for interactions
+
     for (var attribute in properties){
       if (attribute.indexOf("HI")>-1 || attribute.indexOf("tair")>-1 || attribute.indexOf("year")>-1){
         attributes.push(attribute);
+      };
     };
     console.log(attributes);
     return attributes;
@@ -208,6 +216,9 @@ function pointToLayer(feature, latlng, attributes,){
 };*/
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> refs/remotes/origin/master
 //function to find min max temps of the dataset
 function calcColorBreaks(data,attribute){
     //array to store all temp data
@@ -225,7 +236,11 @@ function calcColorBreaks(data,attribute){
     return colorBreaks;
 };
 
+<<<<<<< HEAD
 function createSequenceControls(map, attributes){
+=======
+function createSequenceControls(data, map, attributes){
+>>>>>>> refs/remotes/origin/master
   var SequenceControl = L.Control.extend({
     options: {
       position: 'bottomleft'
@@ -269,8 +284,12 @@ function createSequenceControls(map, attributes){
         index = index < 0 ? 4 : index;
       };
       $('.range-slider').val(index);
+<<<<<<< HEAD
       updatePropSymbols(map, attributes[index]);
       updateLegend(map, attributes[index]);
+=======
+      updatePropSymbols(data, map, attributes[index]);
+>>>>>>> refs/remotes/origin/master
     });
 };
 
@@ -317,7 +336,7 @@ function updatePropSymbols(data, map, attribute){
             // Creating a popup for each of the data points with information
 			var popupContent = "<p><b>Temperature:</b> " + parseFloat(props.HI).toFixed(2) + "</p>";
 			// console.log(attribute);
-			popupContent += "<p><b>Temperature for " + month + "/" + day + "/" + year + ":</b> " + parseFloat(props[attribute]).toFixed(2)+ " %</p>";
+			popupContent += "<p><b>Temperature for " + props.month + "/" + props.day + "/" + props.year + ":</b> " + parseFloat(props[attribute]).toFixed(2)+ " %</p>";
 
 			layer.bindPopup(popupContent, {
 				offset: new L.Point(0,-layer.options.radius)
@@ -328,30 +347,55 @@ function updatePropSymbols(data, map, attribute){
 
 function setChart(data){
 
+<<<<<<< HEAD
   var chartWidth = 694,
       chartHeight = 146,
       leftPadding = 5,
       rightPadding = 5,
       topBottomPadding = 10,
+=======
+  //Creating the parameters for the chart area
+  var chartWidth = 800,
+      chartHeight = 120,
+      leftPadding = 25,
+      rightPadding = 2,
+      topBottomPadding = 5,
+>>>>>>> refs/remotes/origin/master
       chartInnerWidth = chartWidth - leftPadding - rightPadding,
       chartInnerHeight = chartHeight - topBottomPadding * 2,
       translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
 
+  // Creating a scale to proportionally size the bars to the frame and for the axis
   var yScale = d3.scaleLinear()
       .range([chartInnerHeight, 0])
-      .domain([-50,120]);
+      .domain([0,100]);
 
-  var chart = d3.select("panel2")
-      .append("svg")
-      .attr("width", chartWidth)
-      .attr("height", chartHeight)
-      .attr("class", "chart");
+  var chart = d3.select("panelContainer")
+        .append("svg")
+        .attr("width", chartWidth)
+        .attr("height", chartHeight)
+        .attr("class", "chart")
 
   var chartBackground = chart.append("rect")
       .attr("class", "chartBackground")
       .attr("width", chartInnerWidth)
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
+
+  var bars = chart.selectAll(".bars")
+      .data(data)
+      .enter()
+      .append("rect")
+      .attr("class", function(d){
+        return "bars " + d.tair;
+      })
+      .attr("width", chartInnerWidth / data.length)
+
+  var chartTitle = chart.append("text")
+      .attr("x", 85)
+      .attr("y", 40)
+      .attr("class", "chartTitle")
+      .text("Working Title");
 
   // Creating a vertical axis generator for the bar chart
   var yAxis = d3.axisLeft()
@@ -370,7 +414,17 @@ function setChart(data){
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
 
+<<<<<<< HEAD
   //alert("Do you know where this is going?");
+=======
+  // updateChart(bars,data.length, colorScale);
+
+  // var chart = d3.select("panelContainer")
+  //         .append("svg")
+  //         .attr("width", chartWidth)
+  //         .attr("height". chartHeight)
+  //         .attr("class", "chart");
+>>>>>>> refs/remotes/origin/master
 };
 
 $(document).ready(initialize);
