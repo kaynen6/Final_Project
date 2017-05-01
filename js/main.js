@@ -1,44 +1,8 @@
 function initialize(){
 
-<<<<<<< HEAD
-    var parseDate = d3.timeParse("%Y-%m-%d %p");
-
-    // d3.queue()
-    //   .defer(d3.json, "data/UHIDailySummaries/Means12-16.geojson")
-    //   .defer(d3.json, "data/UHIDailySummaries/Maxes12-16.geojson")
-    //   .defer(d3.json, "data/UHIDailySummaries/Mins12-16.geojson")
-    //   .await(callback);
-    //
-    // function callback(error, means, maxes, mins){
-    //   console.log(error);
-    //   console.log(means);
-    //   console.log(maxes);
-    //   console.log(mins);
-    //
-    //   // maxes.forEach(function(d){
-    //   //   d.month = d.month;
-    //   //   d.tair = +d.tair
-    //   // });
-    //   //
-    //   // mins.forEach(function(d){
-    //   //   d.month = d.month;
-    //   //   d.days = +d.days
-    //   // });
-    //
-
-    //   // setChart(maxes);
-    //   // setChart(mins);
-    // }
-
     var currentYear;
     var currentMonth;
     var currentDay;
-
-=======
-    var currentYear;
-    var currentMonth;
-    var currentDay;
->>>>>>> refs/remotes/origin/master
 
     createMap();
 };
@@ -215,10 +179,6 @@ function pointToLayer(feature, latlng, attributes,){
     return radius;
 };*/
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> refs/remotes/origin/master
 //function to find min max temps of the dataset
 function calcColorBreaks(data,attribute){
     //array to store all temp data
@@ -236,9 +196,6 @@ function calcColorBreaks(data,attribute){
     return colorBreaks;
 };
 
-<<<<<<< HEAD
-function createSequenceControls(map, attributes){
-=======
 function createSequenceControls(data, map, attributes){
 >>>>>>> refs/remotes/origin/master
   var SequenceControl = L.Control.extend({
@@ -284,12 +241,7 @@ function createSequenceControls(data, map, attributes){
         index = index < 0 ? 4 : index;
       };
       $('.range-slider').val(index);
-<<<<<<< HEAD
-      updatePropSymbols(map, attributes[index]);
-      updateLegend(map, attributes[index]);
-=======
       updatePropSymbols(data, map, attributes[index]);
->>>>>>> refs/remotes/origin/master
     });
 };
 
@@ -347,20 +299,13 @@ function updatePropSymbols(data, map, attribute){
 
 function setChart(data){
 
-<<<<<<< HEAD
+  //Creating the parameters for the chart area
   var chartWidth = 694,
       chartHeight = 146,
       leftPadding = 5,
       rightPadding = 5,
       topBottomPadding = 10,
-=======
-  //Creating the parameters for the chart area
-  var chartWidth = 800,
-      chartHeight = 120,
-      leftPadding = 25,
-      rightPadding = 2,
-      topBottomPadding = 5,
->>>>>>> refs/remotes/origin/master
+
       chartInnerWidth = chartWidth - leftPadding - rightPadding,
       chartInnerHeight = chartHeight - topBottomPadding * 2,
       translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
@@ -414,17 +359,7 @@ function setChart(data){
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
 
-<<<<<<< HEAD
-  //alert("Do you know where this is going?");
-=======
   // updateChart(bars,data.length, colorScale);
-
-  // var chart = d3.select("panelContainer")
-  //         .append("svg")
-  //         .attr("width", chartWidth)
-  //         .attr("height". chartHeight)
-  //         .attr("class", "chart");
->>>>>>> refs/remotes/origin/master
 };
 
 $(document).ready(initialize);
