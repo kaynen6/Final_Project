@@ -4,23 +4,6 @@ function initialize(){
     var currentDay;
     
 
-
-    //Creating the parameters for the chart area
-    var chartWidth = 694,
-        chartHeight = 146,
-        leftPadding = 5,
-        rightPadding = 5,
-        topBottomPadding = 10,
-
-        chartInnerWidth = chartWidth - leftPadding - rightPadding,
-        chartInnerHeight = chartHeight - topBottomPadding * 2,
-        translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
-
-    // Creating a scale to proportionally size the bars to the frame and for the axis
-    var yScale = d3.scaleLinear()
-        .range([chartInnerHeight, 0])
-        .domain([0,100]);
-
     createMap();
 };
 
@@ -58,8 +41,8 @@ function createMap(){
 //function to load geojson data with ajax
 function loadData(map){
     //determine which radio button is checked
-    $('#tempradio').change(function(){
-        if ($('#tempradio').value == 'mean'){
+    $('input[name=tempradio]').change(function(){
+        if ($('input[value=mean]:checked')){
              //start loading affordance 
             $('#ajaxloader').show();
             //load the Means data via ajax
@@ -68,6 +51,7 @@ function loadData(map){
                 success: function(response){
                     //create attribute array
                     var meanAtts = processData(response);
+                    console.log(meanAtts);
                     createSymbols(response,map,meanAtts);
                     createSequenceControls(response, map, meanAtts);
                     setChart(meanAtts);
@@ -76,7 +60,7 @@ function loadData(map){
                 }
             });
         }
-        else if ($('#tempradio').value == 'max'){
+        else if ($('input[value=max]:checked')){
             //start loading affordance 
             $('#ajaxloader').show();
             //load max data
@@ -93,7 +77,7 @@ function loadData(map){
                 }
             });
         }
-        else if ($('#tempradio').value == 'min'){
+        else if ($('input[value=min]:checked')){
              //start loading affordance 
             $('#ajaxloader').show();
              //load the min data
@@ -102,6 +86,7 @@ function loadData(map){
                 success: function(response){
                     //create attribute array
                     var minAtts = processData(response)
+                    console.log(minAtts);
                     createSequenceControls(map);
                     setChart(minAtts, colorScale)
                     //hide loading spinner affordance
@@ -124,7 +109,6 @@ function processData(data){
       //if (attribute.indexOf("HI")>-1 || attribute.indexOf("tair")>-1 || attribute.indexOf("year")>-1){
         attributes.push(attribute);
     };
-    console.log(attributes);
     return attributes;
 };
 
@@ -251,16 +235,7 @@ function updatePropSymbols(data, map, attribute){
     map.eachLayer(function(layer){
 		if (layer.feature && layer.feature.properties[attribute]){
 			var props = layer.feature.properties;
-			var radius = calcPropRadius(props[attribute]);
-			layer.setRadius(radius);
-            var year = props.year;
-            var month = props.month;
-            // console.log(props.month);
-            var day = props.day;
-            var temp = parseFloat(props[attribute]).toFixed(2);
-            var colorBreaks = calcColorBreaks(data, year, month, day);
-
-      			var options = { radius: 8,
+			var options = { radius: 8,
                             fillColor: "lightblue",
                             color: "#000",
                             weight: 0.5,
@@ -281,13 +256,6 @@ function updatePropSymbols(data, map, attribute){
 };
 
 function setChart(data){
-
-  var chart = d3.select("body")
-        .append("svg")
-        .attr("width", chartWidth)
-        .attr("height", chartHeight)
-        .attr("class", "chart")
-  
   var chartWidth = window.innerWidth * 0.425,
       chartHeight = 100,
       leftPadding = 25,
@@ -301,30 +269,17 @@ function setChart(data){
       .range([chartInnerHeight, 0])
       .domain([-50,120]);
 
+  var chart = d3.select("panel2")
+      .append("svg")
+      .attr("width", chartWidth)
+      .attr("height", chartHeight)
+      .attr("class", "chart");
+
   var chartBackground = chart.append("rect")
       .attr("class", "chartBackground")
       .attr("width", chartInnerWidth)
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
-  
-  var bars = chart.selectAll(".bars")
-      .data(data)
-      .enter()
-      .append("rect")
-      .attr("class", function(d){
-        return "bars " + d.tair;
-      })
-      .attr("width", 20)
-      // .attr("x", function(d, i){
-      //   return i*
-      // })
-      .attr("height", 100);
-
-  var chartTitle = chart.append("text")
-      .attr("x", 85)
-      .attr("y", 40)
-      .attr("class", "chartTitle")
-      .text("Working Title");
 
   // Creating a vertical axis generator for the bar chart
   var yAxis = d3.axisLeft()
@@ -343,27 +298,10 @@ function setChart(data){
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
 
-  updateChart(bars,data.length);
+  //alert("Do you know where this is going?");
+
+  // loading geojson
+  //
+  //
 };
-
-function updateChart(bars, n, colorScale){
-  bars.attr("x", function(d, i){
-          return i * (chartInnerWidth / n) + leftPadding;
-      })
-      // Resizing the bars in the chart based upon the update
-      .attr("height", function(d, i){
-          return chartInnerHeight - yScale(parseFloat(d.tair));
-      })
-      .attr("y", function(d, i){
-          return yScale(parseFloat(d.tair)) + topBottomPadding;
-      });
-      // // Recoloring the bars in the chart based upon the update
-      // .style("fill", function(d){
-      //     return choropleth(d, colorScale);
-      // });
-
-  var chartTitle = d3.selectAll(".chartTitle")
-      .text("Working Title");
-};
-
 $(document).ready(initialize);
