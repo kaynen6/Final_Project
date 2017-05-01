@@ -118,12 +118,12 @@ function createSymbols(response, map, attributes){
     //create an array for temperatures of given day
     var temps = [];
     //create a Leaflet GeoJSON layer and add it to the map
-    var geojson = L.geoJson(response, {
+    var geojson = L.geoJson(response,{
         //point to layer converts each point feature to layer to use circle marker
         pointToLayer: function(feature, latlng, attributes){
             //push temps for that day into the temps array from above
             if (feature.properties.year == 2016 && feature.properties.month == 01 && feature.properties.day == 01){
-                temps.push(feature.properties["tair"]);
+                temps.push(Math.round(feature.properties["tair"] * 100) / 100);
             };
             return pointToLayer(feature, latlng, attributes);
         },
@@ -135,11 +135,10 @@ function createSymbols(response, map, attributes){
             }
         }
     }).addTo(map);
-    console.log(geojson);
     //get color scale breaks
     var colorBreaks = calcColorBreaks(temps);
     geojson.eachLayer(function(layer){
-        var temp = layer.feature.properties["tair"];
+        var temp = Math.round((layer.feature.properties["tair"] * 100) / 100);
         layer.setStyle({
             fillColor: getColor(colorBreaks, temp)
         });
@@ -149,7 +148,8 @@ function createSymbols(response, map, attributes){
 function calcColorBreaks(temps){
     //chroma.js determines class breaks from the array of temperatures (or any data) 
     // here we use equal classes, 5 classes.
-    var colorBreaks = chroma.limits(temps,'e',5);
+    var colorBreaks = chroma.limits(temps,'k',5);
+    colorBreaks = colorBreaks.reverse();
     return colorBreaks;
 };
 
@@ -158,26 +158,21 @@ function getColor(colorBreaks, temp){
     //color scale is from colorbrewer...
     var colorScale = ['#0571b0','#92c5de','#f7f7f7','#f4a582','#ca0020'];
     //find what class the temp value falls in and assign color
-    var color = function(){
-        if (temp < colorBreaks[0]){
-            return colorScale[0];
-        }
-        else if (temp < colorBreaks[1]){
-            return colorScale[1];    
-        }
-        else if (temp < colorBreaks[2]){
-            return colorScale[2];
-        }
-        else if (temp < colorBreaks[3]){
-            return colorScale[3];
-        }
-        else {
-            return colorScale[4];
-        };
-    console.log(color);
+    if (temp < colorBreaks[1]){
+        return colorScale[0];
+    }
+    else if (temp < colorBreaks[2]){
+        return colorScale[1];    
+    }
+    else if (temp < colorBreaks[3]){
+        return colorScale[2];
+    }
+    else if (temp < colorBreaks[4]){
+        return colorScale[3];
+    }
+    else {
+        return colorScale[4];
     };
-    console.log(color);
-    return color;
 };
 
 //initial symbolization when map loads for first time
