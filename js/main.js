@@ -32,6 +32,7 @@ function createMap(){
 
     //show data load affordance spinner
     $('#ajaxloader').show();
+    $('#legendid').append('<form action=""><input type="radio" name="temptypes" value="max">Maximum Daily Temperatures<br><input type="radio" name="temptypes" value="mean">Mean Daily Temperatures<br><input type="radio" name="temptypes" value="min">Minimum Daily Temperatures</form>');
     //function to load data from files
     loadData(map);
 
@@ -113,7 +114,6 @@ function createSymbols(response, map, attributes){
         }
     }).addTo(map);
 };
-
 
 //initial symbolization when map loads for first time
 function pointToLayer(feature, latlng, attributes,){
