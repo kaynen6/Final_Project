@@ -31,8 +31,8 @@ function createMap(){
     L.control.layers(baseMaps).addTo(map);
 
     //show data load affordance spinner
-    $('#ajaxloader').show();
-    $('#legendid').append('<form action=""><input type="radio" name="temptypes" value="max">Maximum Daily Temperatures<br><input type="radio" name="temptypes" value="mean">Mean Daily Temperatures<br><input type="radio" name="temptypes" value="min">Minimum Daily Temperatures</form>');
+    $('#ajaxloader').hide();
+    $('#legendid').append('<form action=""><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
     //function to load data from files
     loadData(map);
 
@@ -40,44 +40,58 @@ function createMap(){
 
 //function to load geojson data with ajax
 function loadData(map){
-    //load the Means data via ajax
-    $.ajax("data/UHIDailySummaries/Means12-16.geojson", {
-        dataType: "json",
-        success: function(response){
-            //create attribute array
-            var meanAtts = processData(response);
-            //display symbols for a default date
-            //console.log(meanAtts);
-            //find average baseline temp of 4 points furtherest away (max,min lat long?)
-            //if (attChoice == "mean"){
-                createSymbols(response,map,meanAtts);
-                createSequenceControls(response, map, meanAtts);
-                setChart(meanAtts);
-            //};
+    //determine which radio button is checked
+    $('#tempradio').change(function(){
+        if ($('#tempradio').value == 'mean'){
+             //start loading affordance 
+            $('#ajaxloader').show();
+            //load the Means data via ajax
+            $.ajax("data/UHIDailySummaries/Means12-16.geojson", {
+                dataType: "json",
+                success: function(response){
+                    //create attribute array
+                    var meanAtts = processData(response);
+                    createSymbols(response,map,meanAtts);
+                    createSequenceControls(response, map, meanAtts);
+                    setChart(meanAtts);
+                    //hide loading affordance
+                    $('#ajaxloader').hide();
+                }
+            });
         }
-    });
-    //load max data
-    $.ajax("data/UHIDailySummaries/Maxes12-16.geojson", {
-        dataType: "json",
-        success: function(response){
-            //create attribute array
-            var maxAtts = processData(response);
-            // console.log(maxAtts);
-            // createSequenceControls(map);
-            // setChart(maxAtts, colorScale)
+        else if ($('#tempradio').value == 'max'){
+            //start loading affordance 
+            $('#ajaxloader').show();
+            //load max data
+            $.ajax("data/UHIDailySummaries/Maxes12-16.geojson", {
+                dataType: "json",
+                success: function(response){
+                    //create attribute array
+                    var maxAtts = processData(response);
+                    console.log(maxAtts);
+                    createSequenceControls(map);
+                    setChart(maxAtts, colorScale)
+                    //hide loading affordance
+                    $('#ajaxloader').hide();
+                }
+            });
         }
-    });
-    //load the min data
-    $.ajax("data/UHIDailySummaries/Mins12-16.geojson", {
-        dataType: "json",
-        success: function(response){
-            //create attribute array
-            var minAtts = processData(response)
-            // createSequenceControls(map);
-            // setChart(minAtts, colorScale)
-            //hide loading spinner affordance
-            $('#ajaxloader').hide();
-        }
+        else if ($('#tempradio').value == 'min'){
+             //start loading affordance 
+            $('#ajaxloader').show();
+             //load the min data
+            $.ajax("data/UHIDailySummaries/Mins12-16.geojson", {
+                dataType: "json",
+                success: function(response){
+                    //create attribute array
+                    var minAtts = processData(response)
+                    createSequenceControls(map);
+                    setChart(minAtts, colorScale)
+                    //hide loading spinner affordance
+                    $('#ajaxloader').hide();
+                }
+            });    
+        };
     });
 };
 
