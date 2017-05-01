@@ -112,7 +112,26 @@ display:inline-block;
   border-radius: 5px;
 }
 
-.chart {
+.bar{
+  fill: steelblue;
+}
+
+.bar:hover{
+  fill: brown;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+/*.chart {
   background-color: white;
   border: medium solid #252525;
   float: right;
@@ -128,7 +147,7 @@ display:inline-block;
     stroke: #999;
     stroke-width: 3px;
     shape-rendering: crispEdges;
-}
+}*/
 
 #ajaxloader
 {

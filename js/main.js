@@ -1,31 +1,33 @@
 function initialize(){
 
-    d3.queue()
-      .defer(d3.json, "data/UHIDailySummaries/Means12-16.geojson")
-      .defer(d3.json, "data/UHIDailySummaries/Maxes12-16.geojson")
-      .defer(d3.json, "data/UHIDailySummaries/Mins12-16.geojson")
-      .await(callback);
+    var parseDate = d3.timeParse("%Y-%m-%d %p");
 
-    function callback(error, means, maxes, mins){
-      console.log(error);
-      console.log(means);
-      console.log(maxes);
-      console.log(mins);
+    // d3.queue()
+    //   .defer(d3.json, "data/UHIDailySummaries/Means12-16.geojson")
+    //   .defer(d3.json, "data/UHIDailySummaries/Maxes12-16.geojson")
+    //   .defer(d3.json, "data/UHIDailySummaries/Mins12-16.geojson")
+    //   .await(callback);
+    //
+    // function callback(error, means, maxes, mins){
+    //   console.log(error);
+    //   console.log(means);
+    //   console.log(maxes);
+    //   console.log(mins);
+    //
+    //   // maxes.forEach(function(d){
+    //   //   d.month = d.month;
+    //   //   d.tair = +d.tair
+    //   // });
+    //   //
+    //   // mins.forEach(function(d){
+    //   //   d.month = d.month;
+    //   //   d.days = +d.days
+    //   // });
+    //
 
-      // maxes.forEach(function(d){
-      //   d.month = d.month;
-      //   d.tair = +d.tair
-      // });
-      //
-      // mins.forEach(function(d){
-      //   d.month = d.month;
-      //   d.days = +d.days
-      // });
-
-      setChart(means);
-      setChart(maxes);
-      setChart(mins);
-    }
+    //   // setChart(maxes);
+    //   // setChart(mins);
+    // }
 
     var currentYear;
     var currentMonth;
@@ -80,7 +82,7 @@ function loadData(map){
             console.log(meanAtts);
             createPropSymbols(response,map,meanAtts);
             createSequenceControls(map, meanAtts);
-            // setChart(meanAtts);
+            setChart(meanAtts, colorScale);
         }
     });
     //load max data
@@ -349,40 +351,40 @@ function setChart(data){
       chartInnerHeight = chartHeight - topBottomPadding * 2,
       translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
 
-  var chart = d3.select("panelchart")
-      .append("svg")
-      .attr("width", chartWidth)
-      .attr("height", chartHeight)
-      .attr("class", "chart");
-
-  var yScale = d3.scaleLinear()
-    .range([0, chartHeight])
-    .domain([0, d3.max(data, function(d){ return d.tair;})]);
-
-    var chartBackground = chart.append("panelchart")
-        .attr("class", "chartBackground")
-        .attr("width", chartInnerWidth)
-        .attr("height", chartInnerHeight)
-        .attr("transform", translate);
-
-  //set bars for each [fill in the blank]
-  var bars = chart.selectAll(".bars")
-    .data(data)
-    .enter()
-    .append("rect")
-    .attr("class", function(d){
-        return "bars " + d.SID;
-    })
-    .attr("width", chartWidth / data.length - 1)
-    .attr("x", function(d, i){
-        return i * (chartWidth / data.length);
-    })
-    .attr("height", function(d){
-        return yScale(d.tair);
-    })
-    .attr("y", function(d){
-        return chartHeight - yScale(d.tair);
-    });
+  // var chart = d3.select("panelchart")
+  //     .append("svg")
+  //     .attr("width", chartWidth)
+  //     .attr("height", chartHeight)
+  //     .attr("class", "chart");
+  //
+  // var yScale = d3.scaleLinear()
+  //   .range([0, chartHeight])
+  //   .domain([0, d3.max(data, function(d){ return d.tair;})]);
+  //
+  //   var chartBackground = chart.append("panelchart")
+  //       .attr("class", "chartBackground")
+  //       .attr("width", chartInnerWidth)
+  //       .attr("height", chartInnerHeight)
+  //       .attr("transform", translate);
+  //
+  // //set bars for each [fill in the blank]
+  // var bars = chart.selectAll(".bars")
+  //   .data(data)
+  //   .enter()
+  //   .append("rect")
+  //   .attr("class", function(d){
+  //       return "bars " + d.date;
+  //   })
+  //   .attr("width", chartWidth / data.length - 1)
+  //   .attr("x", function(d, i){
+  //       return i * (chartWidth / data.length);
+  //   })
+  //   .attr("height", function(d){
+  //       return yScale(d.tair);
+  //   })
+  //   .attr("y", function(d){
+  //       return chartHeight - yScale(d.tair);
+  //   });
   // var chartFrame = chart.append("rect")
   //     .attr("class", "chartFrame")
   //     .attr("width", chartInnerWidth)
