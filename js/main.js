@@ -41,8 +41,8 @@ function createMap(){
 //function to load geojson data with ajax
 function loadData(map){
     //determine which radio button is checked
-    $('#tempradio').change(function(){
-        if ($('#tempradio').value == 'mean'){
+    $('input[name=tempradio]').change(function(){
+        if ($('input[name=tempradio]').value == 'mean'){
              //start loading affordance 
             $('#ajaxloader').show();
             //load the Means data via ajax
@@ -59,7 +59,7 @@ function loadData(map){
                 }
             });
         }
-        else if ($('#tempradio').value == 'max'){
+        else if ($('input[name=tempradio]').checked.val == 'max'){
             //start loading affordance 
             $('#ajaxloader').show();
             //load max data
@@ -76,7 +76,7 @@ function loadData(map){
                 }
             });
         }
-        else if ($('#tempradio').value == 'min'){
+        else if ($('input[name=tempradio]').checked.val == 'min'){
              //start loading affordance 
             $('#ajaxloader').show();
              //load the min data
