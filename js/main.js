@@ -32,7 +32,7 @@ function createMap(){
     //show data load affordance spinner
 
     $('#ajaxloader').hide();
-    $('#legendid').append('<form><h5>Select A Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
+    $('#legendid').append('<form><h5>Select A Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair" checked="checked">Air Temperature</form>');
     $('#legendid').append('<form><h5>Select A Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean" checked="checked">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
 
     //function to load data from files
@@ -42,19 +42,32 @@ function createMap(){
 
 //function to load geojson data with ajax
 function loadData(map){
-    console.log($(':radio[value=mean]'));
+    //check for temp type selection
+    console.log($(':radio[value=HI]'));
+    var tempType = $(':radio[name=calcradio]').change(function(){
+        if ($(':radio[value=tair]').is('checked')){
+            return "tair";
+        }
+        else if ($(':radio[value=HI]').is('checked')){
+            return "HI";
+        }
+        else if ($(':radio[value=AT]').is('checked')){
+            return "AT";
+        }
+    });
+    console.log(tempType);
     //determine which radio buttons are checked
-    $(':radio[name=tempradio]').change(function(){
+    $(':radio[name=tempradio]').change(function(tempType){
         if ($(':radio[value=mean]').is(':checked')){
              //start loading affordance
             $('#ajaxloader').show();
             //load the Means data via ajax
             $.ajax("data/UHIDailySummaries/Means12-16.geojson", {
                 dataType: "json",
-                success: function(response){
+                success: function(response,tempType){
                     //create attribute array
                     var meanAtts = processData(response);
-                    createSymbols(response,map,meanAtts);
+                    createSymbols(response,map,meanAtts,tempType);
                     createSequenceControls(response, map, meanAtts);
                     setChart(meanAtts);
                     //hide loading affordance
@@ -118,18 +131,18 @@ function processData(data){
 
 
 //create proportional sybols form geojson data properties
-function createSymbols(response, map, attributes){
+function createSymbols(response, map, attributes, tempType){
     //create an array for temperatures of given day
     var temps = [];
     //create a Leaflet GeoJSON layer and add it to the map
-    var geojson = L.geoJson(response,{
+    var geojson = L.geoJson(response,tempType,{
         //point to layer converts each point feature to layer to use circle marker
-        pointToLayer: function(feature, latlng, attributes){
+        pointToLayer: function(feature, latlng, attributes, tempType){
             //push temps for that day into the temps array from above
             if (feature.properties.year == 2015 && feature.properties.month == 07 && feature.properties.day == 01){
-                temps.push(feature.properties["tair"]);
+                temps.push(feature.properties[tempType]);
             };
-            return pointToLayer(feature, latlng, attributes);
+            return pointToLayer(feature, latlng, attributes, tempType);
         },
         //filtering the data for default date - make this interactive at some point
         filter: function(feature, layer){
@@ -141,8 +154,8 @@ function createSymbols(response, map, attributes){
     }).addTo(map);
     //get color scale breaks
     var colorBreaks = calcColorBreaks(temps);
-    geojson.eachLayer(function(layer){
-        var temp = layer.feature.properties["tair"];
+    geojson.eachLayer(function(layer, tempType){
+        var temp = layer.feature.properties[tempType];
         layer.setStyle({
             fillColor: getColor(colorBreaks, temp)
         });
@@ -180,9 +193,9 @@ function getColor(colorBreaks, temp){
 };
 
 //initial symbolization when map loads for first time
-function pointToLayer(feature, latlng, attributes,){
+function pointToLayer(feature, latlng, attributes,tempType){
     //grab the properties of the attribute tair - default
-    var attValue = feature.properties["tair"];
+    var attValue = feature.properties[tempType];
     //create marker options w/ defualt styling
     var options = {
         radius: 8,
@@ -226,19 +239,6 @@ function pointToLayer(feature, latlng, attributes,){
     });
     return layer;
 };
-
-
-//calculate radius for proportional symbols
-/*function calcPropRadius(attValue) {
-    //scale factor for even symbol size adjustments
-    var scaleFactor = 25;
-    //area based on attribute value and scale factor
-    var area = Math.abs(attValue) * scaleFactor;
-    //radius is calc based on area
-    var radius = Math.sqrt(area/Math.PI);
-    return radius;
-};*/
-
 
 
 function createSequenceControls(data,map, attributes){
