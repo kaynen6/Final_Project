@@ -56,7 +56,7 @@ function loadData(map){
                     //create attribute array
                     var meanAtts = processData(response);
                     createSymbols(response,map,meanAtts);
-                    createSequenceControls(response, map, meanAtts);
+                    createSlider(response, map, meanAtts);
                     setChart(meanAtts);
                     //hide loading affordance
                     $('#ajaxloader').hide();
@@ -73,7 +73,7 @@ function loadData(map){
                     //create attribute array
                     var maxAtts = processData(response);
                     createSymbols(response,map,meanAtts);
-                    createSequenceControls(map);
+                    createSlider(map);
                     setChart(maxAtts, colorScale)
                     //hide loading affordance
                     $('#ajaxloader').hide();
@@ -90,7 +90,7 @@ function loadData(map){
                     //create attribute array
                     var minAtts = processData(response);
                     createSymbols(response,map,meanAtts);
-                    createSequenceControls(map);
+                    createSlider(map);
                     setChart(minAtts, colorScale)
                     //hide loading spinner affordance
                     $('#ajaxloader').hide();
@@ -203,9 +203,9 @@ function pointToLayer(feature, latlng, attributes,){
     //create circleMarker
     var layer = L.circleMarker(latlng, options);
     //create popup content string
-    var popupContent = "";
-    //add panel content variable
-    var panelContent = "";
+    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p>";
+    // //add panel content variable
+    // var panelContent = "";
     //add text and year and value to panelcontent
     //bind the popup content to the layer and add an offset radius option
     layer.bindPopup(popupContent, {
@@ -241,7 +241,8 @@ function pointToLayer(feature, latlng, attributes,){
 
 
 
-function createSequenceControls(data, map, attributes){
+function createSlider(data, map, attributes){
+
 	var SequenceControl = L.Control.extend({
 		options: {
 			position: 'bottomleft'
@@ -260,7 +261,7 @@ function createSequenceControls(data, map, attributes){
 
 		map.addControl(new SequenceControl());
 		// Preventing any mouse event listeners on the map to occur
-		$('.range-slider').on('mousedown dblclick', function(e){
+		$('.range-slider').on('mousedown', function(e){
 			L.DomEvent.stopPropagation(e);
 		});
 		$('#reverse').html('<img src="img/reverse.png">');
@@ -270,6 +271,7 @@ function createSequenceControls(data, map, attributes){
     console.log(minDate);
     var maxDate = new Date(2016, 03, 30);
     maxDate = maxDate.getTime()
+    console.log(maxDate);
 
 		$('.range-slider').attr({'type':'range',
 												'max': maxDate,
@@ -277,29 +279,33 @@ function createSequenceControls(data, map, attributes){
 												'step': 86400000,
 												'value': minDate
 											});
-    $('.range-slider').on("input change", function(d){
-      // console.log(d);
-      var newdate = d.target.value;
-      console.log(newdate);
-    });
-    // $('.range-slider').on('mousedown drag', function(e){
-    //   L.DomEvent.stopPropagation(e);
-    // });
+
 		$('.skip').on('mousedown dblclick', function(e){
 			L.DomEvent.stopPropagation(e);
 		});
 		$('.skip').click(function(){
 			var datestep = $('.range-slider').val();
-
 			if ($(this).attr('id') == 'forward'){
-				datestep++;
+				datestep = parseFloat(datestep);
+        datestep += 86400000;
 				datestep = datestep > maxDate ? minDate : datestep;
+        var newdate = new Date(datestep);
+        newdate = newdate.toLocaleDateString();
+        return newdate;
+        console.log(newdate);
 			} else if ($(this).attr('id') == 'reverse'){
-				datestep--;
+        datestep = parseFloat(datestep);
+				datestep -= 86400000;
 				datestep = datestep < minDate ? maxDate : datestep;
+        var newdate = new Date(datestep)
+        newdate = newdate.toLocaleDateString();
+        return newdate;
+        console.log(newdate);
 			};
 			$('.range-slider').val(datestep);
-			updatePropSymbols(map, attributes[datestep]);
+      $('.range-slider').text(newdate);
+			// updatePropSymbols(map, attributes[newdate]);
+      console.log(attributes[newdate]);
       setChart(data);
 		});
 };
@@ -378,5 +384,3 @@ function setChart(data){
 };
 
 $(document).ready(initialize);
-
-

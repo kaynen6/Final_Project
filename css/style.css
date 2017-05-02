@@ -11,7 +11,7 @@ h1 {
 }
 
 #mapid {
-    height: 615px;
+    height: 600px;
     width: 60%;
     top: 20px;
     display: inline-block;
@@ -36,10 +36,10 @@ h1 {
   right: 20%;
   height: 350px;
   width: 75%;
-  top: 20px;
+  top: 10px;
   display: inline-block;
   text-align: left;
-  padding: 12px;
+  padding: 10px;
   z-index: 10;
   border: 3px solid #000000;
   margin-top:100%;
