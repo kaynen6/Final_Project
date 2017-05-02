@@ -262,6 +262,7 @@ function createSlider(data, map, attributes){
 				// Creating a control container for the sequence control slider
 				var container = L.DomUtil.create('div', 'sequence-control-container');
 				$(container).append('<input class="range-slider" type="range">');
+
 				// $(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
 				// $(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
 
@@ -287,58 +288,26 @@ function createSlider(data, map, attributes){
 												'value': minDate
 											});
     // Preventing any mouse event listeners on the map to occur
-  	$('.range-slider').on('mousedown', function(e){
-  		L.DomEvent.stopPropagation(e);
-      return false;
-  	});
-    // $('.range-slider').on("click", function(e){
-    //   L.DomEvent.stopPropagation(e);
-    // });
-    // $('.range-slider').on("mouseover", function(e){
-    //   L.DomEvent.stopPropagation(e);
-    // });
-    // $('.range-slider').addEventListener("mouseout", function(){
-    //   map.dragging.enable();
-    // });
-		// $('.skip').on('mousedown dblclick', function(e){
-		// 	L.DomEvent.stopPropagation(e);
-		// });
-		// $('.skip').click(function(){
-		// 	var datestep = $('.range-slider').val();
-		// 	if ($(this).attr('id') == 'forward'){
-		// 		datestep = parseFloat(datestep);
-    //     datestep += 86400000;
-		// 		datestep = datestep > maxDate ? minDate : datestep;
-    //     var newdate = new Date(datestep);
-    //     newdate = newdate.toLocaleDateString();
-    //     console.log(newdate);
-		// 	} else if ($(this).attr('id') == 'reverse'){
-    //     datestep = parseFloat(datestep);
-		// 		datestep -= 86400000;
-		// 		datestep = datestep < minDate ? maxDate : datestep;
-    //     var newdate = new Date(datestep)
-    //     newdate = newdate.toLocaleDateString();
-    //
-    //     console.log(newdate);
-		// 	};
-		// $('.range-slider').val(datestep);
-
-    // $('.range-slider').on('slide', function(){
-    //
-    // });
-
-    // $('.range-slider').text(newdate);
-		// updatePropSymbols(map, attributes[newdate]);
-    setChart(data);
+  	$('.range-slider').on('input', function(){
+      	var datestep = $(this).val();
+        datestep = parseFloat(datestep);
+        var newDate = new Date(datestep);
+        newDate = newDate.toLocaleDateString();
+        $('.range-slider').val(datestep);
+        updatePropSymbols(map, attributes, datestep);
+    });
+    // setChart(data);
 	// });
 };
 
 /* Creating a function to update the proportional symbols when activated
 by the sequence slider */
-function updatePropSymbols(data, map, attribute){
+function updatePropSymbols(data, map, attribute, datestep){
     map.eachLayer(function(layer){
 		if (layer.feature && layer.feature.properties[attribute]){
+      consol.log(layer.feature);
 			var props = layer.feature.properties;
+      console.log(props);
 			var options = { radius: 8,
                             fillColor: "lightblue",
                             color: "#000",
@@ -382,15 +351,15 @@ function setChart(data){
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
 
-  // Creating a vertical axis generator for the bar chart
-  var yAxis = d3.axisLeft()
-      .scale(yScale);
-
-  // Placing the axis
-  var axis = chart.append("g")
-      .attr("class", "axis")
-      .attr("transform", translate)
-      .call(yAxis);
+  // // Creating a vertical axis generator for the bar chart
+  // var yAxis = d3.axisLeft()
+  //     .scale(yScale);
+  //
+  // // Placing the axis
+  // var axis = chart.append("g")
+  //     .attr("class", "axis")
+  //     .attr("transform", translate)
+  //     .call(yAxis);
 
   // Creating a frame for the chart border
   var chartFrame = chart.append("rect")
