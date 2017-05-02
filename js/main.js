@@ -2,7 +2,7 @@ function initialize(){
     var currentYear;
     var currentMonth;
     var currentDay;
-    
+
 
 
     //Creating the parameters for the chart area
@@ -146,7 +146,7 @@ function pointToLayer(feature, latlng, attributes,){
         weight: 0.5,
         opacity: 1,
         fillOpacity: 0.8
-    };    
+    };
     //console.log(attValue);
     /*if (attValue < 0){
         attValue = Math.abs(attValue);
@@ -268,13 +268,6 @@ function updatePropSymbols(data, map, attribute){
 };
 
 function setChart(data){
-<<<<<<< HEAD
-  var chart = d3.select("body")
-        .append("svg")
-        .attr("width", chartWidth)
-        .attr("height", chartHeight)
-        .attr("class", "chart")
-=======
   var chartWidth = window.innerWidth * 0.425,
       chartHeight = 100,
       leftPadding = 25,
@@ -288,12 +281,11 @@ function setChart(data){
       .range([chartInnerHeight, 0])
       .domain([-50,120]);
 
-  var chart = d3.select("panel2")
+  var chart = d3.select("panelContainer")
       .append("svg")
       .attr("width", chartWidth)
       .attr("height", chartHeight)
       .attr("class", "chart");
->>>>>>> refs/remotes/origin/master
 
   var chartBackground = chart.append("rect")
       .attr("class", "chartBackground")
@@ -301,7 +293,6 @@ function setChart(data){
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
 
-<<<<<<< HEAD
   var bars = chart.selectAll(".bars")
       .data(data)
       .enter()
@@ -321,56 +312,27 @@ function setChart(data){
       .attr("class", "chartTitle")
       .text("Working Title");
 
-=======
->>>>>>> refs/remotes/origin/master
-  // Creating a vertical axis generator for the bar chart
-  var yAxis = d3.axisLeft()
-      .scale(yScale);
-
-  // Placing the axis
-  var axis = chart.append("g")
-      .attr("class", "axis")
-      .attr("transform", translate)
-      .call(yAxis);
-
-  // Creating a frame for the chart border
-  var chartFrame = chart.append("rect")
-      .attr("class", "chartFrame")
-      .attr("width", chartInnerWidth)
-      .attr("height", chartInnerHeight)
-      .attr("transform", translate);
-
-<<<<<<< HEAD
-  updateChart(bars,data.length);
+  // updateChart(bars,data.length);
 };
 
-function updateChart(bars, n, colorScale){
-  bars.attr("x", function(d, i){
-          return i * (chartInnerWidth / n) + leftPadding;
-      })
-      // Resizing the bars in the chart based upon the update
-      .attr("height", function(d, i){
-          return chartInnerHeight - yScale(parseFloat(d.tair));
-      })
-      .attr("y", function(d, i){
-          return yScale(parseFloat(d.tair)) + topBottomPadding;
-      });
-      // // Recoloring the bars in the chart based upon the update
-      // .style("fill", function(d){
-      //     return choropleth(d, colorScale);
-      // });
+// function updateChart(bars, n, colorScale){
+//   bars.attr("x", function(d, i){
+//           return i * (chartInnerWidth / n) + leftPadding;
+//       })
+//       // Resizing the bars in the chart based upon the update
+//       .attr("height", function(d, i){
+//           return chartInnerHeight - yScale(parseFloat(d.tair));
+//       })
+//       .attr("y", function(d, i){
+//           return yScale(parseFloat(d.tair)) + topBottomPadding;
+//       });
+//       // // Recoloring the bars in the chart based upon the update
+//       // .style("fill", function(d){
+//       //     return choropleth(d, colorScale);
+//       // });
+//
+//   var chartTitle = d3.selectAll(".chartTitle")
+//       .text("Working Title");
+// };
 
-  var chartTitle = d3.selectAll(".chartTitle")
-      .text("Working Title");
-};
-
-
-=======
-  //alert("Do you know where this is going?");
-
-  // loading geojson
-  //
-  //
-};
->>>>>>> refs/remotes/origin/master
 $(document).ready(initialize);
