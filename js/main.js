@@ -31,9 +31,11 @@ function createMap(){
     baseMaps["Satellite"].addTo(map);
 
     //show data load affordance spinner
+
     $('#ajaxloader').hide();
     $('#legendid').append('<form><h5>Select A Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
     $('#legendid').append('<form><h5>Select A Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+
     //function to load data from files
     loadData(map);
 
@@ -41,6 +43,7 @@ function createMap(){
 
 //function to load geojson data with ajax
 function loadData(map){
+
     //determine which radio buttons are checked
     $('input[name=tempradio]').change(function(){
         if ($('input[value=mean]:checked')){
@@ -94,6 +97,7 @@ function loadData(map){
                 }
             });
         };
+
     });
 };
 
@@ -326,8 +330,6 @@ function updatePropSymbols(data, map, attribute){
 	});
 };
 
-
-
 function setChart(data){
 
   var chartWidth = panelContainer.innerWidth,
@@ -376,3 +378,5 @@ function setChart(data){
 };
 
 $(document).ready(initialize);
+
+
