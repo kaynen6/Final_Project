@@ -3,24 +3,6 @@ function initialize(){
     var currentMonth;
     var currentDay;
 
-
-
-    //Creating the parameters for the chart area
-    var chartWidth = 694,
-        chartHeight = 146,
-        leftPadding = 5,
-        rightPadding = 5,
-        topBottomPadding = 10,
-
-        chartInnerWidth = chartWidth - leftPadding - rightPadding,
-        chartInnerHeight = chartHeight - topBottomPadding * 2,
-        translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
-
-    // Creating a scale to proportionally size the bars to the frame and for the axis
-    var yScale = d3.scaleLinear()
-        .range([chartInnerHeight, 0])
-        .domain([0,100]);
-
     createMap();
 };
 
@@ -46,9 +28,12 @@ function createMap(){
     };
 
     L.control.layers(baseMaps).addTo(map);
+    baseMaps["Satellite"].addTo(map);
 
     //show data load affordance spinner
-    $('#ajaxloader').show();
+    $('#ajaxloader').hide();
+    $('#legendid').append('<form><h5>Select A Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
+    $('#legendid').append('<form><h5>Select A Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
     //function to load data from files
     loadData(map);
 
@@ -56,45 +41,59 @@ function createMap(){
 
 //function to load geojson data with ajax
 function loadData(map){
-    //load the Means data via ajax
-    $.ajax("data/UHIDailySummaries/Means12-16.geojson", {
-        dataType: "json",
-        success: function(response){
-            //create attribute array
-            var meanAtts = processData(response);
-            //display symbols for a default date
-            //console.log(meanAtts);
-            //find average baseline temp of 4 points furtherest away (max,min lat long?)
-
-            //if (attChoice == "mean"){
-                createSymbols(response,map,meanAtts);
-                createSequenceControls(response, map, meanAtts);
-                setChart(meanAtts);
-            //};
+    //determine which radio buttons are checked
+    $('input[name=tempradio]').change(function(){
+        if ($('input[value=mean]:checked')){
+             //start loading affordance
+            $('#ajaxloader').show();
+            //load the Means data via ajax
+            $.ajax("data/UHIDailySummaries/Means12-16.geojson", {
+                dataType: "json",
+                success: function(response){
+                    //create attribute array
+                    var meanAtts = processData(response);
+                    createSymbols(response,map,meanAtts);
+                    createSequenceControls(response, map, meanAtts);
+                    setChart(meanAtts);
+                    //hide loading affordance
+                    $('#ajaxloader').hide();
+                }
+            });
         }
-    });
-    //load max data
-    $.ajax("data/UHIDailySummaries/Maxes12-16.geojson", {
-        dataType: "json",
-        success: function(response){
-            //create attribute array
-            var maxAtts = processData(response);
-            // console.log(maxAtts);
-            // createSequenceControls(map);
-            // setChart(maxAtts, colorScale)
+        else if ($('input[value=max]:checked')){
+            //start loading affordance
+            $('#ajaxloader').show();
+            //load max data
+            $.ajax("data/UHIDailySummaries/Maxes12-16.geojson", {
+                dataType: "json",
+                success: function(response){
+                    //create attribute array
+                    var maxAtts = processData(response);
+                    createSymbols(response,map,meanAtts);
+                    createSequenceControls(map);
+                    setChart(maxAtts, colorScale)
+                    //hide loading affordance
+                    $('#ajaxloader').hide();
+                }
+            });
         }
-    });
-    //load the min data
-    $.ajax("data/UHIDailySummaries/Mins12-16.geojson", {
-        dataType: "json",
-        success: function(response){
-            //create attribute array
-            var minAtts = processData(response)
-            // createSequenceControls(map);
-            // setChart(minAtts, colorScale)
-            //hide loading spinner affordance
-            $('#ajaxloader').hide();
-        }
+        else if ($('input[value=min]:checked')){
+             //start loading affordance
+            $('#ajaxloader').show();
+             //load the min data
+            $.ajax("data/UHIDailySummaries/Mins12-16.geojson", {
+                dataType: "json",
+                success: function(response){
+                    //create attribute array
+                    var minAtts = processData(response);
+                    createSymbols(response,map,meanAtts);
+                    createSequenceControls(map);
+                    setChart(minAtts, colorScale)
+                    //hide loading spinner affordance
+                    $('#ajaxloader').hide();
+                }
+            });
+        };
     });
 };
 
@@ -110,17 +109,22 @@ function processData(data){
       //if (attribute.indexOf("HI")>-1 || attribute.indexOf("tair")>-1 || attribute.indexOf("year")>-1){
         attributes.push(attribute);
     };
-    console.log(attributes);
     return attributes;
 };
 
 
 //create proportional sybols form geojson data properties
 function createSymbols(response, map, attributes){
+    //create an array for temperatures of given day
+    var temps = [];
     //create a Leaflet GeoJSON layer and add it to the map
-    L.geoJson(response, {
+    var geojson = L.geoJson(response,{
         //point to layer converts each point feature to layer to use circle marker
         pointToLayer: function(feature, latlng, attributes){
+            //push temps for that day into the temps array from above
+            if (feature.properties.year == 2016 && feature.properties.month == 01 && feature.properties.day == 01){
+                temps.push(Math.round(feature.properties["tair"] * 100) / 100);
+            };
             return pointToLayer(feature, latlng, attributes);
         },
         //filtering the data for default date - make this interactive at some point
@@ -131,8 +135,45 @@ function createSymbols(response, map, attributes){
             }
         }
     }).addTo(map);
+    //get color scale breaks
+    var colorBreaks = calcColorBreaks(temps);
+    geojson.eachLayer(function(layer){
+        var temp = Math.round((layer.feature.properties["tair"] * 100) / 100);
+        layer.setStyle({
+            fillColor: getColor(colorBreaks, temp)
+        });
+    });
 };
 
+function calcColorBreaks(temps){
+    //chroma.js determines class breaks from the array of temperatures (or any data)
+    // here we use equal classes, 5 classes.
+    var colorBreaks = chroma.limits(temps,'k',5);
+    colorBreaks = colorBreaks.reverse();
+    return colorBreaks;
+};
+
+//function to find min max temps of the dataset
+function getColor(colorBreaks, temp){
+    //color scale is from colorbrewer...
+    var colorScale = ['#0571b0','#92c5de','#f7f7f7','#f4a582','#ca0020'];
+    //find what class the temp value falls in and assign color
+    if (temp < colorBreaks[1]){
+        return colorScale[0];
+    }
+    else if (temp < colorBreaks[2]){
+        return colorScale[1];
+    }
+    else if (temp < colorBreaks[3]){
+        return colorScale[2];
+    }
+    else if (temp < colorBreaks[4]){
+        return colorScale[3];
+    }
+    else {
+        return colorScale[4];
+    };
+};
 
 //initial symbolization when map loads for first time
 function pointToLayer(feature, latlng, attributes,){
@@ -196,40 +237,67 @@ function pointToLayer(feature, latlng, attributes,){
 
 
 
-function createSequenceControls(data,map, attributes){
-	$('#panel1').append('<input class="range-slider" type="range">');
+function createSequenceControls(data, map, attributes){
+	var SequenceControl = L.Control.extend({
+		options: {
+			position: 'bottomleft'
+		},
 
-    $('.range-slider').attr({
-        max: 4,
-        min: 0,
-        value: 0,
-        step: 1
-    });
+			onAdd: function (map){
+				// Creating a control container for the sequence control slider
+				var container = L.DomUtil.create('div', 'sequence-control-container');
+				$(container).append('<input class="range-slider" type="range">');
+				$(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
+				$(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
 
-    $('#panel1').append('<button class="skip" id="reverse">Reverse</button>');
-    $('#panel1').append('<button class="skip" id="forward">Skip</button>');
-
-    $('#reverse').html('<img src="img/reverse.png">');
-    $('#forward').html('<img src="img/forward.png">');
-
-    $('.skip').click(function(){
-		var index = $('.range-slider').val();
-
-		if ($(this).attr('id') == 'forward'){
-			index++;
-			index = index > 4 ? 0 : index;
-		} else if ($(this).attr('id') == 'reverse'){
-			index--;
-			index = index < 0 ? 4 : index;
-		};
-		$('.range-slider').val(index);
-		updatePropSymbols(data,map, attributes[index]);
+				return container;
+			}
 	});
 
-	$('.range-slider').on('input', function(){
-		var index = $(this).val();
-		updatePropSymbols(data, map, attributes[index]);
+		map.addControl(new SequenceControl());
+		// Preventing any mouse event listeners on the map to occur
+		$('.range-slider').on('mousedown dblclick', function(e){
+			L.DomEvent.stopPropagation(e);
+		});
+		$('#reverse').html('<img src="img/reverse.png">');
+		$('#forward').html('<img src="img/forward.png">');
+    var minDate = new Date(2012, 02, 19);
+    minDate = minDate.getTime()
+    console.log(minDate);
+    var maxDate = new Date(2016, 03, 30);
+    maxDate = maxDate.getTime()
+
+		$('.range-slider').attr({'type':'range',
+												'max': maxDate,
+												'min': minDate,
+												'step': 86400000,
+												'value': minDate
+											});
+    $('.range-slider').on("input change", function(d){
+      // console.log(d);
+      var newdate = d.target.value;
+      console.log(newdate);
     });
+    // $('.range-slider').on('mousedown drag', function(e){
+    //   L.DomEvent.stopPropagation(e);
+    // });
+		$('.skip').on('mousedown dblclick', function(e){
+			L.DomEvent.stopPropagation(e);
+		});
+		$('.skip').click(function(){
+			var datestep = $('.range-slider').val();
+
+			if ($(this).attr('id') == 'forward'){
+				datestep++;
+				datestep = datestep > maxDate ? minDate : datestep;
+			} else if ($(this).attr('id') == 'reverse'){
+				datestep--;
+				datestep = datestep < minDate ? maxDate : datestep;
+			};
+			$('.range-slider').val(datestep);
+			updatePropSymbols(map, attributes[datestep]);
+      setChart(data);
+		});
 };
 
 /* Creating a function to update the proportional symbols when activated
@@ -238,16 +306,7 @@ function updatePropSymbols(data, map, attribute){
     map.eachLayer(function(layer){
 		if (layer.feature && layer.feature.properties[attribute]){
 			var props = layer.feature.properties;
-			var radius = calcPropRadius(props[attribute]);
-			layer.setRadius(radius);
-            var year = props.year;
-            var month = props.month;
-            // console.log(props.month);
-            var day = props.day;
-            var temp = parseFloat(props[attribute]).toFixed(2);
-            var colorBreaks = calcColorBreaks(data, year, month, day);
-
-      			var options = { radius: 8,
+			var options = { radius: 8,
                             fillColor: "lightblue",
                             color: "#000",
                             weight: 0.5,
@@ -267,9 +326,12 @@ function updatePropSymbols(data, map, attribute){
 	});
 };
 
+
+
 function setChart(data){
-  var chartWidth = window.innerWidth * 0.425,
-      chartHeight = 100,
+
+  var chartWidth = panelContainer.innerWidth,
+      chartHeight = 25,
       leftPadding = 25,
       rightPadding = 2,
       topBottomPadding = 5,
@@ -293,46 +355,24 @@ function setChart(data){
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
 
-  var bars = chart.selectAll(".bars")
-      .data(data)
-      .enter()
-      .append("rect")
-      .attr("class", function(d){
-        return "bars " + d.tair;
-      })
-      .attr("width", 20)
-      // .attr("x", function(d, i){
-      //   return i*
-      // })
-      .attr("height", 100);
+  // Creating a vertical axis generator for the bar chart
+  var yAxis = d3.axisLeft()
+      .scale(yScale);
 
-  var chartTitle = chart.append("text")
-      .attr("x", 85)
-      .attr("y", 40)
-      .attr("class", "chartTitle")
-      .text("Working Title");
+  // Placing the axis
+  var axis = chart.append("g")
+      .attr("class", "axis")
+      .attr("transform", translate)
+      .call(yAxis);
 
-  // updateChart(bars,data.length);
+  // Creating a frame for the chart border
+  var chartFrame = chart.append("rect")
+      .attr("class", "chartFrame")
+      .attr("width", chartInnerWidth)
+      .attr("height", chartInnerHeight)
+      .attr("transform", translate);
+
+  // updateChart(asdflk)
 };
-
-// function updateChart(bars, n, colorScale){
-//   bars.attr("x", function(d, i){
-//           return i * (chartInnerWidth / n) + leftPadding;
-//       })
-//       // Resizing the bars in the chart based upon the update
-//       .attr("height", function(d, i){
-//           return chartInnerHeight - yScale(parseFloat(d.tair));
-//       })
-//       .attr("y", function(d, i){
-//           return yScale(parseFloat(d.tair)) + topBottomPadding;
-//       });
-//       // // Recoloring the bars in the chart based upon the update
-//       // .style("fill", function(d){
-//       //     return choropleth(d, colorScale);
-//       // });
-//
-//   var chartTitle = d3.selectAll(".chartTitle")
-//       .text("Working Title");
-// };
 
 $(document).ready(initialize);
