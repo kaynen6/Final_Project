@@ -46,30 +46,14 @@ h1 {
 }
 
 /* Panel & Panel container*/
-#panelcontainer{
-  /*height: 120px;
-  width: 600%;
-
-  padding: 10px;
-  display: inline-block;
-  vertical-align: top;
-  text-align: center;
-  line-height: 42px;
-  background-color: white;
-  border: 3px solid #000000;*/
-
-  height: 615px;
-  width: 60%;
+#panelContainer{
+  height: 130px;
+  width: 70%;
   top: 20px;
   display: inline-block;
-  padding: 10px;
+  padding: 15px;
   z-index: 10;
   border: 3px solid #000000;
-  /*
-  float: right;
-  right: 600px;
-  width: 600px;
-  */
 }
 
 .sequence-control-container{
@@ -121,6 +105,7 @@ h1 {
 
 .chartBackground {
     fill: white;
+    border: medium solid #999;
 
 }
 

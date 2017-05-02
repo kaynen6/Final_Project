@@ -2,7 +2,7 @@ function initialize(){
     var currentYear;
     var currentMonth;
     var currentDay;
-    
+
 
     createMap();
 };
@@ -29,6 +29,7 @@ function createMap(){
     };
 
     L.control.layers(baseMaps).addTo(map);
+    baseMaps["Satellite"].addTo(map);
 
     //show data load affordance spinner
     $('#ajaxloader').hide();
@@ -43,7 +44,7 @@ function loadData(map){
     //determine which radio button is checked
     $('input[name=tempradio]').change(function(){
         if ($('input[value=mean]:checked')){
-             //start loading affordance 
+             //start loading affordance
             $('#ajaxloader').show();
             //load the Means data via ajax
             $.ajax("data/UHIDailySummaries/Means12-16.geojson", {
@@ -61,7 +62,7 @@ function loadData(map){
             });
         }
         else if ($('input[value=max]:checked')){
-            //start loading affordance 
+            //start loading affordance
             $('#ajaxloader').show();
             //load max data
             $.ajax("data/UHIDailySummaries/Maxes12-16.geojson", {
@@ -78,7 +79,7 @@ function loadData(map){
             });
         }
         else if ($('input[value=min]:checked')){
-             //start loading affordance 
+             //start loading affordance
             $('#ajaxloader').show();
              //load the min data
             $.ajax("data/UHIDailySummaries/Mins12-16.geojson", {
@@ -92,7 +93,7 @@ function loadData(map){
                     //hide loading spinner affordance
                     $('#ajaxloader').hide();
                 }
-            });    
+            });
         };
     });
 };
@@ -143,7 +144,7 @@ function pointToLayer(feature, latlng, attributes,){
         weight: 0.5,
         opacity: 1,
         fillOpacity: 0.8
-    };    
+    };
     //console.log(attValue);
     /*if (attValue < 0){
         attValue = Math.abs(attValue);
@@ -193,40 +194,67 @@ function pointToLayer(feature, latlng, attributes,){
 
 
 
-function createSequenceControls(data,map, attributes){
-	$('#panel1').append('<input class="range-slider" type="range">');
+function createSequenceControls(data, map, attributes){
+	var SequenceControl = L.Control.extend({
+		options: {
+			position: 'bottomleft'
+		},
 
-    $('.range-slider').attr({
-        max: 4,
-        min: 0,
-        value: 0,
-        step: 1
-    });
+			onAdd: function (map){
+				// Creating a control container for the sequence control slider
+				var container = L.DomUtil.create('div', 'sequence-control-container');
+				$(container).append('<input class="range-slider" type="range">');
+				$(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
+				$(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
 
-    $('#panel1').append('<button class="skip" id="reverse">Reverse</button>');
-    $('#panel1').append('<button class="skip" id="forward">Skip</button>');
-
-    $('#reverse').html('<img src="img/reverse.png">');
-    $('#forward').html('<img src="img/forward.png">');
-
-    $('.skip').click(function(){
-		var index = $('.range-slider').val();
-
-		if ($(this).attr('id') == 'forward'){
-			index++;
-			index = index > 4 ? 0 : index;
-		} else if ($(this).attr('id') == 'reverse'){
-			index--;
-			index = index < 0 ? 4 : index;
-		};
-		$('.range-slider').val(index);
-		updatePropSymbols(data,map, attributes[index]);
+				return container;
+			}
 	});
 
-	$('.range-slider').on('input', function(){
-		var index = $(this).val();
-		updatePropSymbols(data, map, attributes[index]);
+		map.addControl(new SequenceControl());
+		// Preventing any mouse event listeners on the map to occur
+		$('.range-slider').on('mousedown dblclick', function(e){
+			L.DomEvent.stopPropagation(e);
+		});
+		$('#reverse').html('<img src="img/reverse.png">');
+		$('#forward').html('<img src="img/forward.png">');
+    var minDate = new Date(2012, 02, 19);
+    minDate = minDate.getTime()
+    console.log(minDate);
+    var maxDate = new Date(2016, 03, 30);
+    maxDate = maxDate.getTime()
+
+		$('.range-slider').attr({'type':'range',
+												'max': maxDate,
+												'min': minDate,
+												'step': 86400000,
+												'value': minDate
+											});
+    $('.range-slider').on("input change", function(d){
+      // console.log(d);
+      var newdate = d.target.value;
+      console.log(newdate);
     });
+    // $('.range-slider').on('mousedown drag', function(e){
+    //   L.DomEvent.stopPropagation(e);
+    // });
+		$('.skip').on('mousedown dblclick', function(e){
+			L.DomEvent.stopPropagation(e);
+		});
+		$('.skip').click(function(){
+			var datestep = $('.range-slider').val();
+
+			if ($(this).attr('id') == 'forward'){
+				datestep++;
+				datestep = datestep > maxDate ? minDate : datestep;
+			} else if ($(this).attr('id') == 'reverse'){
+				datestep--;
+				datestep = datestep < minDate ? maxDate : datestep;
+			};
+			$('.range-slider').val(datestep);
+			updatePropSymbols(map, attributes[datestep]);
+      setChart(data);
+		});
 };
 
 /* Creating a function to update the proportional symbols when activated
@@ -256,8 +284,8 @@ function updatePropSymbols(data, map, attribute){
 };
 
 function setChart(data){
-  var chartWidth = window.innerWidth * 0.425,
-      chartHeight = 100,
+  var chartWidth = panelContainer.innerWidth,
+      chartHeight = 25,
       leftPadding = 25,
       rightPadding = 2,
       topBottomPadding = 5,
@@ -269,7 +297,7 @@ function setChart(data){
       .range([chartInnerHeight, 0])
       .domain([-50,120]);
 
-  var chart = d3.select("panel2")
+  var chart = d3.select("panelContainer")
       .append("svg")
       .attr("width", chartWidth)
       .attr("height", chartHeight)
@@ -298,7 +326,7 @@ function setChart(data){
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
 
-  //alert("Do you know where this is going?");
+  // updateChart(asdflk)
 
   // loading geojson
   //
