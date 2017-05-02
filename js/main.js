@@ -71,7 +71,7 @@ function loadData(map){
                 success: function(response){
                     //create attribute array
                     var maxAtts = processData(response);
-                    createSymbols(response,map,meanAtts);
+                    createSymbols(response,map,maxAtts);
                     createSequenceControls(map);
                     setChart(maxAtts, colorScale)
                     //hide loading affordance
@@ -88,7 +88,7 @@ function loadData(map){
                 success: function(response){
                     //create attribute array
                     var minAtts = processData(response);
-                    createSymbols(response,map,meanAtts);
+                    createSymbols(response,map,minAtts);
                     createSequenceControls(map);
                     setChart(minAtts, colorScale)
                     //hide loading spinner affordance
@@ -125,14 +125,14 @@ function createSymbols(response, map, attributes){
         //point to layer converts each point feature to layer to use circle marker
         pointToLayer: function(feature, latlng, attributes){
             //push temps for that day into the temps array from above
-            if (feature.properties.year == 2016 && feature.properties.month == 01 && feature.properties.day == 01){
-                temps.push(Math.round(feature.properties["tair"] * 100) / 100);
+            if (feature.properties.year == 2015 && feature.properties.month == 07 && feature.properties.day == 01){
+                temps.push(feature.properties["tair"]);
             };
             return pointToLayer(feature, latlng, attributes);
         },
         //filtering the data for default date - make this interactive at some point
         filter: function(feature, layer){
-            if (feature.properties.year == 2016 && feature.properties.month == 01 && feature.properties.day == 01) {
+            if (feature.properties.year == 2015 && feature.properties.month == 07 && feature.properties.day == 01) {
                 return true
             // return feature.properties.year == 2016?  Will need to remove one/two of these constraints (day, month, year)?
             }
@@ -141,7 +141,7 @@ function createSymbols(response, map, attributes){
     //get color scale breaks
     var colorBreaks = calcColorBreaks(temps);
     geojson.eachLayer(function(layer){
-        var temp = Math.round((layer.feature.properties["tair"] * 100) / 100);
+        var temp = layer.feature.properties["tair"];
         layer.setStyle({
             fillColor: getColor(colorBreaks, temp)
         });
@@ -151,8 +151,8 @@ function createSymbols(response, map, attributes){
 function calcColorBreaks(temps){
     //chroma.js determines class breaks from the array of temperatures (or any data) 
     // here we use equal classes, 5 classes.
-    var colorBreaks = chroma.limits(temps,'k',5);
-    colorBreaks = colorBreaks.reverse();
+    console.log(temps);
+    var colorBreaks = chroma.limits(temps,'q',5);
     return colorBreaks;
 };
 
@@ -161,16 +161,16 @@ function getColor(colorBreaks, temp){
     //color scale is from colorbrewer...
     var colorScale = ['#0571b0','#92c5de','#f7f7f7','#f4a582','#ca0020'];
     //find what class the temp value falls in and assign color
-    if (temp < colorBreaks[1]){
+    if (temp <= colorBreaks[1]){
         return colorScale[0];
     }
-    else if (temp < colorBreaks[2]){
+    else if (temp <= colorBreaks[2]){
         return colorScale[1];    
     }
-    else if (temp < colorBreaks[3]){
+    else if (temp <= colorBreaks[3]){
         return colorScale[2];
     }
-    else if (temp < colorBreaks[4]){
+    else if (temp <= colorBreaks[4]){
         return colorScale[3];
     }
     else {
