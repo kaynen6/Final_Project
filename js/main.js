@@ -299,11 +299,16 @@ function createSlider(data, map, attributes){
         newdate = newdate.toLocaleDateString();
         console.log(newdate);
 			};
-			$('.range-slider').val(datestep);
-      $('.range-slider').text(newdate);
-			// updatePropSymbols(map, attributes[newdate]);
-      setChart(data, attributes[newdate]);
-		});
+		$('.range-slider').val(datestep);
+
+    // $('.range-slider').on('slide', function(){
+    //
+    // });
+
+    // $('.range-slider').text(newdate);
+		// updatePropSymbols(map, attributes[newdate]);
+    setChart(data, attributes[newdate]);
+	});
 };
 
 /* Creating a function to update the proportional symbols when activated
