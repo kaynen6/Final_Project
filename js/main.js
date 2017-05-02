@@ -33,8 +33,9 @@ function createMap(){
     //show data load affordance spinner
 
     $('#ajaxloader').hide();
-    $('#legendid').append('<form><h5>Select A Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
-    $('#legendid').append('<form><h5>Select A Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+    $('#legendid').append('<form><h5>Select A Temperature Calculation to Desplay:</h5><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
+    $('#legendid').append('<form><h5>Select A Temperature Aggregation to Display:</h5><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+
 
     //function to load data from files
     loadData(map);
@@ -251,20 +252,17 @@ function createSlider(data, map, attributes){
 				// Creating a control container for the sequence control slider
 				var container = L.DomUtil.create('div', 'sequence-control-container');
 				$(container).append('<input class="range-slider" type="range">');
-				$(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
-				$(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
+				// $(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
+				// $(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
 
 				return container;
 			}
 	});
 
 		map.addControl(new SequenceControl());
-		// Preventing any mouse event listeners on the map to occur
-		$('.range-slider').on('mousedown', function(e){
-			L.DomEvent.stopPropagation(e);
-		});
-		$('#reverse').html('<img src="img/reverse.png">');
-		$('#forward').html('<img src="img/forward.png">');
+
+		// $('#reverse').html('<img src="img/reverse.png">');
+		// $('#forward').html('<img src="img/forward.png">');
     var minDate = new Date(2012, 02, 19);
     minDate = minDate.getTime()
     console.log(minDate);
@@ -278,28 +276,42 @@ function createSlider(data, map, attributes){
 												'step': 86400000,
 												'value': minDate
 											});
-
-		$('.skip').on('mousedown dblclick', function(e){
-			L.DomEvent.stopPropagation(e);
-		});
-		$('.skip').click(function(){
-			var datestep = $('.range-slider').val();
-			if ($(this).attr('id') == 'forward'){
-				datestep = parseFloat(datestep);
-        datestep += 86400000;
-				datestep = datestep > maxDate ? minDate : datestep;
-        var newdate = new Date(datestep);
-        newdate = newdate.toLocaleDateString();
-        console.log(newdate);
-			} else if ($(this).attr('id') == 'reverse'){
-        datestep = parseFloat(datestep);
-				datestep -= 86400000;
-				datestep = datestep < minDate ? maxDate : datestep;
-        var newdate = new Date(datestep)
-        newdate = newdate.toLocaleDateString();
-        console.log(newdate);
-			};
-		$('.range-slider').val(datestep);
+    // Preventing any mouse event listeners on the map to occur
+  	$('.range-slider').on('mousedown', function(e){
+  		L.DomEvent.stopPropagation(e);
+      return false;
+  	});
+    // $('.range-slider').on("click", function(e){
+    //   L.DomEvent.stopPropagation(e);
+    // });
+    // $('.range-slider').on("mouseover", function(e){
+    //   L.DomEvent.stopPropagation(e);
+    // });
+    // $('.range-slider').addEventListener("mouseout", function(){
+    //   map.dragging.enable();
+    // });
+		// $('.skip').on('mousedown dblclick', function(e){
+		// 	L.DomEvent.stopPropagation(e);
+		// });
+		// $('.skip').click(function(){
+		// 	var datestep = $('.range-slider').val();
+		// 	if ($(this).attr('id') == 'forward'){
+		// 		datestep = parseFloat(datestep);
+    //     datestep += 86400000;
+		// 		datestep = datestep > maxDate ? minDate : datestep;
+    //     var newdate = new Date(datestep);
+    //     newdate = newdate.toLocaleDateString();
+    //     console.log(newdate);
+		// 	} else if ($(this).attr('id') == 'reverse'){
+    //     datestep = parseFloat(datestep);
+		// 		datestep -= 86400000;
+		// 		datestep = datestep < minDate ? maxDate : datestep;
+    //     var newdate = new Date(datestep)
+    //     newdate = newdate.toLocaleDateString();
+    //
+    //     console.log(newdate);
+		// 	};
+		// $('.range-slider').val(datestep);
 
     // $('.range-slider').on('slide', function(){
     //
@@ -307,8 +319,8 @@ function createSlider(data, map, attributes){
 
     // $('.range-slider').text(newdate);
 		// updatePropSymbols(map, attributes[newdate]);
-    setChart(data, attributes[newdate]);
-	});
+    setChart(data);
+	// });
 };
 
 /* Creating a function to update the proportional symbols when activated
@@ -339,23 +351,19 @@ function updatePropSymbols(data, map, attribute){
 
 function setChart(data){
 
-  var chartWidth = panelContainer.innerWidth,
-      chartHeight = 25,
-      leftPadding = 25,
+  var chartWidth = 800,
+      chartHeight = 150,
+      leftPadding = 2,
       rightPadding = 2,
       topBottomPadding = 5,
       chartInnerWidth = chartWidth - leftPadding - rightPadding,
       chartInnerHeight = chartHeight - topBottomPadding * 2,
       translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
 
-  var yScale = d3.scaleLinear()
-      .range([chartInnerHeight, 0])
-      .domain([-50,120]);
-
-  var chart = d3.select("panelContainer")
-      .append("svg")
-      .attr("width", chartWidth)
-      .attr("height", chartHeight)
+  var chart = d3.select("#panelContainer")
+      .append("svg:svg")
+      .attr("width", 300)
+      .attr("height", 300)
       .attr("class", "chart");
 
   var chartBackground = chart.append("rect")
