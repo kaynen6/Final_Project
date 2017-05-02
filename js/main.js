@@ -33,7 +33,7 @@ function createMap(){
 
     $('#ajaxloader').hide();
     $('#legendid').append('<form><h5>Select A Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
-    $('#legendid').append('<form><h5>Select A Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+    $('#legendid').append('<form><h5>Select A Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean" checked="checked">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
 
     //function to load data from files
     loadData(map);
@@ -42,10 +42,10 @@ function createMap(){
 
 //function to load geojson data with ajax
 function loadData(map){
-
+    console.log($(':radio[value=mean]'));
     //determine which radio buttons are checked
-    $('input[name=tempradio]').change(function(){
-        if ($('input[value=mean]:checked')){
+    $(':radio[name=tempradio]').change(function(){
+        if ($(':radio[value=mean]').is(':checked')){
              //start loading affordance
             $('#ajaxloader').show();
             //load the Means data via ajax
@@ -62,7 +62,7 @@ function loadData(map){
                 }
             });
         }
-        else if ($('input[value=max]:checked')){
+        else if ($(':radio[value=max]').is(':checked')){
             //start loading affordance
             $('#ajaxloader').show();
             //load max data
@@ -79,7 +79,7 @@ function loadData(map){
                 }
             });
         }
-        else if ($('input[value=min]:checked')){
+        else if ($(':radio[value=min]').is(':checked')){
              //start loading affordance
             $('#ajaxloader').show();
              //load the min data
@@ -93,6 +93,7 @@ function loadData(map){
                     setChart(minAtts, colorScale)
                     //hide loading spinner affordance
                     $('#ajaxloader').hide();
+                    console.log(minAtts);
                 }
             });
         };
