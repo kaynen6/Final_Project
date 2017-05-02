@@ -28,6 +28,7 @@ function createMap(){
     };
 
     L.control.layers(baseMaps).addTo(map);
+    baseMaps["Satellite"].addTo(map);
 
     //show data load affordance spinner
 
@@ -66,10 +67,12 @@ function loadData(map){
                 success: function(response){
                     //create attribute array
                     var meanAtts = processData(response);
+
                     var tempType = "tair";
-                    createSymbols(response,map,meanAtts,tempType);
-                    createSequenceControls(response, map, meanAtts);
-                    setChart(meanAtts);
+                    createSymbols(response,map,meanAtts);
+                    createSlider(response, map, meanAtts);
+                    // setChart(meanAtts, attributes);
+
                     //hide loading affordance
                     $('#ajaxloader').hide();
                 }
@@ -84,10 +87,10 @@ function loadData(map){
                 success: function(response){
                     //create attribute array
                     var maxAtts = processData(response);
-                    var tempType = "tair";
-                    createSymbols(response,map,maxAtts, tempType);
-                    createSequenceControls(map);
-                    setChart(maxAtts, colorScale)
+
+                    createSymbols(response,map, maxAtts);
+                    createSlider(response, map, maxAtts);
+                    // setChart(maxAtts, attributes)
                     //hide loading affordance
                     $('#ajaxloader').hide();
                 }
@@ -102,10 +105,9 @@ function loadData(map){
                 success: function(response){
                     //create attribute array
                     var minAtts = processData(response);
-                    var tempType = "tair";
-                    createSymbols(response,map,minAtts, tempType);
-                    createSequenceControls(map);
-                    setChart(minAtts, colorScale)
+                    createSymbols(response,map,minAtts);
+                    createSlider(response, map, minAtts)
+                    // setChart(minAtts, attributes)
                     //hide loading spinner affordance
                     $('#ajaxloader').hide();
                     console.log(minAtts);
@@ -166,7 +168,7 @@ function createSymbols(response, map, attributes){
 };
 
 function calcColorBreaks(temps){
-    //chroma.js determines class breaks from the array of temperatures (or any data) 
+    //chroma.js determines class breaks from the array of temperatures (or any data)
     // here we use equal classes, 5 classes.
     console.log(temps);
     var colorBreaks = chroma.limits(temps,'q',5);
@@ -181,6 +183,7 @@ function getColor(colorBreaks, temp){
     if (temp <= colorBreaks[1]){
         return colorScale[0];
     }
+
     else if (temp <= colorBreaks[2]){
         return colorScale[1];    
     }
@@ -219,9 +222,9 @@ function pointToLayer(feature, latlng, attributes){
     //create circleMarker
     var layer = L.circleMarker(latlng, options);
     //create popup content string
-    var popupContent = "";
-    //add panel content variable
-    var panelContent = "";
+    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p>";
+    // //add panel content variable
+    // var panelContent = "";
     //add text and year and value to panelcontent
     //bind the popup content to the layer and add an offset radius option
     layer.bindPopup(popupContent, {
@@ -244,40 +247,77 @@ function pointToLayer(feature, latlng, attributes){
 };
 
 
-function createSequenceControls(data,map, attributes){
-	$('#panel1').append('<input class="range-slider" type="range">');
 
-    $('.range-slider').attr({
-        max: 4,
-        min: 0,
-        value: 0,
-        step: 1
-    });
 
-    $('#panel1').append('<button class="skip" id="reverse">Reverse</button>');
-    $('#panel1').append('<button class="skip" id="forward">Skip</button>');
+function createSlider(data, map, attributes){
+	var SequenceControl = L.Control.extend({
+		options: {
+			position: 'bottomleft'
+		},
 
-    $('#reverse').html('<img src="img/reverse.png">');
-    $('#forward').html('<img src="img/forward.png">');
 
-    $('.skip').click(function(){
-		var index = $('.range-slider').val();
+			onAdd: function (map){
+				// Creating a control container for the sequence control slider
+				var container = L.DomUtil.create('div', 'sequence-control-container');
+				$(container).append('<input class="range-slider" type="range">');
+				$(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
+				$(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
 
-		if ($(this).attr('id') == 'forward'){
-			index++;
-			index = index > 4 ? 0 : index;
-		} else if ($(this).attr('id') == 'reverse'){
-			index--;
-			index = index < 0 ? 4 : index;
-		};
-		$('.range-slider').val(index);
-		updatePropSymbols(data,map, attributes[index]);
+				return container;
+			}
 	});
 
-	$('.range-slider').on('input', function(){
-		var index = $(this).val();
-		updatePropSymbols(data, map, attributes[index]);
-    });
+		map.addControl(new SequenceControl());
+		// Preventing any mouse event listeners on the map to occur
+		$('.range-slider').on('mousedown', function(e){
+			L.DomEvent.stopPropagation(e);
+		});
+		$('#reverse').html('<img src="img/reverse.png">');
+		$('#forward').html('<img src="img/forward.png">');
+    var minDate = new Date(2012, 02, 19);
+    minDate = minDate.getTime()
+    console.log(minDate);
+    var maxDate = new Date(2016, 03, 30);
+    maxDate = maxDate.getTime()
+    console.log(maxDate);
+
+		$('.range-slider').attr({'type':'range',
+												'max': maxDate,
+												'min': minDate,
+												'step': 86400000,
+												'value': minDate
+											});
+
+		$('.skip').on('mousedown dblclick', function(e){
+			L.DomEvent.stopPropagation(e);
+		});
+		$('.skip').click(function(){
+			var datestep = $('.range-slider').val();
+			if ($(this).attr('id') == 'forward'){
+				datestep = parseFloat(datestep);
+        datestep += 86400000;
+				datestep = datestep > maxDate ? minDate : datestep;
+        var newdate = new Date(datestep);
+        newdate = newdate.toLocaleDateString();
+        console.log(newdate);
+			} else if ($(this).attr('id') == 'reverse'){
+        datestep = parseFloat(datestep);
+				datestep -= 86400000;
+				datestep = datestep < minDate ? maxDate : datestep;
+        var newdate = new Date(datestep)
+        newdate = newdate.toLocaleDateString();
+        console.log(newdate);
+			};
+		$('.range-slider').val(datestep);
+
+    // $('.range-slider').on('slide', function(){
+    //
+    // });
+
+    // $('.range-slider').text(newdate);
+		// updatePropSymbols(map, attributes[newdate]);
+    setChart(data, attributes[newdate]);
+	});
 };
 
 /* Creating a function to update the proportional symbols when activated
@@ -307,8 +347,9 @@ function updatePropSymbols(data, map, attribute){
 };
 
 function setChart(data){
-  var chartWidth = window.innerWidth * 0.425,
-      chartHeight = 100,
+
+  var chartWidth = panelContainer.innerWidth,
+      chartHeight = 25,
       leftPadding = 25,
       rightPadding = 2,
       topBottomPadding = 5,
@@ -320,7 +361,7 @@ function setChart(data){
       .range([chartInnerHeight, 0])
       .domain([-50,120]);
 
-  var chart = d3.select("panel2")
+  var chart = d3.select("panelContainer")
       .append("svg")
       .attr("width", chartWidth)
       .attr("height", chartHeight)
@@ -349,13 +390,7 @@ function setChart(data){
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
 
-  //alert("Do you know where this is going?");
-
-  // loading geojson
-  //
-  //
+  // updateChart(asdflk)
 };
 
 $(document).ready(initialize);
-
-
