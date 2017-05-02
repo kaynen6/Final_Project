@@ -57,7 +57,7 @@ function loadData(map){
                     var meanAtts = processData(response);
                     createSymbols(response,map,meanAtts);
                     createSlider(response, map, meanAtts);
-                    setChart(meanAtts);
+                    // setChart(meanAtts, attributes);
                     //hide loading affordance
                     $('#ajaxloader').hide();
                 }
@@ -72,9 +72,9 @@ function loadData(map){
                 success: function(response){
                     //create attribute array
                     var maxAtts = processData(response);
-                    createSymbols(response,map,meanAtts);
-                    createSlider(map);
-                    setChart(maxAtts, colorScale)
+                    createSymbols(response,map, maxAtts);
+                    createSlider(response, map, maxAtts);
+                    // setChart(maxAtts, attributes)
                     //hide loading affordance
                     $('#ajaxloader').hide();
                 }
@@ -89,9 +89,9 @@ function loadData(map){
                 success: function(response){
                     //create attribute array
                     var minAtts = processData(response);
-                    createSymbols(response,map,meanAtts);
-                    createSlider(map);
-                    setChart(minAtts, colorScale)
+                    createSymbols(response,map,minAtts);
+                    createSlider(response, map, minAtts)
+                    // setChart(minAtts, attributes)
                     //hide loading spinner affordance
                     $('#ajaxloader').hide();
                 }
@@ -242,7 +242,6 @@ function pointToLayer(feature, latlng, attributes,){
 
 
 function createSlider(data, map, attributes){
-
 	var SequenceControl = L.Control.extend({
 		options: {
 			position: 'bottomleft'
@@ -291,7 +290,6 @@ function createSlider(data, map, attributes){
 				datestep = datestep > maxDate ? minDate : datestep;
         var newdate = new Date(datestep);
         newdate = newdate.toLocaleDateString();
-        return newdate;
         console.log(newdate);
 			} else if ($(this).attr('id') == 'reverse'){
         datestep = parseFloat(datestep);
@@ -299,14 +297,12 @@ function createSlider(data, map, attributes){
 				datestep = datestep < minDate ? maxDate : datestep;
         var newdate = new Date(datestep)
         newdate = newdate.toLocaleDateString();
-        return newdate;
         console.log(newdate);
 			};
 			$('.range-slider').val(datestep);
       $('.range-slider').text(newdate);
 			// updatePropSymbols(map, attributes[newdate]);
-      console.log(attributes[newdate]);
-      setChart(data);
+      setChart(data, attributes[newdate]);
 		});
 };
 
