@@ -33,8 +33,8 @@ function createMap(){
     //show data load affordance spinner
 
     $('#ajaxloader').hide();
-    $('#legendid').append('<form><h5>Select A Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
-    $('#legendid').append('<form><h5>Select A Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+    $('#legendid').append('<form><h5>Select a Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair" checked="checked">Air Temperature</form>');
+    $('#legendid').append('<form><h5>Select a Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean" checked="checked">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
 
     //function to load data from files
     loadData(map);
@@ -43,10 +43,22 @@ function createMap(){
 
 //function to load geojson data with ajax
 function loadData(map){
-
+    //check
+    /*$(':radio[name=calcradio]').change(function(){
+        if ($(':radio[value=tair]').is(':checked')){
+            return "tair";
+        }
+        else if ($(':radio[value=HI]').is(':checked')){
+            return "HI";
+        }
+        else if ($(':radio[value=AT]').is(':checked')){
+            return "AT";
+        }
+    }).val();
+    console.log(tempType);*/
     //determine which radio buttons are checked
-    $('input[name=tempradio]').change(function(){
-        if ($('input[value=mean]:checked')){
+    $(':radio[name=tempradio]').change(function(){
+        if ($(':radio[value=mean]').is(':checked')){
              //start loading affordance
             $('#ajaxloader').show();
             //load the Means data via ajax
@@ -55,15 +67,18 @@ function loadData(map){
                 success: function(response){
                     //create attribute array
                     var meanAtts = processData(response);
+
+                    var tempType = "tair";
                     createSymbols(response,map,meanAtts);
                     createSlider(response, map, meanAtts);
                     // setChart(meanAtts, attributes);
+
                     //hide loading affordance
                     $('#ajaxloader').hide();
                 }
             });
         }
-        else if ($('input[value=max]:checked')){
+        else if ($(':radio[value=max]').is(':checked')){
             //start loading affordance
             $('#ajaxloader').show();
             //load max data
@@ -72,6 +87,7 @@ function loadData(map){
                 success: function(response){
                     //create attribute array
                     var maxAtts = processData(response);
+
                     createSymbols(response,map, maxAtts);
                     createSlider(response, map, maxAtts);
                     // setChart(maxAtts, attributes)
@@ -80,7 +96,7 @@ function loadData(map){
                 }
             });
         }
-        else if ($('input[value=min]:checked')){
+        else if ($(':radio[value=min]').is(':checked')){
              //start loading affordance
             $('#ajaxloader').show();
              //load the min data
@@ -94,6 +110,7 @@ function loadData(map){
                     // setChart(minAtts, attributes)
                     //hide loading spinner affordance
                     $('#ajaxloader').hide();
+                    console.log(minAtts);
                 }
             });
         };
@@ -126,14 +143,15 @@ function createSymbols(response, map, attributes){
         //point to layer converts each point feature to layer to use circle marker
         pointToLayer: function(feature, latlng, attributes){
             //push temps for that day into the temps array from above
-            if (feature.properties.year == 2016 && feature.properties.month == 01 && feature.properties.day == 01){
-                temps.push(Math.round(feature.properties["tair"] * 100) / 100);
+            if (feature.properties.year == 2015 && feature.properties.month == 07 && feature.properties.day == 01){
+                console.log(feature.properties);
+                temps.push(feature.properties["tair"]);
             };
             return pointToLayer(feature, latlng, attributes);
         },
         //filtering the data for default date - make this interactive at some point
         filter: function(feature, layer){
-            if (feature.properties.year == 2016 && feature.properties.month == 01 && feature.properties.day == 01) {
+            if (feature.properties.year == 2015 && feature.properties.month == 07 && feature.properties.day == 01) {
                 return true
             // return feature.properties.year == 2016?  Will need to remove one/two of these constraints (day, month, year)?
             }
@@ -142,7 +160,7 @@ function createSymbols(response, map, attributes){
     //get color scale breaks
     var colorBreaks = calcColorBreaks(temps);
     geojson.eachLayer(function(layer){
-        var temp = Math.round((layer.feature.properties["tair"] * 100) / 100);
+        var temp = layer.feature.properties["tair"];
         layer.setStyle({
             fillColor: getColor(colorBreaks, temp)
         });
@@ -152,8 +170,8 @@ function createSymbols(response, map, attributes){
 function calcColorBreaks(temps){
     //chroma.js determines class breaks from the array of temperatures (or any data)
     // here we use equal classes, 5 classes.
-    var colorBreaks = chroma.limits(temps,'k',5);
-    colorBreaks = colorBreaks.reverse();
+    console.log(temps);
+    var colorBreaks = chroma.limits(temps,'q',5);
     return colorBreaks;
 };
 
@@ -162,16 +180,17 @@ function getColor(colorBreaks, temp){
     //color scale is from colorbrewer...
     var colorScale = ['#0571b0','#92c5de','#f7f7f7','#f4a582','#ca0020'];
     //find what class the temp value falls in and assign color
-    if (temp < colorBreaks[1]){
+    if (temp <= colorBreaks[1]){
         return colorScale[0];
     }
-    else if (temp < colorBreaks[2]){
-        return colorScale[1];
+
+    else if (temp <= colorBreaks[2]){
+        return colorScale[1];    
     }
-    else if (temp < colorBreaks[3]){
+    else if (temp <= colorBreaks[3]){
         return colorScale[2];
     }
-    else if (temp < colorBreaks[4]){
+    else if (temp <= colorBreaks[4]){
         return colorScale[3];
     }
     else {
@@ -180,12 +199,12 @@ function getColor(colorBreaks, temp){
 };
 
 //initial symbolization when map loads for first time
-function pointToLayer(feature, latlng, attributes,){
+function pointToLayer(feature, latlng, attributes){
     //grab the properties of the attribute tair - default
     var attValue = feature.properties["tair"];
     //create marker options w/ defualt styling
     var options = {
-        radius: 8,
+        radius: 9,
         fillColor: "lightblue",
         color: "#000",
         weight: 0.5,
@@ -228,17 +247,6 @@ function pointToLayer(feature, latlng, attributes,){
 };
 
 
-//calculate radius for proportional symbols
-/*function calcPropRadius(attValue) {
-    //scale factor for even symbol size adjustments
-    var scaleFactor = 25;
-    //area based on attribute value and scale factor
-    var area = Math.abs(attValue) * scaleFactor;
-    //radius is calc based on area
-    var radius = Math.sqrt(area/Math.PI);
-    return radius;
-};*/
-
 
 
 function createSlider(data, map, attributes){
@@ -246,6 +254,7 @@ function createSlider(data, map, attributes){
 		options: {
 			position: 'bottomleft'
 		},
+
 
 			onAdd: function (map){
 				// Creating a control container for the sequence control slider
