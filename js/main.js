@@ -147,7 +147,6 @@ function processData(data){
     return attributes;
 };
 
-
 //create proportional sybols form geojson data properties
 function createSymbols(response, map, attributes, tempType){
     //create an array for temperatures of given day
@@ -277,6 +276,7 @@ function pointToLayer(feature, latlng, attributes, tempType){
 
 
 function createSlider(data, map, attributes){
+
 	var SequenceControl = L.Control.extend({
 		options: {
 			position: 'bottomleft'
@@ -299,6 +299,7 @@ function createSlider(data, map, attributes){
 
 		// $('#reverse').html('<img src="img/reverse.png">');
 		// $('#forward').html('<img src="img/forward.png">');
+    //   var minDate = new Date(data.features[0].properties["date"]);
     var minDate = new Date(2012, 02, 19);
     minDate = minDate.getTime()
     console.log(minDate);
@@ -327,10 +328,12 @@ function createSlider(data, map, attributes){
 
 /* Creating a function to update the proportional symbols when activated
 by the sequence slider */
+
 function updatePropSymbols(data, map, attribute, datestep){
     map.eachLayer(function(layer){
 		if (layer.feature && layer.feature.properties[attribute]){
       consol.log(layer.feature);
+
 			var props = layer.feature.properties;
       console.log(props);
 			var options = { radius: 8,
@@ -354,6 +357,7 @@ function updatePropSymbols(data, map, attribute, datestep){
 };
 
 function setChart(data){
+
 
   var chartWidth = 800,
       chartHeight = 150,
