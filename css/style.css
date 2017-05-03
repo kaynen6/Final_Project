@@ -11,16 +11,18 @@ h1 {
 }
 
 #mapid {
-    height: 615px;
+    height: 600px;
     width: 60%;
     top: 20px;
     display: inline-block;
     padding: 10px;
     z-index: 10;
+    border: 3px solid #000000;
 
 }
 /* Legend Container and Legendid*/
 #legendContainer{
+<<<<<<< HEAD
 	height: 765px;
 	width: 20%;
 	text-align:center;
@@ -28,16 +30,35 @@ h1 {
 	 padding: 10px;
 	 border-style: dashed;
 	 border: 3px solid #000000;
-	
+=======
+  height: 765px;
+  width: 20%;
+  text-align:center;
+  float: left;
+  padding: 10px;
+  border-style: dashed;
+  border: 3px solid #000000;
+>>>>>>> origin/Jon's-Branch
+
 }
+<<<<<<< HEAD
 /*currently housing select a temp*/
 #legendid {
     right: 20%;
   height: 150px;
   width: 70%;
   top: 20px;
+=======
+
+#legendid {
+  right: 20%;
+  height: 350px;
+  width: 75%;
+  top: 10px;
+>>>>>>> refs/remotes/origin/master
   display: inline-block;
-  padding: 12px;
+  text-align: left;
+  padding: 10px;
   z-index: 10;
   border: 3px solid #000000;
  /* margin-top:100%;*/
@@ -79,28 +100,18 @@ h1 {
 }
 /* Panel & Panel container*/
 #panelContainer{
-  width: 60%;
-  height: 120px;
-  padding: 10px;
+  height: 130px;
+  width: 70%;
+  top: 20px;
   display: inline-block;
-  vertical-align: top;
-  text-align: center;
-  line-height: 42px;
-  background-color: white;
-  border-bottom:3px solid #000000;
-  border-top:3px solid #000000;
-  border-right:3px solid #000000;
-
-  /*
-  float: right;
-  right: 600px;
-  width: 600px;
-  */
+  padding: 15px;
+  z-index: 10;
+  border: 3px solid #000000;
 }
 
 #panel1 {
-display:inline-block;
- float: left;
+  display:inline-block;
+  float: left;
   height: 100px;
   width: 600px;
   padding: 10px;
@@ -108,10 +119,10 @@ display:inline-block;
   text-align: center;
   line-height: 42px;
   background-color: white;
- 
-   float: center;
-   top: 20px;
-    display: inline-flex;
+  float: center;
+  top: 20px;
+  display: inline-flex;
+>>>>>>> origin/Jon's-Branch
 }
 
 
@@ -160,6 +171,7 @@ display:inline-block;
 
 .chartBackground {
     fill: white;
+    border: medium solid #999;
 }
 
 .chartFrame {
@@ -182,7 +194,7 @@ display:inline-block;
 	border-radius: 50%;
 	box-shadow: 0 0 25px 2px gray;
     animation: spin 1s linear infinite;
-    z-index: 50;
+    z-index: 5000;
 	vertical-align:bottom;
 	margin-left:50%;
 	margin-top:25%;
