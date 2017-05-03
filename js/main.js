@@ -9,6 +9,7 @@ function initialize(){
 
 // Creating a function to instantiate the map with Leaflet
 function createMap(){
+    $('#ajaxloader').show();
     var map = L.map('mapid', {
         center: [43.0731,-89.4012],
         zoom: 10
@@ -30,76 +31,104 @@ function createMap(){
     L.control.layers(baseMaps).addTo(map);
     baseMaps["Satellite"].addTo(map);
 
-    //show data load affordance spinner
-
+    $('#legendid').append('<form><h5>Select a Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair" checked="checked">Air Temperature</form>');
+    $('#legendid').append('<form><h5>Select a Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean" checked="checked">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+    //set listeners for radio buttons for temp calculation type (heat index, apparent temp, air temp)
+    $(':radio[name=calcradio]').change(function(){
+        //function to load data from files
+        loadData(map);
+    });
+    //listener for data set radio buttons (temperature aggregation - min,max,mean)
+    $(':radio[name=tempradio]').change(function(){
+        //function to load data from files
+        loadData(map);
+    });
     $('#ajaxloader').hide();
-    $('#legendid').append('<form><h5>Select A Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
-    $('#legendid').append('<form><h5>Select A Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
-
-    //function to load data from files
-    loadData(map);
-
 };
 
 //function to load geojson data with ajax
 function loadData(map){
-
+    var tempType = getTempType();
     //determine which radio buttons are checked
-    $('input[name=tempradio]').change(function(){
-        if ($('input[value=mean]:checked')){
-             //start loading affordance
-            $('#ajaxloader').show();
-            //load the Means data via ajax
-            $.ajax("data/UHIDailySummaries/Means12-16.geojson", {
-                dataType: "json",
-                success: function(response){
-                    //create attribute array
-                    var meanAtts = processData(response);
-                    createSymbols(response,map,meanAtts);
-                    createSlider(response, map, meanAtts);
-                    // setChart(meanAtts, attributes);
-                    //hide loading affordance
-                    $('#ajaxloader').hide();
-                }
-            });
-        }
-        else if ($('input[value=max]:checked')){
-            //start loading affordance
-            $('#ajaxloader').show();
-            //load max data
-            $.ajax("data/UHIDailySummaries/Maxes12-16.geojson", {
-                dataType: "json",
-                success: function(response){
-                    //create attribute array
-                    var maxAtts = processData(response);
-                    createSymbols(response,map, maxAtts);
-                    createSlider(response, map, maxAtts);
-                    // setChart(maxAtts, attributes)
-                    //hide loading affordance
-                    $('#ajaxloader').hide();
-                }
-            });
-        }
-        else if ($('input[value=min]:checked')){
-             //start loading affordance
-            $('#ajaxloader').show();
-             //load the min data
-            $.ajax("data/UHIDailySummaries/Mins12-16.geojson", {
-                dataType: "json",
-                success: function(response){
-                    //create attribute array
-                    var minAtts = processData(response);
-                    createSymbols(response,map,minAtts);
-                    createSlider(response, map, minAtts)
-                    // setChart(minAtts, attributes)
-                    //hide loading spinner affordance
-                    $('#ajaxloader').hide();
-                }
-            });
-        };
-
-    });
+    //if means are asked for:
+    if ($(':radio[value=mean]').is(':checked')){
+         //start loading affordance
+        $('#ajaxloader').show();
+        //load the Means data via ajax
+        $.ajax("data/UHIDailySummaries/Means12-16.geojson", {
+            dataType: "json",
+            success: function(response){
+                //create attribute array
+                var meanAtts = processData(response);
+                //create the point symbols
+                createSymbols(response,map,meanAtts,tempType);
+                createSlider(response, map, meanAtts);
+                // setChart(meanAtts, attributes);
+                //hide loading affordance
+                $('#ajaxloader').hide();
+            }
+        });
+    }
+    //if max temps are called for:
+    else if ($(':radio[value=max]').is(':checked')){
+        //start loading affordance
+        $('#ajaxloader').show();
+        //load max data
+        $.ajax("data/UHIDailySummaries/Maxes12-16.geojson", {
+            dataType: "json",
+            success: function(response){
+                //create attribute array
+                var maxAtts = processData(response);
+                //create the point symbols
+                createSymbols(response,map, maxAtts, tempType);
+                createSlider(response, map, maxAtts);
+                // setChart(maxAtts, attributes)
+                //hide loading affordance
+                $('#ajaxloader').hide();
+            }
+        });
+    }
+    //if minimum temps:
+    else if ($(':radio[value=min]').is(':checked')){
+         //start loading affordance
+        $('#ajaxloader').show();
+         //load the min data
+        $.ajax("data/UHIDailySummaries/Mins12-16.geojson", {
+            dataType: "json",
+            success: function(response){
+                //create attribute array
+                var minAtts = processData(response);
+                //create the point symbols
+                createSymbols(response,map,minAtts,tempType);
+                createSlider(response, map, minAtts)
+                // setChart(minAtts, attributes)
+                //hide loading spinner affordance
+                $('#ajaxloader').hide();
+                console.log(minAtts);
+            }
+        });
+    };
 };
+
+//function listens for radio button change on temp calculation type and returns the value for the selected radio button
+function getTempType(){
+    var type;
+        //if regualar air temperature:
+        if ($(':radio[value=tair]').is(':checked')){
+            type = "tair";
+        }
+        //if Heat Index:
+        else if ($(':radio[value=HI]').is(':checked')){
+            type = "HI";
+        }
+        //if Apparent Temperature:
+        else if ($(':radio[value=AT]').is(':checked')){
+            type = "AT";
+        }
+    return type;    
+};
+
+
 
 //create an attributes array from data
 function processData(data){
@@ -118,7 +147,7 @@ function processData(data){
 
 
 //create proportional sybols form geojson data properties
-function createSymbols(response, map, attributes){
+function createSymbols(response, map, attributes, tempType){
     //create an array for temperatures of given day
     var temps = [];
     //create a Leaflet GeoJSON layer and add it to the map
@@ -126,52 +155,56 @@ function createSymbols(response, map, attributes){
         //point to layer converts each point feature to layer to use circle marker
         pointToLayer: function(feature, latlng, attributes){
             //push temps for that day into the temps array from above
-            if (feature.properties.year == 2016 && feature.properties.month == 01 && feature.properties.day == 01){
-                temps.push(Math.round(feature.properties["tair"] * 100) / 100);
+            if (feature.properties.year == 2015 && feature.properties.month == 07 && feature.properties.day == 01){
+                console.log(tempType);
+                temps.push(feature.properties[tempType]);
             };
-            return pointToLayer(feature, latlng, attributes);
+            return pointToLayer(feature, latlng, attributes, tempType);
         },
         //filtering the data for default date - make this interactive at some point
         filter: function(feature, layer){
-            if (feature.properties.year == 2016 && feature.properties.month == 01 && feature.properties.day == 01) {
+            if (feature.properties.year == 2015 && feature.properties.month == 07 && feature.properties.day == 01) {
                 return true
             // return feature.properties.year == 2016?  Will need to remove one/two of these constraints (day, month, year)?
             }
         }
     }).addTo(map);
-    //get color scale breaks
+    //get color scale breaks via function
     var colorBreaks = calcColorBreaks(temps);
     geojson.eachLayer(function(layer){
-        var temp = Math.round((layer.feature.properties["tair"] * 100) / 100);
+        //get the temp of the point in question
+        var temp = layer.feature.properties[tempType];
+        //adjust the default style to new fill color via function
         layer.setStyle({
             fillColor: getColor(colorBreaks, temp)
         });
     });
 };
 
+//function to calculate the class breaks of the temperature data for the day
 function calcColorBreaks(temps){
     //chroma.js determines class breaks from the array of temperatures (or any data)
-    // here we use equal classes, 5 classes.
-    var colorBreaks = chroma.limits(temps,'k',5);
-    colorBreaks = colorBreaks.reverse();
+    // here we use quantile classes, 5 classes.
+    var colorBreaks = chroma.limits(temps,'q',5);
     return colorBreaks;
 };
 
-//function to find min max temps of the dataset
+//function takes the breaks for the color scale from previous function and assigns colors accordingly
 function getColor(colorBreaks, temp){
     //color scale is from colorbrewer...
     var colorScale = ['#0571b0','#92c5de','#f7f7f7','#f4a582','#ca0020'];
-    //find what class the temp value falls in and assign color
-    if (temp < colorBreaks[1]){
+    //find what class the temp value falls in and assign color from above scale
+    if (temp <= colorBreaks[1]){
         return colorScale[0];
     }
-    else if (temp < colorBreaks[2]){
-        return colorScale[1];
+
+    else if (temp <= colorBreaks[2]){
+        return colorScale[1];    
     }
-    else if (temp < colorBreaks[3]){
+    else if (temp <= colorBreaks[3]){
         return colorScale[2];
     }
-    else if (temp < colorBreaks[4]){
+    else if (temp <= colorBreaks[4]){
         return colorScale[3];
     }
     else {
@@ -180,19 +213,18 @@ function getColor(colorBreaks, temp){
 };
 
 //initial symbolization when map loads for first time
-function pointToLayer(feature, latlng, attributes,){
+function pointToLayer(feature, latlng, attributes, tempType){
     //grab the properties of the attribute tair - default
-    var attValue = feature.properties["tair"];
+    var attValue = feature.properties[tempType];
     //create marker options w/ defualt styling
     var options = {
-        radius: 8,
+        radius: 9,
         fillColor: "lightblue",
         color: "#000",
         weight: 0.5,
         opacity: 1,
         fillOpacity: 0.8
     };
-    //console.log(attValue);
     /*if (attValue < 0){
         attValue = Math.abs(attValue);
     } else {
@@ -202,8 +234,20 @@ function pointToLayer(feature, latlng, attributes,){
     //options.radius = calcPropRadius(attValue);
     //create circleMarker
     var layer = L.circleMarker(latlng, options);
+    //convert attributes to english
+    console.log(tempType);
+    var tempLabel;
+    if (tempType == "HI"){
+            tempLabel = "Heat Index"
+        }
+        else if (tempType == "AT"){
+            tempLabel = "Apparent Temperature"
+        }
+        else if (tempType == "tair"){
+            tempLabel = "Air Temperature"
+        };
     //create popup content string
-    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p>";
+    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p>" + tempLabel + " = " + feature.properties[tempType];
     // //add panel content variable
     // var panelContent = "";
     //add text and year and value to panelcontent
@@ -228,17 +272,6 @@ function pointToLayer(feature, latlng, attributes,){
 };
 
 
-//calculate radius for proportional symbols
-/*function calcPropRadius(attValue) {
-    //scale factor for even symbol size adjustments
-    var scaleFactor = 25;
-    //area based on attribute value and scale factor
-    var area = Math.abs(attValue) * scaleFactor;
-    //radius is calc based on area
-    var radius = Math.sqrt(area/Math.PI);
-    return radius;
-};*/
-
 
 
 function createSlider(data, map, attributes){
@@ -246,6 +279,7 @@ function createSlider(data, map, attributes){
 		options: {
 			position: 'bottomleft'
 		},
+
 
 			onAdd: function (map){
 				// Creating a control container for the sequence control slider
