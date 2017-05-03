@@ -31,8 +31,9 @@ function createMap(){
     L.control.layers(baseMaps).addTo(map);
     baseMaps["Satellite"].addTo(map);
 
-    $('#legendid').append('<form><h5>Select a Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair" checked="checked">Air Temperature</form>');
-    $('#legendid').append('<form><h5>Select a Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean" checked="checked">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+    $('#legendid').append('<form><h5>Select A Temperature Calculation to Desplay:</h5><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
+    $('#legendid').append('<form><h5>Select A Temperature Aggregation to Display:</h5><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+
     //set listeners for radio buttons for temp calculation type (heat index, apparent temp, air temp)
     $(':radio[name=calcradio]').change(function(){
         //function to load data from files
@@ -43,6 +44,7 @@ function createMap(){
         //function to load data from files
         loadData(map);
     });
+
     $('#ajaxloader').hide();
 };
 
@@ -125,7 +127,7 @@ function getTempType(){
         else if ($(':radio[value=AT]').is(':checked')){
             type = "AT";
         }
-    return type;    
+    return type;
 };
 
 
@@ -199,7 +201,7 @@ function getColor(colorBreaks, temp){
     }
 
     else if (temp <= colorBreaks[2]){
-        return colorScale[1];    
+        return colorScale[1];
     }
     else if (temp <= colorBreaks[3]){
         return colorScale[2];
@@ -285,20 +287,18 @@ function createSlider(data, map, attributes){
 				// Creating a control container for the sequence control slider
 				var container = L.DomUtil.create('div', 'sequence-control-container');
 				$(container).append('<input class="range-slider" type="range">');
-				$(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
-				$(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
+
+				// $(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
+				// $(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
 
 				return container;
 			}
 	});
 
 		map.addControl(new SequenceControl());
-		// Preventing any mouse event listeners on the map to occur
-		$('.range-slider').on('mousedown', function(e){
-			L.DomEvent.stopPropagation(e);
-		});
-		$('#reverse').html('<img src="img/reverse.png">');
-		$('#forward').html('<img src="img/forward.png">');
+
+		// $('#reverse').html('<img src="img/reverse.png">');
+		// $('#forward').html('<img src="img/forward.png">');
     var minDate = new Date(2012, 02, 19);
     minDate = minDate.getTime()
     console.log(minDate);
@@ -312,45 +312,27 @@ function createSlider(data, map, attributes){
 												'step': 86400000,
 												'value': minDate
 											});
-
-		$('.skip').on('mousedown dblclick', function(e){
-			L.DomEvent.stopPropagation(e);
-		});
-		$('.skip').click(function(){
-			var datestep = $('.range-slider').val();
-			if ($(this).attr('id') == 'forward'){
-				datestep = parseFloat(datestep);
-        datestep += 86400000;
-				datestep = datestep > maxDate ? minDate : datestep;
-        var newdate = new Date(datestep);
-        newdate = newdate.toLocaleDateString();
-        console.log(newdate);
-			} else if ($(this).attr('id') == 'reverse'){
+    // Preventing any mouse event listeners on the map to occur
+  	$('.range-slider').on('input', function(){
+      	var datestep = $(this).val();
         datestep = parseFloat(datestep);
-				datestep -= 86400000;
-				datestep = datestep < minDate ? maxDate : datestep;
-        var newdate = new Date(datestep)
-        newdate = newdate.toLocaleDateString();
-        console.log(newdate);
-			};
-		$('.range-slider').val(datestep);
-
-    // $('.range-slider').on('slide', function(){
-    //
-    // });
-
-    // $('.range-slider').text(newdate);
-		// updatePropSymbols(map, attributes[newdate]);
-    setChart(data, attributes[newdate]);
-	});
+        var newDate = new Date(datestep);
+        newDate = newDate.toLocaleDateString();
+        $('.range-slider').val(datestep);
+        updatePropSymbols(map, attributes, datestep);
+    });
+    // setChart(data);
+	// });
 };
 
 /* Creating a function to update the proportional symbols when activated
 by the sequence slider */
-function updatePropSymbols(data, map, attribute){
+function updatePropSymbols(data, map, attribute, datestep){
     map.eachLayer(function(layer){
 		if (layer.feature && layer.feature.properties[attribute]){
+      consol.log(layer.feature);
 			var props = layer.feature.properties;
+      console.log(props);
 			var options = { radius: 8,
                             fillColor: "lightblue",
                             color: "#000",
@@ -373,23 +355,19 @@ function updatePropSymbols(data, map, attribute){
 
 function setChart(data){
 
-  var chartWidth = panelContainer.innerWidth,
-      chartHeight = 25,
-      leftPadding = 25,
+  var chartWidth = 800,
+      chartHeight = 150,
+      leftPadding = 2,
       rightPadding = 2,
       topBottomPadding = 5,
       chartInnerWidth = chartWidth - leftPadding - rightPadding,
       chartInnerHeight = chartHeight - topBottomPadding * 2,
       translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
 
-  var yScale = d3.scaleLinear()
-      .range([chartInnerHeight, 0])
-      .domain([-50,120]);
-
-  var chart = d3.select("panelContainer")
-      .append("svg")
-      .attr("width", chartWidth)
-      .attr("height", chartHeight)
+  var chart = d3.select("#panelContainer")
+      .append("svg:svg")
+      .attr("width", 300)
+      .attr("height", 300)
       .attr("class", "chart");
 
   var chartBackground = chart.append("rect")
@@ -398,15 +376,15 @@ function setChart(data){
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
 
-  // Creating a vertical axis generator for the bar chart
-  var yAxis = d3.axisLeft()
-      .scale(yScale);
-
-  // Placing the axis
-  var axis = chart.append("g")
-      .attr("class", "axis")
-      .attr("transform", translate)
-      .call(yAxis);
+  // // Creating a vertical axis generator for the bar chart
+  // var yAxis = d3.axisLeft()
+  //     .scale(yScale);
+  //
+  // // Placing the axis
+  // var axis = chart.append("g")
+  //     .attr("class", "axis")
+  //     .attr("transform", translate)
+  //     .call(yAxis);
 
   // Creating a frame for the chart border
   var chartFrame = chart.append("rect")
