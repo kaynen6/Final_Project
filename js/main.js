@@ -33,12 +33,16 @@ function createMap(){
 
     $('#legendid').append('<form><h5>Select a Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair" checked="checked">Air Temperature</form>');
     $('#legendid').append('<form><h5>Select a Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean" checked="checked">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
-    //set listeners for radio buttons
+    //set listeners for radio buttons for temp calculation type (heat index, apparent temp, air temp)
     $(':radio[name=calcradio]').change(function(){
         //function to load data from files
         loadData(map);
     });
+<<<<<<< HEAD
 
+=======
+    //listener for data set radio buttons (temperature aggregation - min,max,mean)
+>>>>>>> refs/remotes/origin/master
     $(':radio[name=tempradio]').change(function(){
         //function to load data from files
         loadData(map);
@@ -50,6 +54,7 @@ function createMap(){
 function loadData(map){
     var tempType = getTempType();
     //determine which radio buttons are checked
+    //if means are asked for:
     if ($(':radio[value=mean]').is(':checked')){
          //start loading affordance
         $('#ajaxloader').show();
@@ -59,15 +64,16 @@ function loadData(map){
             success: function(response){
                 //create attribute array
                 var meanAtts = processData(response);
+                //create the point symbols
                 createSymbols(response,map,meanAtts,tempType);
                 createSlider(response, map, meanAtts);
                 // setChart(meanAtts, attributes);
-
                 //hide loading affordance
                 $('#ajaxloader').hide();
             }
         });
     }
+    //if max temps are called for:
     else if ($(':radio[value=max]').is(':checked')){
         //start loading affordance
         $('#ajaxloader').show();
@@ -77,6 +83,7 @@ function loadData(map){
             success: function(response){
                 //create attribute array
                 var maxAtts = processData(response);
+                //create the point symbols
                 createSymbols(response,map, maxAtts, tempType);
                 createSlider(response, map, maxAtts);
                 // setChart(maxAtts, attributes)
@@ -85,6 +92,7 @@ function loadData(map){
             }
         });
     }
+    //if minimum temps:
     else if ($(':radio[value=min]').is(':checked')){
          //start loading affordance
         $('#ajaxloader').show();
@@ -94,6 +102,7 @@ function loadData(map){
             success: function(response){
                 //create attribute array
                 var minAtts = processData(response);
+                //create the point symbols
                 createSymbols(response,map,minAtts,tempType);
                 createSlider(response, map, minAtts)
                 // setChart(minAtts, attributes)
@@ -103,13 +112,12 @@ function loadData(map){
             }
         });
     };
-
-
 };
 
 //function listens for radio button change on temp calculation type and returns the value for the selected radio button
 function getTempType(){
     var type;
+        //if regualar air temperature:
         if ($(':radio[value=tair]').is(':checked')){
             type = "tair";
         }
@@ -224,29 +232,31 @@ function createSymbols(response, map, attributes, tempType){
             }
         }
     }).addTo(map);
-    //get color scale breaks
+    //get color scale breaks via function
     var colorBreaks = calcColorBreaks(temps);
     geojson.eachLayer(function(layer){
+        //get the temp of the point in question
         var temp = layer.feature.properties[tempType];
+        //adjust the default style to new fill color via function
         layer.setStyle({
             fillColor: getColor(colorBreaks, temp)
         });
     });
 };
 
+//function to calculate the class breaks of the temperature data for the day
 function calcColorBreaks(temps){
     //chroma.js determines class breaks from the array of temperatures (or any data)
-    // here we use equal classes, 5 classes.
-    console.log(temps);
+    // here we use quantile classes, 5 classes.
     var colorBreaks = chroma.limits(temps,'q',5);
     return colorBreaks;
 };
 
-//function to find min max temps of the dataset
+//function takes the breaks for the color scale from previous function and assigns colors accordingly
 function getColor(colorBreaks, temp){
     //color scale is from colorbrewer...
     var colorScale = ['#0571b0','#92c5de','#f7f7f7','#f4a582','#ca0020'];
-    //find what class the temp value falls in and assign color
+    //find what class the temp value falls in and assign color from above scale
     if (temp <= colorBreaks[1]){
         return colorScale[0];
     }
@@ -278,7 +288,6 @@ function pointToLayer(feature, latlng, attributes, tempType){
         opacity: 1,
         fillOpacity: 0.8
     };
-    //console.log(attValue);
     /*if (attValue < 0){
         attValue = Math.abs(attValue);
     } else {
@@ -288,8 +297,20 @@ function pointToLayer(feature, latlng, attributes, tempType){
     //options.radius = calcPropRadius(attValue);
     //create circleMarker
     var layer = L.circleMarker(latlng, options);
+    //convert attributes to english
+    console.log(tempType);
+    var tempLabel;
+    if (tempType == "HI"){
+            tempLabel = "Heat Index"
+        }
+        else if (tempType == "AT"){
+            tempLabel = "Apparent Temperature"
+        }
+        else if (tempType == "tair"){
+            tempLabel = "Air Temperature"
+        };
     //create popup content string
-    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p>" + tempType + " = " + feature.properties[tempType];
+    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p>" + tempLabel + " = " + feature.properties[tempType];
     // //add panel content variable
     // var panelContent = "";
     //add text and year and value to panelcontent
