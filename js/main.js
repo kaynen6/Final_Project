@@ -12,7 +12,9 @@ function createMap(){
     $('#ajaxloader').show();
     var map = L.map('mapid', {
         center: [43.0731,-89.4012],
-        zoom: 10
+        zoom: 10,
+        maxZoom: 18,
+        minZoom: 8
     });
 
     // Adding the Satellite tilelayer
@@ -22,19 +24,33 @@ function createMap(){
     streets = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
     	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
     });
-
     var baseMaps = {
       "Satellite": satellite,
       "Streets": streets
     };
 
+    //preliminary zoom reset "button", gotta find a button//
+	var control = new L.control({position:'topright'});
+	control.onAdd = function(map){
+			var azoom = L.DomUtil.create('a','resetzoom');
+			azoom.innerHTML = "[Reset Zoom]";
+			L.DomEvent
+				.disableClickPropagation(azoom)
+				.addListener(azoom, 'click', function() {
+					map.setView(map.options.center, map.options.zoom);
+				},azoom);
+			return azoom;
+		};
+    control.addTo(map)
+    
     L.control.layers(baseMaps).addTo(map);
     baseMaps["Satellite"].addTo(map);
 
     $('#legendid').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
     $('#legendid').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
-
-
+    //load data based on default selections
+    loadData(map);  
+  
     //set listeners for radio buttons for temp calculation type (heat index, apparent temp, air temp)
     $(':radio[name=calcradio]').change(function(){
         //function to load data from files
@@ -248,7 +264,7 @@ function pointToLayer(feature, latlng, attributes, tempType){
             tempLabel = "Air Temperature"
         };
     //create popup content string
-    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p><p>" + tempLabel + " = " + parseFloat(feature.properties[tempType]).toFixed(2) + "</p>";
+    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p><p><b>" + tempLabel + " =</b> " + parseFloat(feature.properties[tempType]).toFixed(2) + "</p>";
     // //add panel content variable
     // var panelContent = "";
     //add text and year and value to panelcontent
