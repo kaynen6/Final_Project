@@ -157,6 +157,11 @@ body {
     border: 3px solid #000000;
 }
 
+.leaflet-popup-content p {
+  margin: 0.2em 0;
+  font-family: "Times New Roman", Helvetica, sans-serif;
+  font-variant: small-caps;
+}
 
 #ajaxloader
 {

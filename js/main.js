@@ -142,7 +142,6 @@ function processData(data){
     //push each attribute name into attributes array
     // Right now pushing HI & tair, but test for interactions
     for (var attribute in properties){
-      //if (attribute.indexOf("HI")>-1 || attribute.indexOf("tair")>-1 || attribute.indexOf("year")>-1){
         attributes.push(attribute);
     };
     return attributes;
@@ -249,7 +248,7 @@ function pointToLayer(feature, latlng, attributes, tempType){
             tempLabel = "Air Temperature"
         };
     //create popup content string
-    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p>" + tempLabel + " = " + feature.properties[tempType];
+    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p><p>" + tempLabel + " = " + parseFloat(feature.properties[tempType]).toFixed(2) + "</p>";
     // //add panel content variable
     // var panelContent = "";
     //add text and year and value to panelcontent
@@ -265,10 +264,10 @@ function pointToLayer(feature, latlng, attributes, tempType){
         },
         mouseout: function(){
             this.closePopup();
-        },
-        click: function(){
-            $("#panel1").html(panelContent);
         }
+        // click: function(){
+        //     $("#panel1").html(panelContent);
+        // }
     });
     return layer;
 };
