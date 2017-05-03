@@ -1,7 +1,7 @@
 /* Stylesheet by Jon Fok, Kayne Neigherbauer, Matt Smith 2017 */
 
 h1 {
-  font-size: 25px;
+  font-size: 30px;
   padding-top: 10px;
   font-variant: small-caps;
   text-align: center;
@@ -10,10 +10,8 @@ h1 {
   color: black;
 }
 
-
 h2 {
-  font-size: 15px;
-  padding-top: 0px;
+  font-size: 20px;
   font-variant: small-caps;
   text-align: center;
   font-family:"Times New Roman", Helvetica, sans-serif;
@@ -22,33 +20,37 @@ h2 {
 }
 
 h5 {
-  font-size: 12px;
-  padding-top: 0px;
-  font-variant: small-caps;
+  display: inline;
+  font-size: 20px;
+  line-height: 18px;
+  font-variant: normal;
   text-align: left;
   font-family:"Times New Roman", Helvetica, sans-serif;
   background-color: none;
   color: black;
 }
 
+body {
+  background-color: white;
+}
 #form{
-  font-size: 12px;
+  font-size: 10px;
   padding-top: 0px;
   font-variant: small-caps;
   text-align: left;
   font-family:"Times New Roman", Helvetica, sans-serif;
   background-color: none;
   color: black;
-
 }
 
 #mapid {
     height: 600px;
     width: 60%;
+    margin-left: -300px;
+    margin-top: -10px;
     top: 20px;
     display: inline-block;
     padding: 10px;
-    z-index: 10;
     border: 3px solid #000000;
 
 }
@@ -57,34 +59,36 @@ h5 {
 	height: 765px;
 	width: 20%;
 	text-align:center;
-	 float: left;
-	 padding: 10px;
-	 border-style: dashed;
-	 border: 3px solid #000000;
+   float: left;
+   padding: 10px;
+   border: 3px solid #000000;
+   background-color: #3182bd;
 }
 
 #legendid {
   right: 20%;
   height: 350px;
-  width: 75%;
+  width: 80%;
   top: 10px;
   display: inline-block;
   text-align: left;
   padding: 10px;
   z-index: 10;
   border: 3px solid #000000;
-  margin-top:100%;
+  margin-top:10%;
+  background-color: white;
 
 }
 
 /* Panel & Panel container*/
 #panelContainer{
-  height: 130px;
-  width: 70%;
-  top: 20px;
+  height: 120px;
+  width: 59.5%;
+  margin: 0 10px 0 -287px;
+  vertical-align: top;
+  top: 10px;
   display: inline-block;
   padding: 15px;
-  z-index: 10;
   border: 3px solid #000000;
 }
 
@@ -106,30 +110,17 @@ h5 {
 .sequence-control-container{
   width: 300px;
   height: 30px;
-  background-color: rgba(255,255,255,0.8);
+  background-color: #bdbdbd;
   padding: 15px;
   line-height: 40px;
   text-align: center;
-  border: solid gray 2px;
+  border: solid black 2px;
   border-radius: 10px;
 }
 
 .range-slider{
-  width: 150px;
-}
-
-/* Forward icon created by Futishia from the Noun Project */
-#forward {
-  float: right;
-  background-color: white;
-  border-radius: 5px;
-}
-/* Reverse icon created by Futishia from the Noun Project */
-
-#reverse {
-  float: left;
-  background-color: white;
-  border-radius: 5px;
+  width: 270px;
+  border: solid black 2px;
 }
 
 .chart {
@@ -142,11 +133,19 @@ h5 {
   font-size: 1.0em;
   font-weight: bold;
   font-variant: small-caps;
+  z-index: 10;
 }
 
 .chartBackground {
-    fill: black;
+    fill: white;
     border: medium solid #999;
+}
+
+.chartTitle {
+  font-family:"Times New Roman", Helvetica, sans-serif;
+  font-size: 20px;
+  font-weight: bold;
+  font-variant: small-caps;
 }
 
 .chartFrame {
@@ -158,6 +157,11 @@ h5 {
     border: 3px solid #000000;
 }
 
+.leaflet-popup-content p {
+  margin: 0.2em 0;
+  font-family: "Times New Roman", Helvetica, sans-serif;
+  font-variant: small-caps;
+}
 
 #ajaxloader
 {
@@ -172,9 +176,9 @@ h5 {
 	box-shadow: 0 0 25px 2px gray;
     animation: spin 1s linear infinite;
     z-index: 5000;
-	vertical-align:bottom;
-	margin-left:50%;
-	margin-top:25%;
+	/*vertical-align:bottom;*/
+	margin-left:52%;
+	margin-top:-18%;
 
 	vertical-align:middle;
 }

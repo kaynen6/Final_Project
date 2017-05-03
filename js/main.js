@@ -31,8 +31,15 @@ function createMap(){
     L.control.layers(baseMaps).addTo(map);
     baseMaps["Satellite"].addTo(map);
 
+<<<<<<< HEAD
     $('#legendid').append('<form><h5>Select a Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair" checked="checked">Air Temperature</form>');
     $('#legendid').append('<form><h5>Select a Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean" checked="checked">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+=======
+    $('#legendid').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
+    $('#legendid').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+
+
+>>>>>>> origin/Jon's-Branch
     //set listeners for radio buttons for temp calculation type (heat index, apparent temp, air temp)
     $(':radio[name=calcradio]').change(function(){
         //function to load data from files
@@ -44,6 +51,10 @@ function createMap(){
         //function to load data from files
         loadData(map);
     });
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/Jon's-Branch
     $('#ajaxloader').hide();
 };
 
@@ -63,8 +74,8 @@ function loadData(map){
                 var meanAtts = processData(response);
                 //create the point symbols
                 createSymbols(response,map,meanAtts,tempType);
-                createSlider(response, map, meanAtts);
-                // setChart(meanAtts, attributes);
+                var newDate = createSlider(response, map, meanAtts);
+                updateChart(meanAtts, tempType);
                 //hide loading affordance
                 $('#ajaxloader').hide();
             }
@@ -83,7 +94,7 @@ function loadData(map){
                 //create the point symbols
                 createSymbols(response,map, maxAtts, tempType);
                 createSlider(response, map, maxAtts);
-                // setChart(maxAtts, attributes)
+                updateChart(maxAtts, tempType);
                 //hide loading affordance
                 $('#ajaxloader').hide();
             }
@@ -101,8 +112,8 @@ function loadData(map){
                 var minAtts = processData(response);
                 //create the point symbols
                 createSymbols(response,map,minAtts,tempType);
-                createSlider(response, map, minAtts)
-                // setChart(minAtts, attributes)
+                createSlider(response, map, minAtts);
+                updateChart(minAtts, tempType);
                 //hide loading spinner affordance
                 $('#ajaxloader').hide();
                 console.log(minAtts);
@@ -126,6 +137,7 @@ function getTempType(){
         else if ($(':radio[value=AT]').is(':checked')){
             type = "AT";
         }
+<<<<<<< HEAD
     }).val();
     console.log(tempType);
     //determine which radio buttons are checked
@@ -185,6 +197,8 @@ function getTempType(){
             });
         };
     });
+=======
+>>>>>>> origin/Jon's-Branch
     return type;
 };
 
@@ -199,12 +213,10 @@ function processData(data){
     //push each attribute name into attributes array
     // Right now pushing HI & tair, but test for interactions
     for (var attribute in properties){
-      //if (attribute.indexOf("HI")>-1 || attribute.indexOf("tair")>-1 || attribute.indexOf("year")>-1){
         attributes.push(attribute);
     };
     return attributes;
 };
-
 
 //create proportional sybols form geojson data properties
 function createSymbols(response, map, attributes, tempType){
@@ -307,7 +319,7 @@ function pointToLayer(feature, latlng, attributes, tempType){
             tempLabel = "Air Temperature"
         };
     //create popup content string
-    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p>" + tempLabel + " = " + feature.properties[tempType];
+    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p><p>" + tempLabel + " = " + parseFloat(feature.properties[tempType]).toFixed(2) + "</p>";
     // //add panel content variable
     // var panelContent = "";
     //add text and year and value to panelcontent
@@ -323,17 +335,28 @@ function pointToLayer(feature, latlng, attributes, tempType){
         },
         mouseout: function(){
             this.closePopup();
-        },
-        click: function(){
-            $("#panel1").html(panelContent);
         }
+        // click: function(){
+        //     $("#panel1").html(panelContent);
+        // }
     });
     return layer;
 };
 
+function createSlider(data, map, attributes){
+  // remove slider if the slider already exists
+  $(".sequence-control-container.leaflet-control").removeClass();
+  $(".range-slider").remove();
+	var SequenceControl = L.Control.extend({
+		options: {
+			position: 'bottomleft'
+		},
 
 
+			onAdd: function (map){
+				// Creating a control container for the sequence control slider
 
+<<<<<<< HEAD
 function createSlider(data, map, attributes){
   // console.log(data.features[0].properties["date"]);
   newDate = ""
@@ -349,6 +372,16 @@ function createSlider(data, map, attributes){
         $(container).on('mousedown', function(e){
           L.DomEvent.stopPropagation(e);
         });
+=======
+				var container = L.DomUtil.create('div', 'sequence-control-container');
+        $(container).mousedown(function(e){
+          L.DomEvent.stopPropagation(e);
+        });
+        // $(document).mouseup(function(){
+        //   map.draggable.enable();
+        // });
+				$(container).append('<input class="range-slider" type="range">');
+>>>>>>> origin/Jon's-Branch
 
 				// $(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
 				// $(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
@@ -359,9 +392,17 @@ function createSlider(data, map, attributes){
 
 		map.addControl(new SequenceControl());
 
+<<<<<<< HEAD
 		// $('#reverse').html('<img src="img/reverse.png">');
 		// $('#forward').html('<img src="img/forward.png">');
     var minDate = new Date(data.features[0].properties["date"]);
+=======
+
+		// $('#reverse').html('<img src="img/reverse.png">');
+		// $('#forward').html('<img src="img/forward.png">');
+    //   var minDate = new Date(data.features[0].properties["date"]);
+    var minDate = new Date(2012, 02, 19);
+>>>>>>> origin/Jon's-Branch
     minDate = minDate.getTime()
     console.log(minDate);
     var maxDate = new Date(2016, 03, 30);
@@ -374,26 +415,50 @@ function createSlider(data, map, attributes){
 												'step': 86400000,
 												'value': minDate
 											});
+<<<<<<< HEAD
     // Preventing any mouse event listeners on the map to occur
   	$('.range-slider').on('input', function(){
+=======
+
+    $('.range-slider').on('drag', function(e){
+			L.DomEvent.stopPropagation(e);
+		});
+
+  	var newDate = $('.range-slider').on('input', function(){
+>>>>>>> origin/Jon's-Branch
       	var datestep = $(this).val();
         datestep = parseFloat(datestep);
         var newDate = new Date(datestep);
         newDate = newDate.toLocaleDateString();
         console.log(newDate);
+<<<<<<< HEAD
     });
     console.log(newDate);
   //   updatePropSymbols(map, attributes["date"], newDate);
   //   // setChart(data);
 	// // });
+=======
+        $('.range-slider').val(datestep);
+        // updatePropSymbols(map, attributes, datestep);
+    });
+    // console.log(newDate);
+  //Return datestep into date (m/d/Y) to send date to update chart and update symbols.
+    // return newDate;
+    // setChart(data);
+	// });
+>>>>>>> origin/Jon's-Branch
 };
 
 /* Creating a function to update the proportional symbols when activated
 by the sequence slider */
-function updatePropSymbols(data, map, attribute, newDate){
+function updatePropSymbols(data, map, attribute, datestep){
+
     map.eachLayer(function(layer){
-		if (layer.feature && layer.feature[0].properties[attribute] == newDate){
+		if (layer.feature && layer.feature.properties[attribute] ){
+      consol.log(layer.feature);
+
 			var props = layer.feature.properties;
+      console.log(props);
 			var options = { radius: 8,
                             fillColor: "lightblue",
                             color: "#000",
@@ -414,8 +479,77 @@ function updatePropSymbols(data, map, attribute, newDate){
 	});
 };
 
-function setChart(data){
+function updateChart(data, tempType, colorBreaks){
+  $("#panelContainer").empty();
 
+  var chartWidth = $("#panelContainer").width(),
+      chartHeight = $("#panelContainer").height(),
+      leftPadding = 40,
+      rightPadding = 2,
+      topBottomPadding = 5,
+      chartInnerWidth = chartWidth - leftPadding - rightPadding,
+      chartInnerHeight = chartHeight - topBottomPadding * 2,
+      translate = "translate(" + leftPadding * 1.5 + "," + topBottomPadding + ")";
+
+  var yScale = d3.scaleLinear()
+      .range([chartInnerHeight, 0])
+      .domain([-20,100]);
+
+  // Creating the chart svg
+  var chart = d3.select("#panelContainer")
+    .append("svg")
+    .attr("width", chartWidth)
+    .attr("height", chartHeight)
+    .attr("class", "chart");
+
+  // Creating a vertical axis generator for the bar chart
+  var yAxis = d3.axisLeft()
+      .scale(yScale);
+
+  // Placing the axis
+  var axis = chart.append("g")
+      .attr("class", "axis")
+      .attr("transform", translate)
+      .call(yAxis);
+
+  // Placing background for the chart
+  var chartBackground = chart.append("rect")
+      .attr("class", "chartBackground")
+      .attr("width", chartInnerWidth)
+      .attr("height", chartInnerHeight)
+      .attr("transform", translate);
+
+  // Creating a vertical axis generator for the bar chart
+  var yAxis = d3.axisLeft()
+      .scale(yScale);
+
+  // Placing the axis
+  var axis = chart.append("g")
+      .attr("class", "axis")
+      .attr("transform", translate)
+      .call(yAxis);
+
+  // Creating a frame for the chart border
+  var chartFrame = chart.append("rect")
+      .attr("class", "chartFrame")
+      .attr("width", chartInnerWidth-25)
+      .attr("height", chartInnerHeight)
+      .attr("transform", translate);
+
+  var bars = chart.selectAll(".bars")
+      .data(data)
+      .enter()
+      .append("rect")
+      .attr("class", function(d){
+        return "bars " + d.SID;
+      })
+      .attr("width", chartInnerWidth / data.length);
+
+  var chartTitle = chart.append("text")
+      .attr("x", 85)
+      .attr("y", 30)
+      .attr("class", "chartTitle")
+      .text("Chart Area for Stations");
 
   // updateChart(asdflk)
 };
