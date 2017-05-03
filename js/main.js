@@ -32,8 +32,9 @@ function createMap(){
     //show data load affordance spinner
 
     $('#ajaxloader').hide();
-    $('#legendid').append('<form><h5>Select A Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
-    $('#legendid').append('<form><h5>Select A Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+   // $('#tempCalc').append('<form><h5>Select A Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
+   $('#tempCalc').append('<form><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
+    $('#tempAgg').append('<form><h5>Select A Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
 
     //function to load data from files
     loadData(map);
@@ -42,7 +43,7 @@ function createMap(){
 
 //function to load geojson data with ajax
 function loadData(map){
-
+	
     //determine which radio buttons are checked
     $('input[name=tempradio]').change(function(){
         if ($('input[value=mean]:checked')){
@@ -239,20 +240,28 @@ function pointToLayer(feature, latlng, attributes,){
 };*/
 
 
-
-function createSequenceControls(data,map, attributes){
+/*temporarly removed data from createSequence*/
+function createSequenceControls(map,attributes){
+	/*
 	$('#panel1').append('<input class="range-slider" type="range">');
-
+	*/
+	/********temporary change from pane1 append to mapid*/
+	$('#sliderDiv').append('<input class="range-slider" type="range">');
     $('.range-slider').attr({
         max: 4,
         min: 0,
         value: 0,
         step: 1
     });
-
+/*
     $('#panel1').append('<button class="skip" id="reverse">Reverse</button>');
     $('#panel1').append('<button class="skip" id="forward">Skip</button>');
-
+*/
+/******************temporary change append to map*/
+	$('#sliderDiv').append('<button class="skip" id="reverse">Reverse</button>');
+    $('#sliderDiv').append('<button class="skip" id="forward">Skip</button>');
+	
+	
     $('#reverse').html('<img src="img/reverse.png">');
     $('#forward').html('<img src="img/forward.png">');
 
