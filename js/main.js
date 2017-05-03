@@ -73,7 +73,7 @@ function loadData(map){
                     var tempType = "tair";
                     createSymbols(response,map,meanAtts);
                     createSlider(response, map, meanAtts);
-                    // setChart(meanAtts, attributes);
+                    setChart(meanAtts, attributes);
 
                     //hide loading affordance
                     $('#ajaxloader').hide();
@@ -252,62 +252,63 @@ function pointToLayer(feature, latlng, attributes){
 
 
 function createSlider(data, map, attributes){
-	var SequenceControl = L.Control.extend({
-		options: {
-			position: 'bottomleft'
-		},
-
-
-			onAdd: function (map){
-				// Creating a control container for the sequence control slider
-				var container = L.DomUtil.create('div', 'sequence-control-container');
-				$(container).append('<input class="range-slider" type="range">');
-
-				// $(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
-				// $(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
-
-				return container;
-			}
-	});
-
-		map.addControl(new SequenceControl());
-
-		// $('#reverse').html('<img src="img/reverse.png">');
-		// $('#forward').html('<img src="img/forward.png">');
-    var minDate = new Date(2012, 02, 19);
-    minDate = minDate.getTime()
-    console.log(minDate);
-    var maxDate = new Date(2016, 03, 30);
-    maxDate = maxDate.getTime()
-    console.log(maxDate);
-
-		$('.range-slider').attr({'type':'range',
-												'max': maxDate,
-												'min': minDate,
-												'step': 86400000,
-												'value': minDate
-											});
-    // Preventing any mouse event listeners on the map to occur
-  	$('.range-slider').on('input', function(){
-      	var datestep = $(this).val();
-        datestep = parseFloat(datestep);
-        var newDate = new Date(datestep);
-        newDate = newDate.toLocaleDateString();
-        $('.range-slider').val(datestep);
-        updatePropSymbols(map, attributes, datestep);
-    });
-    // setChart(data);
+  // console.log(data.features[0].properties["date"]);
+	// var SequenceControl = L.Control.extend({
+	// 	options: {
+	// 		position: 'bottomleft'
+	// 	},
+  //
+	// 		onAdd: function (map){
+	// 			// Creating a control container for the sequence control slider
+	// 			var container = L.DomUtil.create('div', 'sequence-control-container');
+	// 			$(container).append('<input class="range-slider" type="range">');
+  //       $(container).on('mousedown', function(e){
+  //         L.DomEvent.stopPropagation(e);
+  //       });
+  //
+	// 			// $(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
+	// 			// $(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
+  //
+	// 			return container;
+	// 		}
 	// });
+  //
+	// 	map.addControl(new SequenceControl());
+  //
+	// 	// $('#reverse').html('<img src="img/reverse.png">');
+	// 	// $('#forward').html('<img src="img/forward.png">');
+  //   var minDate = new Date(data.features[0].properties["date"]);
+  //   minDate = minDate.getTime()
+  //   console.log(minDate);
+  //   var maxDate = new Date(2016, 03, 30);
+  //   maxDate = maxDate.getTime()
+  //   console.log(maxDate);
+  //
+	// 	$('.range-slider').attr({'type':'range',
+	// 											'max': maxDate,
+	// 											'min': minDate,
+	// 											'step': 86400000,
+	// 											'value': minDate
+	// 										});
+  //   // Preventing any mouse event listeners on the map to occur
+  // 	$('.range-slider').on('input', function(){
+  //     	var datestep = $(this).val();
+  //       datestep = parseFloat(datestep);
+  //       var newDate = new Date(datestep);
+  //       newDate = newDate.toLocaleDateString();
+  //       console.log(newDate);
+  //   });
+  //   updatePropSymbols(map, attributes["date"], newDate);
+  //   // setChart(data);
+	// // });
 };
 
 /* Creating a function to update the proportional symbols when activated
 by the sequence slider */
-function updatePropSymbols(data, map, attribute, datestep){
+function updatePropSymbols(data, map, attribute, newDate){
     map.eachLayer(function(layer){
-		if (layer.feature && layer.feature.properties[attribute]){
-      consol.log(layer.feature);
+		if (layer.feature && layer.feature[0].properties[attribute] == newDate){
 			var props = layer.feature.properties;
-      console.log(props);
 			var options = { radius: 8,
                             fillColor: "lightblue",
                             color: "#000",
@@ -330,43 +331,6 @@ function updatePropSymbols(data, map, attribute, datestep){
 
 function setChart(data){
 
-  var chartWidth = 800,
-      chartHeight = 150,
-      leftPadding = 2,
-      rightPadding = 2,
-      topBottomPadding = 5,
-      chartInnerWidth = chartWidth - leftPadding - rightPadding,
-      chartInnerHeight = chartHeight - topBottomPadding * 2,
-      translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
-
-  var chart = d3.select("#panelContainer")
-      .append("svg:svg")
-      .attr("width", 300)
-      .attr("height", 300)
-      .attr("class", "chart");
-
-  var chartBackground = chart.append("rect")
-      .attr("class", "chartBackground")
-      .attr("width", chartInnerWidth)
-      .attr("height", chartInnerHeight)
-      .attr("transform", translate);
-
-  // // Creating a vertical axis generator for the bar chart
-  // var yAxis = d3.axisLeft()
-  //     .scale(yScale);
-  //
-  // // Placing the axis
-  // var axis = chart.append("g")
-  //     .attr("class", "axis")
-  //     .attr("transform", translate)
-  //     .call(yAxis);
-
-  // Creating a frame for the chart border
-  var chartFrame = chart.append("rect")
-      .attr("class", "chartFrame")
-      .attr("width", chartInnerWidth)
-      .attr("height", chartInnerHeight)
-      .attr("transform", translate);
 
   // updateChart(asdflk)
 };
