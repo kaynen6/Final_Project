@@ -31,15 +31,10 @@ function createMap(){
     L.control.layers(baseMaps).addTo(map);
     baseMaps["Satellite"].addTo(map);
 
-<<<<<<< HEAD
-    $('#legendid').append('<form><h5>Select a Temperature Calculation to Desplay:</h5><br><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair" checked="checked">Air Temperature</form>');
-    $('#legendid').append('<form><h5>Select a Temperature Aggregation to Display:</h5><br><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean" checked="checked">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
-=======
     $('#legendid').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
     $('#legendid').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
 
 
->>>>>>> origin/Jon's-Branch
     //set listeners for radio buttons for temp calculation type (heat index, apparent temp, air temp)
     $(':radio[name=calcradio]').change(function(){
         //function to load data from files
@@ -51,10 +46,7 @@ function createMap(){
         //function to load data from files
         loadData(map);
     });
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/Jon's-Branch
     $('#ajaxloader').hide();
 };
 
@@ -137,71 +129,8 @@ function getTempType(){
         else if ($(':radio[value=AT]').is(':checked')){
             type = "AT";
         }
-<<<<<<< HEAD
-    }).val();
-    console.log(tempType);
-    //determine which radio buttons are checked
-    $(':radio[name=tempradio]').change(function(){
-        if ($(':radio[value=mean]').is(':checked')){
-             //start loading affordance
-            $('#ajaxloader').show();
-            //load the Means data via ajax
-            $.ajax("data/UHIDailySummaries/Means12-16.geojson", {
-                dataType: "json",
-                success: function(response){
-                    //create attribute array
-                    var meanAtts = processData(response);
-
-                    var tempType = "tair";
-                    createSymbols(response,map,meanAtts);
-                    createSlider(response, map, meanAtts);
-                    setChart(meanAtts, attributes);
-
-                    //hide loading affordance
-                    $('#ajaxloader').hide();
-                }
-            });
-        } else if ($(':radio[value=max]').is(':checked')){
-            //start loading affordance
-            $('#ajaxloader').show();
-            //load max data
-            $.ajax("data/UHIDailySummaries/Maxes12-16.geojson", {
-                dataType: "json",
-                success: function(response){
-                    //create attribute array
-                    var maxAtts = processData(response);
-
-                    createSymbols(response,map, maxAtts);
-                    createSlider(response, map, maxAtts);
-                    // setChart(maxAtts, attributes)
-                    //hide loading affordance
-                    $('#ajaxloader').hide();
-                }
-            });
-        } else if ($(':radio[value=min]').is(':checked')){
-             //start loading affordance
-            $('#ajaxloader').show();
-             //load the min data
-            $.ajax("data/UHIDailySummaries/Mins12-16.geojson", {
-                dataType: "json",
-                success: function(response){
-                    //create attribute array
-                    var minAtts = processData(response);
-                    createSymbols(response,map,minAtts);
-                    createSlider(response, map, minAtts)
-                    // setChart(minAtts, attributes)
-                    //hide loading spinner affordance
-                    $('#ajaxloader').hide();
-                    console.log(minAtts);
-                }
-            });
-        };
-    });
-=======
->>>>>>> origin/Jon's-Branch
     return type;
 };
-
 
 
 //create an attributes array from data
@@ -352,19 +281,6 @@ function createSlider(data, map, attributes){
 			position: 'bottomleft'
 		},
 
-
-			onAdd: function (map){
-				// Creating a control container for the sequence control slider
-
-<<<<<<< HEAD
-function createSlider(data, map, attributes){
-  // console.log(data.features[0].properties["date"]);
-  newDate = ""
-	var SequenceControl = L.Control.extend({
-		options: {
-			position: 'bottomleft'
-		},
-
 			onAdd: function (map){
 				// Creating a control container for the sequence control slider
 				var container = L.DomUtil.create('div', 'sequence-control-container');
@@ -372,17 +288,6 @@ function createSlider(data, map, attributes){
         $(container).on('mousedown', function(e){
           L.DomEvent.stopPropagation(e);
         });
-=======
-				var container = L.DomUtil.create('div', 'sequence-control-container');
-        $(container).mousedown(function(e){
-          L.DomEvent.stopPropagation(e);
-        });
-        // $(document).mouseup(function(){
-        //   map.draggable.enable();
-        // });
-				$(container).append('<input class="range-slider" type="range">');
->>>>>>> origin/Jon's-Branch
-
 				// $(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
 				// $(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
 
@@ -392,17 +297,11 @@ function createSlider(data, map, attributes){
 
 		map.addControl(new SequenceControl());
 
-<<<<<<< HEAD
-		// $('#reverse').html('<img src="img/reverse.png">');
-		// $('#forward').html('<img src="img/forward.png">');
-    var minDate = new Date(data.features[0].properties["date"]);
-=======
-
 		// $('#reverse').html('<img src="img/reverse.png">');
 		// $('#forward').html('<img src="img/forward.png">');
     //   var minDate = new Date(data.features[0].properties["date"]);
     var minDate = new Date(2012, 02, 19);
->>>>>>> origin/Jon's-Branch
+
     minDate = minDate.getTime()
     console.log(minDate);
     var maxDate = new Date(2016, 03, 30);
@@ -415,29 +314,15 @@ function createSlider(data, map, attributes){
 												'step': 86400000,
 												'value': minDate
 											});
-<<<<<<< HEAD
+
     // Preventing any mouse event listeners on the map to occur
   	$('.range-slider').on('input', function(){
-=======
-
-    $('.range-slider').on('drag', function(e){
-			L.DomEvent.stopPropagation(e);
-		});
-
   	var newDate = $('.range-slider').on('input', function(){
->>>>>>> origin/Jon's-Branch
       	var datestep = $(this).val();
         datestep = parseFloat(datestep);
         var newDate = new Date(datestep);
         newDate = newDate.toLocaleDateString();
         console.log(newDate);
-<<<<<<< HEAD
-    });
-    console.log(newDate);
-  //   updatePropSymbols(map, attributes["date"], newDate);
-  //   // setChart(data);
-	// // });
-=======
         $('.range-slider').val(datestep);
         // updatePropSymbols(map, attributes, datestep);
     });
@@ -446,7 +331,6 @@ function createSlider(data, map, attributes){
     // return newDate;
     // setChart(data);
 	// });
->>>>>>> origin/Jon's-Branch
 };
 
 /* Creating a function to update the proportional symbols when activated
