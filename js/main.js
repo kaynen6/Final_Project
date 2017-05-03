@@ -38,11 +38,8 @@ function createMap(){
         //function to load data from files
         loadData(map);
     });
-<<<<<<< HEAD
 
-=======
     //listener for data set radio buttons (temperature aggregation - min,max,mean)
->>>>>>> refs/remotes/origin/master
     $(':radio[name=tempradio]').change(function(){
         //function to load data from files
         loadData(map);
