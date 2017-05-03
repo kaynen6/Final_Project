@@ -31,8 +31,9 @@ function createMap(){
     L.control.layers(baseMaps).addTo(map);
     baseMaps["Satellite"].addTo(map);
 
-    $('#legendid').append('<form><h5>Select A Temperature Calculation to Desplay:</h5><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
-    $('#legendid').append('<form><h5>Select A Temperature Aggregation to Display:</h5><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+    $('#legendid').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
+    $('#legendid').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+
 
     //set listeners for radio buttons for temp calculation type (heat index, apparent temp, air temp)
     $(':radio[name=calcradio]').change(function(){
@@ -64,8 +65,8 @@ function loadData(map){
                 var meanAtts = processData(response);
                 //create the point symbols
                 createSymbols(response,map,meanAtts,tempType);
-                createSlider(response, map, meanAtts);
-                // setChart(meanAtts, attributes);
+                var newDate = createSlider(response, map, meanAtts);
+                updateChart(meanAtts, tempType);
                 //hide loading affordance
                 $('#ajaxloader').hide();
             }
@@ -84,7 +85,7 @@ function loadData(map){
                 //create the point symbols
                 createSymbols(response,map, maxAtts, tempType);
                 createSlider(response, map, maxAtts);
-                // setChart(maxAtts, attributes)
+                updateChart(maxAtts, tempType);
                 //hide loading affordance
                 $('#ajaxloader').hide();
             }
@@ -102,8 +103,8 @@ function loadData(map){
                 var minAtts = processData(response);
                 //create the point symbols
                 createSymbols(response,map,minAtts,tempType);
-                createSlider(response, map, minAtts)
-                // setChart(minAtts, attributes)
+                createSlider(response, map, minAtts);
+                updateChart(minAtts, tempType);
                 //hide loading spinner affordance
                 $('#ajaxloader').hide();
                 console.log(minAtts);
@@ -272,11 +273,10 @@ function pointToLayer(feature, latlng, attributes, tempType){
     return layer;
 };
 
-
-
-
 function createSlider(data, map, attributes){
-
+  // remove slider if the slider already exists
+  $(".sequence-control-container.leaflet-control").removeClass();
+  $(".range-slider").remove();
 	var SequenceControl = L.Control.extend({
 		options: {
 			position: 'bottomleft'
@@ -285,7 +285,14 @@ function createSlider(data, map, attributes){
 
 			onAdd: function (map){
 				// Creating a control container for the sequence control slider
+
 				var container = L.DomUtil.create('div', 'sequence-control-container');
+        $(container).mousedown(function(e){
+          L.DomEvent.stopPropagation(e);
+        });
+        // $(document).mouseup(function(){
+        //   map.draggable.enable();
+        // });
 				$(container).append('<input class="range-slider" type="range">');
 
 				// $(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
@@ -296,6 +303,7 @@ function createSlider(data, map, attributes){
 	});
 
 		map.addControl(new SequenceControl());
+
 
 		// $('#reverse').html('<img src="img/reverse.png">');
 		// $('#forward').html('<img src="img/forward.png">');
@@ -313,25 +321,33 @@ function createSlider(data, map, attributes){
 												'step': 86400000,
 												'value': minDate
 											});
-    // Preventing any mouse event listeners on the map to occur
-  	$('.range-slider').on('input', function(){
+
+    $('.range-slider').on('drag', function(e){
+			L.DomEvent.stopPropagation(e);
+		});
+
+  	var newDate = $('.range-slider').on('input', function(){
       	var datestep = $(this).val();
         datestep = parseFloat(datestep);
         var newDate = new Date(datestep);
         newDate = newDate.toLocaleDateString();
+        console.log(newDate);
         $('.range-slider').val(datestep);
-        updatePropSymbols(map, attributes, datestep);
+        // updatePropSymbols(map, attributes, datestep);
     });
+    // console.log(newDate);
+  //Return datestep into date (m/d/Y) to send date to update chart and update symbols.
+    // return newDate;
     // setChart(data);
 	// });
 };
 
 /* Creating a function to update the proportional symbols when activated
 by the sequence slider */
-
 function updatePropSymbols(data, map, attribute, datestep){
+
     map.eachLayer(function(layer){
-		if (layer.feature && layer.feature.properties[attribute]){
+		if (layer.feature && layer.feature.properties[attribute] ){
       consol.log(layer.feature);
 
 			var props = layer.feature.properties;
@@ -356,46 +372,77 @@ function updatePropSymbols(data, map, attribute, datestep){
 	});
 };
 
-function setChart(data){
+function updateChart(data, tempType, colorBreaks){
+  $("#panelContainer").empty();
 
-
-  var chartWidth = 800,
-      chartHeight = 150,
-      leftPadding = 2,
+  var chartWidth = $("#panelContainer").width(),
+      chartHeight = $("#panelContainer").height(),
+      leftPadding = 40,
       rightPadding = 2,
       topBottomPadding = 5,
       chartInnerWidth = chartWidth - leftPadding - rightPadding,
       chartInnerHeight = chartHeight - topBottomPadding * 2,
-      translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
+      translate = "translate(" + leftPadding * 1.5 + "," + topBottomPadding + ")";
 
+  var yScale = d3.scaleLinear()
+      .range([chartInnerHeight, 0])
+      .domain([-20,100]);
+
+  // Creating the chart svg
   var chart = d3.select("#panelContainer")
-      .append("svg:svg")
-      .attr("width", 300)
-      .attr("height", 300)
-      .attr("class", "chart");
+    .append("svg")
+    .attr("width", chartWidth)
+    .attr("height", chartHeight)
+    .attr("class", "chart");
 
+  // Creating a vertical axis generator for the bar chart
+  var yAxis = d3.axisLeft()
+      .scale(yScale);
+
+  // Placing the axis
+  var axis = chart.append("g")
+      .attr("class", "axis")
+      .attr("transform", translate)
+      .call(yAxis);
+
+  // Placing background for the chart
   var chartBackground = chart.append("rect")
       .attr("class", "chartBackground")
       .attr("width", chartInnerWidth)
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
 
-  // // Creating a vertical axis generator for the bar chart
-  // var yAxis = d3.axisLeft()
-  //     .scale(yScale);
-  //
-  // // Placing the axis
-  // var axis = chart.append("g")
-  //     .attr("class", "axis")
-  //     .attr("transform", translate)
-  //     .call(yAxis);
+  // Creating a vertical axis generator for the bar chart
+  var yAxis = d3.axisLeft()
+      .scale(yScale);
+
+  // Placing the axis
+  var axis = chart.append("g")
+      .attr("class", "axis")
+      .attr("transform", translate)
+      .call(yAxis);
 
   // Creating a frame for the chart border
   var chartFrame = chart.append("rect")
       .attr("class", "chartFrame")
-      .attr("width", chartInnerWidth)
+      .attr("width", chartInnerWidth-25)
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
+
+  var bars = chart.selectAll(".bars")
+      .data(data)
+      .enter()
+      .append("rect")
+      .attr("class", function(d){
+        return "bars " + d.SID;
+      })
+      .attr("width", chartInnerWidth / data.length);
+
+  var chartTitle = chart.append("text")
+      .attr("x", 85)
+      .attr("y", 30)
+      .attr("class", "chartTitle")
+      .text("Chart Area for Stations");
 
   // updateChart(asdflk)
 };
