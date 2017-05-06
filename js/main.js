@@ -39,22 +39,16 @@ function createMap(){
 			return azoom;
 		};
     control.addTo(map)
-    
+
     L.control.layers(baseMaps).addTo(map);
     baseMaps["Streets"].addTo(map);
 
     $('#legendid').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
     $('#legendid').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
-<<<<<<< HEAD
     $('#legendid').append('<h5> 3) Select a Time: </h5><p>');
     $('#legendid').append($('dropdown1', 'dropdown2'));
 
     createDropdown();
-=======
-    //load data based on default selections
-    loadData(map);  
-  
->>>>>>> origin/Jon's-Branch
     //set listeners for radio buttons for temp calculation type (heat index, apparent temp, air temp)
     $(':radio[name=calcradio]').change(function(){
         //function to load data from files
@@ -329,15 +323,10 @@ function createSlider(data, map, attributes){
         $(container).on('mousedown', function(e){
           L.DomEvent.stopPropagation(e);
         });
-<<<<<<< HEAD
-        // $(document).mouseup(function(){
-        //   map.draggable.enable();
-        // });
-				$(container).append('<input class="range-slider" type="range">');
-=======
+
 				// $(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
 				// $(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
->>>>>>> origin/Jon's-Branch
+
 
 				return container;
 			}
@@ -378,7 +367,7 @@ function createSlider(data, map, attributes){
   //Return datestep into date (m/d/Y) to send date to update chart and update symbols.
     // return newDate;
     // setChart(data);
-	// });
+	});
 };
 
 /* Creating a function to update the proportional symbols when activated
