@@ -9,29 +9,41 @@
         <!--put your external stylesheet links here-->
         <link rel="stylesheet" href="css/leaflet.css" />
         <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Condensed">
         <!-- <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" /> -->
         <!--[if IE<9]>
             <link rel="stylesheet" href="css/style.ie.css">
         <![endif]-->
     </head>
+<<<<<<< HEAD
         <h1>Visualization of Urban Temperatures in Madison, WI</h1>
         <h2>Jon Fok, Kayne Neigherbauer, Matt Smith<h2>
+=======
+        <h1>GEOG 575 Final Project: Visualization of Urban Temperatures in Madison, WI</h1>
+          <h2>Jon Fok, Kayne Neigherbauer, Matt Smith<h2>
+>>>>>>> refs/remotes/origin/master
     <body>
 
 		<!-- LegendContaainer & legendid div-->
 			  <div id="legendContainer">
-  				 <!-- <h2> Legend </h2> -->
-					 <div id="legendid">
+            <div id="tempCalc"></div>
+            <div id="tempAgg"></div>
+					  <div id="dropdown"></div>
+              <div style= "text-aligh:center">
+                <h2>Legend</h2>
+              </div>
 					 </div>
 	      </div>
-     <!-- Panel container and panel1-->
 
-        <div id="panelContainer">
-  				<div id="panel1"></div>
+    <!-- Panel container and panel1-->
+
+       <div id="panelContainer">
+ 				<div id="panel1"></div>
 		    </div>
 
         <div id="mapid"></div>
-				<div id="ajaxloader"></div>
+				    <div id="ajaxloader"></div>
+
 
         <!--put your external script links here-->
         <!--<script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>-->
@@ -40,6 +52,8 @@
         <script type="text/javascript" src="lib/leaflet-src.js"></script>
         <script type="text/javascript" src="lib/jquery-3.1.1.min.js"></script>
         <script type="text/javasript"  src="lib/jquery-ui.min.js"></script>
+        <script type="text/javasript"  src="js/moment.min.js"></script>
+        <script type="text/javasript" src="js/combodate.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
     </body>
 </html>
