@@ -7,6 +7,8 @@ h1 {
   font-family: 'Roboto Condensed', sans-serif;
   background-color: none;
   color: black;
+  border: 3px solid #000000;
+  border-radius: 10px;
 }
 
 h2 {
@@ -35,7 +37,6 @@ body {
 #form{
   font-size: 10px;
   padding-top: 0px;
-  font-variant: small-caps;
   text-align: left;
   display: inline-block;
   font-family: 'Roboto Condensed', sans-serif;
@@ -63,12 +64,40 @@ body {
   float: left;
   padding: 10px;
   border: 3px solid #000000;
-  background-color: #3182bd;
+  background-color: #e8e8e8;
 }
 
-#legendid {
+#tempCalc {
   right: 20%;
-  height: 350px;
+  height: 150px;
+  width: 80%;
+  top: 20px;
+  display: inline-block;
+  padding: 12px;
+  z-index: 1000;
+  border: 3px solid #000000;
+  text-align: left;
+  background-color: white;
+  maring-top: 50px;
+}
+
+#tempAgg {
+  right: 20px;
+  height: 200px;
+  width: 80%;
+  top: 20px;
+  display: inline-block;
+  padding: 12px;
+  z-index: 1000;
+  border: 3px solid #000000;
+  text-align: left;
+  background-color: white;
+  maring-top: 10px;
+}
+
+#dropdown {
+  right: 20%;
+  height: 100px;
   width: 80%;
   top: 10px;
   display: inline-block;
@@ -91,6 +120,7 @@ body {
   top: 10px;
   padding: 15px;
   border: 3px solid #000000;
+  background-color: #e8e8e8;
 }
 
 #panel1 {
@@ -189,7 +219,6 @@ body {
 .leaflet-popup-content p {
   margin: 0.2em 0;
   font-family: 'Roboto Condensed', sans-serif;
-  font-variant: small-caps;
 }
 
 #ajaxloader

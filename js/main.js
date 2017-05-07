@@ -9,7 +9,7 @@ function createMap(){
     $('#ajaxloader').show();
     var map = L.map('mapid', {
         center: [43.0731,-89.4012],
-        zoom: 10,
+        zoom: 14,
         maxZoom: 18,
         minZoom: 8
     });
@@ -43,10 +43,10 @@ function createMap(){
     L.control.layers(baseMaps).addTo(map);
     baseMaps["Streets"].addTo(map);
 
-    $('#legendid').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
-    $('#legendid').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
-    $('#legendid').append('<h5> 3) Select a Time: </h5><p>');
-    $('#legendid').append($('dropdown1', 'dropdown2'));
+    $('#tempCalc').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
+    $('#tempAgg').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+    $('#dropdown').append('<h5> 3) Select a Time: </h5><p>');
+    $('#dropdown').append($('dropdown1', 'dropdown2'));
 
     createDropdown();
     //set listeners for radio buttons for temp calculation type (heat index, apparent temp, air temp)
@@ -476,8 +476,8 @@ function setChart(data){
 };
 
 function createDropdown(data){
-  $("#legendid").remove(".dropdown1");
-  $('#legendid').remove(".dropdown2");
+  $("#dropdown").remove(".dropdown1");
+  $('#dropdown').remove(".dropdown2");
 
   var year = ["2012", "2013","2014","2015","2016"];
   var month = ["1","2","3","4","5","6","7","8","9","10","11","12"];
@@ -487,7 +487,7 @@ function createDropdown(data){
 
   expressed = [currentMonth, currentYear];
 
-  var dropdownyear = d3.select('#legendid')
+  var dropdownyear = d3.select('#dropdown')
         .append('select')
         .attr("class", "dropdown1")
         .on("change", function(){
@@ -503,14 +503,14 @@ function createDropdown(data){
         .data(year)
         .enter()
         .append("option")
-        .attr("value", function(d){
-          return d
+        .attr("value", function(data){
+          return data.properties
         })
         .text(function(d){
           return d
         });
 
-  var dropdownmonth = d3.select('#legendid')
+  var dropdownmonth = d3.select('#dropdown')
         .append('select')
         .attr("class", "dropdown2")
         .on("change", function(){
@@ -526,8 +526,8 @@ function createDropdown(data){
         .data(month)
         .enter()
         .append("option")
-        .attr("value", function(d){
-          return d
+        .attr("value", function(data){
+          return data.properties
         })
         .text(function(d){
           return d

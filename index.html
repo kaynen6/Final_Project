@@ -16,13 +16,17 @@
         <![endif]-->
     </head>
         <h1>GEOG 575 Final Project: Visualization of Urban Temperatures in Madison, WI</h1>
-        <h2>Jon Fok, Kayne Neigherbauer, Matt Smith<h2>
+          <h2>Jon Fok, Kayne Neigherbauer, Matt Smith<h2>
     <body>
 
 		<!-- LegendContaainer & legendid div-->
 			  <div id="legendContainer">
-  				 <!-- <h2> Legend </h2> -->
-					 <div id="legendid">
+            <div id="tempCalc"></div>
+            <div id="tempAgg"></div>
+					  <div id="dropdown"></div>
+              <div style= "text-aligh:center">
+                <h2>Legend</h2>
+              </div>
 					 </div>
 	      </div>
 
@@ -33,7 +37,8 @@
 		    </div>
 
         <div id="mapid"></div>
-				<div id="ajaxloader"></div>
+				    <div id="ajaxloader"></div>
+
 
         <!--put your external script links here-->
         <!--<script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>-->
