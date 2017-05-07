@@ -45,9 +45,12 @@ function createMap(){
     
     L.control.layers(baseMaps).addTo(map);
     baseMaps["Satellite"].addTo(map);
-
+    //set up radio buttons for temperature calculation options via jquery
     $('#legendid').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
+    //set up radio buttons for temperatur aggregation calculation options via jquery 
     $('#legendid').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+    //set up a radio button for dangerous conditions visualization option
+    $('#legendid').append('<h5>3 Select to Show Dangeous Conditions ():<input type="checkbox')
     //load data based on default selections
     loadData(map);  
   
@@ -78,11 +81,11 @@ function loadData(map){
             dataType: "json",
             success: function(response){
                 //create attribute array
-                var meanAtts = processData(response);
+                var attributes = processData(response);
                 //create the point symbols
-                createSymbols(response,map,meanAtts,tempType);
-                var newDate = createSlider(response, map, meanAtts);
-                updateChart(meanAtts, tempType);
+                createSymbols(response,map,attributes,tempType);
+                var newDate = createSlider(response, map, attributes);
+                updateChart(attributes, tempType);
                 //hide loading affordance
                 $('#ajaxloader').hide();
             }
@@ -97,11 +100,11 @@ function loadData(map){
             dataType: "json",
             success: function(response){
                 //create attribute array
-                var maxAtts = processData(response);
+                var attributes = processData(response);
                 //create the point symbols
-                createSymbols(response,map, maxAtts, tempType);
-                createSlider(response, map, maxAtts);
-                updateChart(maxAtts, tempType);
+                createSymbols(response,map, attributes tempType);
+                createSlider(response, map, attributes);
+                updateChart(attributes, tempType);
                 //hide loading affordance
                 $('#ajaxloader').hide();
             }
@@ -116,11 +119,11 @@ function loadData(map){
             dataType: "json",
             success: function(response){
                 //create attribute array
-                var minAtts = processData(response);
+                var attributes = processData(response);
                 //create the point symbols
-                createSymbols(response,map,minAtts,tempType);
-                createSlider(response, map, minAtts);
-                updateChart(minAtts, tempType);
+                createSymbols(response,map,attributes,tempType);
+                createSlider(response, map, attributes);
+                updateChart(attributes, tempType);
                 //hide loading spinner affordance
                 $('#ajaxloader').hide();
                 console.log(minAtts);
@@ -214,7 +217,6 @@ function getColor(colorBreaks, temp){
     if (temp <= colorBreaks[1]){
         return colorScale[0];
     }
-
     else if (temp <= colorBreaks[2]){
         return colorScale[1];
     }
