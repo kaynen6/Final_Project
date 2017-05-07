@@ -42,21 +42,21 @@ function createMap(){
 
     L.control.layers(baseMaps).addTo(map);
     baseMaps["Satellite"].addTo(map);
-    //set up radio buttons for temperature calculation options via jquery
-    $('#legendid').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
-    //set up radio buttons for temperatur aggregation calculation options via jquery 
-    $('#legendid').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
     //load data based on default selections
     loadData(map);  
   
     baseMaps["Streets"].addTo(map);
-
+    
+    //create radio buttons for selecting temps attributes to display
     $('#tempCalc').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
     $('#tempAgg').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+    
     $('#dropdown').append('<h5> 3) Select a Time: </h5><p>');
-    $('#dropdown').append($('dropdown1', 'dropdown2'));
-
-    createDropdown();
+     //dropdown for month
+    $('#dropdown').append("<select id='monthdd'><option value='01'>January</option><option value='02'>February</option><option value='03'>March</option><option value='04'>April</option><option value='05'>May</option><option value='06'>June</option><option value='07'>July</option><option value='08'>August</option><option value='09'>September</option><option value='10'>October</option><option value='11'>November</option><option value='12'>December</option></select>");
+    //dropdown for year
+    $('#dropdown').append("<select id='yeardd'><option value='2012'>2012</option><option value='2013'>2013</option><option value='2014'>2014</option><option value='2015'>2015</option><option value='2016'>2016</option></select>");
+    
     //set listeners for radio buttons for temp calculation type (heat index, apparent temp, air temp)
     $(':radio[name=calcradio]').change(function(){
         //function to load data from files
@@ -66,6 +66,13 @@ function createMap(){
     //listener for data set radio buttons (temperature aggregation - min,max,mean)
     $(':radio[name=tempradio]').change(function(){
         //function to load data from files
+        loadData(map);
+    });
+    //listener for dropdowns
+    $('#monthdd').change(function(){
+        loadData(map);
+    });
+    $('#yeardd').change(function(){
         loadData(map);
     });
 
@@ -97,12 +104,13 @@ function loadData(map){
     $.ajax(file, {
         dataType: "json",
         success: function(response){
-            console.log(tempType);
             //create attribute array
             var attributes = processData(response);
             //create the point symbols
             createSymbols(response,map,attributes,tempType);
             var newDate = createSlider(response, map, attributes);
+            var month = $('#monthdd').val();
+            var year = $('#yeardd').val();
             updateChart(attributes, tempType);
             createDropdown(response);
             // setChart(meanAtts);
@@ -112,7 +120,7 @@ function loadData(map){
     });
 };
 
-//function listens for radio button change on temp calculation type and returns the value for the selected radio button
+//function returns the value for the selected radio button
 function getTempType(){
     var type;
         //if regualar air temperature:
@@ -152,11 +160,7 @@ function processData(data){
     for (var attribute in properties){
       attributes.push(attribute);
     };
-
-    console.log(year);
-    console.log(month);
-    console.log(attributes);
-    return year, month, attributes;
+    return attributes;
 };
 
 //create proportional sybols form geojson data properties
@@ -169,7 +173,6 @@ function createSymbols(response, map, attributes, tempType){
         pointToLayer: function(feature, latlng, attributes){
             //push temps for that day into the temps array from above
             if (feature.properties.year == 2012 && feature.properties.month == 03 && feature.properties.day == 19){
-                console.log(tempType);
                 temps.push(feature.properties[tempType]);
             };
             return pointToLayer(feature, latlng, attributes, tempType);
@@ -237,17 +240,9 @@ function pointToLayer(feature, latlng, attributes, tempType){
         opacity: 1,
         fillOpacity: 0.8
     };
-    /*if (attValue < 0){
-        attValue = Math.abs(attValue);
-    } else {
-        attValue = attValue;
-    }; */
-    //define radius via func to calculate based on attribute data
-    //options.radius = calcPropRadius(attValue);
     //create circleMarker
     var layer = L.circleMarker(latlng, options);
     //convert attributes to english
-    console.log(tempType);
     var tempLabel;
     if (tempType == "HI"){
             tempLabel = "Heat Index"
@@ -316,10 +311,8 @@ function createSlider(data, map, attributes){
     var minDate = new Date(2012, 02, 19);
 
     minDate = minDate.getTime()
-    console.log(minDate);
     var maxDate = new Date(2016, 03, 30);
     maxDate = maxDate.getTime()
-    console.log(maxDate);
 
 		$('.range-slider').attr({'type':'range',
 												'max': maxDate,
@@ -335,7 +328,6 @@ function createSlider(data, map, attributes){
         datestep = parseFloat(datestep);
         var newDate = new Date(datestep);
         newDate = newDate.toLocaleDateString();
-        console.log(newDate);
         $('.range-slider').val(datestep);
         // updatePropSymbols(map, attributes, datestep);
     });
@@ -348,14 +340,13 @@ function createSlider(data, map, attributes){
 
 /* Creating a function to update the proportional symbols when activated
 by the sequence slider */
-function updatePropSymbols(data, map, attribute, datestep){
+/*function updatePropSymbols(data, map, attribute, datestep){
 
     map.eachLayer(function(layer){
 		if (layer.feature && layer.feature.properties[attribute] ){
       consol.log(layer.feature);
 
 			var props = layer.feature.properties;
-      console.log(props);
 			var options = { radius: 8,
                             fillColor: "lightblue",
                             color: "#000",
@@ -374,7 +365,7 @@ function updatePropSymbols(data, map, attribute, datestep){
 			});
 		};
 	});
-};
+}; */
 
 function setChart(data){
   $("#panelContainer").empty();
@@ -451,7 +442,9 @@ function setChart(data){
   updateChart(bars, data.length);
 };
 
-function createDropdown(data){
+
+
+/*function createDropdown(data){
   $("#dropdown").remove(".dropdown1");
   $('#dropdown').remove(".dropdown2");
 
@@ -506,9 +499,10 @@ function createDropdown(data){
           return data.properties
         })
         .text(function(d){
-          return d
+        return d
         });
-  console.log(data);
+    console.log(currentYear);
+    console.log(currentMonth);
 };
 
 function changeDate(attribute, data){
@@ -518,11 +512,8 @@ function changeDate(attribute, data){
     currentMonth = attribute
   };
 
-  console.log(data);
   expressed = [currentYear, currentMonth];
-  console.log(expressed[0]);
-  console.log(expressed[1]);
-
+ 
   // var bars = d3.selectAll(".bar")
   //   .sort(function(a, b){
   //     return b[expressed][1] - a[expressed][1];
@@ -545,7 +536,7 @@ function changeDate(attribute, data){
   // updateChart(bars, data.length);
 
 };
-
+*/
 function updateChart(bars, n){
 
   var chartWidth = $("#panelContainer").width(),
