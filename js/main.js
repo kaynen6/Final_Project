@@ -41,6 +41,14 @@ function createMap(){
     control.addTo(map)
 
     L.control.layers(baseMaps).addTo(map);
+    baseMaps["Satellite"].addTo(map);
+    //set up radio buttons for temperature calculation options via jquery
+    $('#legendid').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
+    //set up radio buttons for temperatur aggregation calculation options via jquery 
+    $('#legendid').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
+    //load data based on default selections
+    loadData(map);  
+  
     baseMaps["Streets"].addTo(map);
 
     $('#tempCalc').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
@@ -68,71 +76,40 @@ function createMap(){
 
 //function to load geojson data with ajax
 function loadData(map){
+    //file name holder
+    var file;
     var tempType = getTempType();
     //determine which radio buttons are checked
     //if means are asked for:
     if ($(':radio[value=mean]').is(':checked')){
-         //start loading affordance
-        $('#ajaxloader').show();
-        //load the Means data via ajax
-        $.ajax("data/UHIDailySummaries/Means12-16.geojson", {
-            dataType: "json",
-            success: function(response){
-              console.log(tempType);
-                //create attribute array
-                var meanAtts = processData(response);
-                //create the point symbols
-                createSymbols(response,map,meanAtts,tempType);
-                createDropdown(response);
-                // setChart(meanAtts);
-                //hide loading affordance
-                $('#ajaxloader').hide();
-            }
-        });
-    }
-    //if max temps are called for:
+        //if mean temps checked:
+        file = "data/UHIDailySummaries/Means12-16.geojson";
+    } //if max temps:
     else if ($(':radio[value=max]').is(':checked')){
-        //start loading affordance
-        $('#ajaxloader').show();
-        //load max data
-        $.ajax("data/UHIDailySummaries/Maxes12-16.geojson", {
-            dataType: "json",
-            success: function(response){
-                //create attribute array
-                var maxAtts = processData(response);
-
-                //create the point symbols
-                createSymbols(response,map, maxAtts, tempType, currentYear);
-                createDropdown(response);
-                // createSlider(response, map, maxAtts);
-                // setChart(maxAtts);
-                //hide loading affordance
-                $('#ajaxloader').hide();
-            }
-        });
-    }
-    //if minimum temps:
+        file = "data/UHIDailySummaries/Maxes12-16.geojson";
+    }     //if minimum temps:
     else if ($(':radio[value=min]').is(':checked')){
-         //start loading affordance
-        $('#ajaxloader').show();
-         //load the min data
-        $.ajax("data/UHIDailySummaries/Mins12-16.geojson", {
-            dataType: "json",
-            success: function(response){
-                //create attribute array
-                var minAtts = processData(response);
-                //create the point symbols
-                createSymbols(response,map,minAtts,tempType);
-                createDropdown(response);
-                // setChart(minAtts);
-                // createSlider(response, map, minAtts);
-
-                //hide loading spinner affordance
-                $('#ajaxloader').hide();
-                console.log(minAtts);
-            }
-        });
+        file = "data/UHIDailySummaries/Mins12-16.geojson";
     };
+    //start loading affordance
+    $('#ajaxloader').show();
+    //load the Means data via ajax
+    $.ajax(file, {
+        dataType: "json",
+        success: function(response){
+            console.log(tempType);
+            //create attribute array
+            var attributes = processData(response);
+            //create the point symbols
+            createSymbols(response,map,attributes,tempType);
+            var newDate = createSlider(response, map, attributes);
+            updateChart(attributes, tempType);
+            createDropdown(response);
+            // setChart(meanAtts);
+            //hide loading affordance
+            $('#ajaxloader').hide();
+        }
+    });
 };
 
 //function listens for radio button change on temp calculation type and returns the value for the selected radio button
@@ -233,7 +210,6 @@ function getColor(colorBreaks, temp){
     if (temp <= colorBreaks[1]){
         return colorScale[0];
     }
-
     else if (temp <= colorBreaks[2]){
         return colorScale[1];
     }
