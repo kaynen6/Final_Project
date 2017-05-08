@@ -175,6 +175,8 @@ body {
 .chartBackground {
     fill: white;
     border: medium solid #999;
+    height: 110px;
+    width: 91.5%;
 }
 
 .chartTitle {

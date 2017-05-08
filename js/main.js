@@ -41,7 +41,7 @@ function createMap(){
     control.addTo(map)
 
     L.control.layers(baseMaps).addTo(map);
-    baseMaps["Satellite"].addTo(map);  
+    baseMaps["Satellite"].addTo(map);
     baseMaps["Streets"].addTo(map);
     //load data based on default selections
     loadData(map);
@@ -57,10 +57,10 @@ function createMap(){
     $('#dropdown').append("<select id='yeardd'><option value='2012'>2012</option><option value='2013'>2013</option><option value='2014'>2014</option><option value='2015'>2015</option><option value='2016'>2016</option></select>");
     //submit button
     $('#dropdown').append("<br><br><center><input type='submit' name='Update' value='Update'></input>");
-    
+
     //load data based on default selections
-    loadData(map);  
-    
+    loadData(map);
+
     //submit button listener
     $(':submit').on('click', function(){
         loadData(map);
