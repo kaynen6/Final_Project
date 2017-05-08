@@ -103,7 +103,7 @@ function loadData(map){
             //create the point symbols
             createSymbols(response,map,attributes,tempType, month, year);
             var newDate = createSlider(response, map, attributes);
-            updateChart(attributes, tempType);
+            //updateChart(attributes, tempType);
             // setChart(meanAtts);
             var day = createSlider(response, map, attributes);
             setChart(response, tempType, month, year);
@@ -164,14 +164,14 @@ function createSymbols(response, map, attributes, tempType, month, year){
         //point to layer converts each point feature to layer to use circle marker
         pointToLayer: function(feature, latlng, attributes, year, month){
             //push temps for that day into the temps array from above
-            if (feature.properties.year == Number(year) && feature.properties.month == Number(month) && feature.properties.day == 19){ //change to day variable
+            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){ //change to day variable
                 temps.push(feature.properties[tempType]);
                 return pointToLayer(feature, latlng, attributes, tempType, month, year);
             };
         },
-        //filtering the data for default date - make this interactive at some point
+        //filtering the data for date
         filter: function(feature, layer, year, month){
-            if (feature.properties.year == Number(year) && feature.properties.month == Number(month) && feature.properties.day == 19){
+            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){
                 return true;
             };
         },
