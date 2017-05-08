@@ -50,8 +50,10 @@ body {
 
 #mapid {
     height: 600px;
-    width: 60%;
-    margin-left: -300px;
+    width: 70%;
+    margin: auto;
+
+    /*margin-left: -300px;*/
     margin-top: -10px;
     top: 20px;
     display: inline-block;
@@ -118,7 +120,7 @@ body {
 #panelContainer{
   display: inline-block;
   height: 120px;
-  width: 59.5%;
+  width: 69%;
   margin: auto;
   /*margin: 0 10px 0 -287px;*/
   vertical-align: top;

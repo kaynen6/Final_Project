@@ -9,7 +9,7 @@ function createMap(){
     $('#ajaxloader').show();
     var map = L.map('mapid', {
         center: [43.0731,-89.4012],
-        zoom: 14,
+        zoom: 15,
         maxZoom: 18,
         minZoom: 8
     });
@@ -100,7 +100,7 @@ function loadData(map){
             //create the point symbols
             createSymbols(response,map,attributes,tempType, month, year);
             var day = createSlider(response, map, attributes);
-            setChart(response, tempType, month, year);
+            setChart(response, tempType, day, month, year);
             //hide loading affordance
             $('#ajaxloader').hide();
         }
@@ -132,14 +132,6 @@ function processData(data){
     //properties of the first feature in the dataset
     var properties = data.features[0].properties;
     //push each attribute name into attributes array
-    // Right now pushing HI & tair, but test for interactions
-    // for (var attribute in properties){
-    //   if (attribute.indexOf("year")>-1){
-    //     year.push(attribute);
-    //   } else if (attribute.indexOf("month")>-1){
-    //     month.push(attribute);
-    //   };
-    // };
 
     for (var attribute in properties){
       attributes.push(attribute);
@@ -147,18 +139,16 @@ function processData(data){
     return attributes;
 };
 
-//create proportional sybols form geojson data properties
+//create proportional symbols form geojson data properties
 function createSymbols(response, map, attributes, tempType, month, year){
     //create an array for temperatures of given day
     var temps = [];
-    console.log(month);
     //create a Leaflet GeoJSON layer and add it to the map
     var geojson = L.geoJson(response,{
         //point to layer converts each point feature to layer to use circle marker
         pointToLayer: function(feature, latlng, attributes, year, month){
-          console.log(feature.properties);
             //push temps for that day into the temps array from above
-
+            console.log(feature.properties[tempType]);
             if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){
                 temps.push(feature.properties[tempType]);
             };
@@ -172,6 +162,7 @@ function createSymbols(response, map, attributes, tempType, month, year){
             }
         }
     }).addTo(map);
+    console.log(temps);
     //get color scale breaks via function
     var colorBreaks = calcColorBreaks(temps);
     geojson.eachLayer(function(layer){
@@ -337,24 +328,24 @@ by the sequence slider */
 	});
 }; */
 
-function setChart(data, tempType, month, year){
-  console.log(data.features[0].properties);
-  //filter data based on day, month, year and tempType
-  // function isSID(obj){
-  //     return obj == day && obj == month && obj == year;
-  // }
-  //
-  // function filterbyDate(data){
-  //   if (isSID(data)) {
-  //     return true;
-  //   }
-  //   alert("There is a current erro with the chaart");
-  //   return false;
-  // }
-
-  console.log(tempType);
-  console.log(month);
+function setChart(data, tempType, day, month, year){
   $("#panelContainer").empty();
+
+  day = 19;
+  console.log(day);
+  console.log(data.features.length);
+  dataArray = [];
+  console.log(tempType.val());
+
+  for (i=0;i<data.features.length;i++){
+    if (data.features[i].properties["month"]==Number(month) && data.features[i].properties["year"]==Number(year)){
+      sid = data.features[i].properties["SID"];
+      dataArray.push(sid, tempType);
+    };
+  };
+
+  console.log(dataArray.length);
+  console.log(dataArray);
 
   var chartWidth = $("#panelContainer").width(),
       chartHeight = $("#panelContainer").height();
@@ -411,19 +402,20 @@ function setChart(data, tempType, month, year){
       .attr("transform", translate);
 
   var bar = chart.selectAll(".bar")
-      .data(data)
+      .data(dataArray)
       .enter()
       .append("rect")
       .attr("class", function(d){
         return "bars " + d.SID;
       })
-      .attr("width", chartInnerWidth / data.length-1)
+      .attr("width", chartInnerWidth / dataArray.length-1)
       .attr("x", function(d, i){
-        return i * (chartInnerWidth/ data.length);
+        return i * (chartInnerWidth/ dataArray.length);
       })
       .attr("height", chartInnerHeight)
       .attr("y", 0);
 
+  console.log(dataArray.length);
   var chartTitle = chart.append("text")
       .attr("x", 85)
       .attr("y", 30)
@@ -432,9 +424,5 @@ function setChart(data, tempType, month, year){
 
   // updateChart(bars, dataChart.length);
 };
-
-
-
-
 
 $(document).ready(initialize);
