@@ -9,7 +9,7 @@ function createMap(){
     $('#ajaxloader').show();
     var map = L.map('mapid', {
         center: [43.0731,-89.4012],
-        zoom: 14,
+        zoom: 15,
         maxZoom: 18,
         minZoom: 8
     });
@@ -41,14 +41,6 @@ function createMap(){
     control.addTo(map)
 
     L.control.layers(baseMaps).addTo(map);
-<<<<<<< HEAD
-<<<<<<< HEAD
-    baseMaps["Satellite"].addTo(map);  
-=======
->>>>>>> refs/remotes/origin/master
-=======
-    baseMaps["Satellite"].addTo(map);  
->>>>>>> origin/Kayne's-Branch
     baseMaps["Streets"].addTo(map);
     //load data based on default selections
     loadData(map);
@@ -62,40 +54,14 @@ function createMap(){
     $('#dropdown').append("<select id='monthdd'><option value='1'>January</option><option value='2'>February</option><option value='3'>March</option><option value='4'>April</option><option value='5'>May</option><option value='6'>June</option><option value='7'>July</option><option value='8'>August</option><option value='9'>September</option><option value='10'>October</option><option value='11'>November</option><option value='12'>December</option></select>");
     //dropdown for year
     $('#dropdown').append("<select id='yeardd'><option value='2012'>2012</option><option value='2013'>2013</option><option value='2014'>2014</option><option value='2015'>2015</option><option value='2016'>2016</option></select>");
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> origin/Kayne's-Branch
     //submit button
     $('#dropdown').append("<br><br><center><input type='submit' name='Update' value='Update'></input>");
-    
+
     //load data based on default selections
-    loadData(map);  
-    
+    loadData(map);
+
     //submit button listener
     $(':submit').on('click', function(){
-<<<<<<< HEAD
-=======
-
-    //set listeners for radio buttons for temp calculation type (heat index, apparent temp, air temp)
-    $(':radio[name=calcradio]').change(function(){
-        //function to load data from files
-        loadData(map);
-    });
-
-    //listener for data set radio buttons (temperature aggregation - min,max,mean)
-    $(':radio[name=tempradio]').change(function(){
-        //function to load data from files
-        loadData(map);
-    });
-    //listener for dropdowns
-    $('#monthdd').change(function(){
-        loadData(map);
-    });
-    $('#yeardd').change(function(){
->>>>>>> refs/remotes/origin/master
-=======
->>>>>>> origin/Kayne's-Branch
         loadData(map);
     });
     // $('#legendid').append('<form><h5> Select A Date:</h5><p><input type = "text" id = "date" name="calcdate" value = "03-19-2012" data-format="DD/MM/YYYY" data-template = "MMM D YYYY">');
@@ -128,31 +94,13 @@ function loadData(map){
         success: function(response){
             //create attribute array
             var attributes = processData(response);
-<<<<<<< HEAD
-<<<<<<< HEAD
             //month and year set from the user via dropdown boxes
-=======
->>>>>>> refs/remotes/origin/master
-=======
-            //month and year set from the user via dropdown boxes
->>>>>>> origin/Kayne's-Branch
             var month = $('#monthdd').val();
             var year = $('#yeardd').val();
             //create the point symbols
             createSymbols(response,map,attributes,tempType, month, year);
-<<<<<<< HEAD
-<<<<<<< HEAD
-            var newDate = createSlider(response, map, attributes);
-            updateChart(attributes, tempType);
-            // setChart(meanAtts);
-=======
             var day = createSlider(response, map, attributes);
-            setChart(response, tempType, month, year);
->>>>>>> refs/remotes/origin/master
-=======
-            var day = createSlider(response, map, attributes);
-            setChart(response, tempType, month, year);
->>>>>>> origin/Kayne's-Branch
+            setChart(response, tempType, day, month, year);
             //hide loading affordance
             $('#ajaxloader').hide();
         }
@@ -184,14 +132,6 @@ function processData(data){
     //properties of the first feature in the dataset
     var properties = data.features[0].properties;
     //push each attribute name into attributes array
-    // Right now pushing HI & tair, but test for interactions
-    // for (var attribute in properties){
-    //   if (attribute.indexOf("year")>-1){
-    //     year.push(attribute);
-    //   } else if (attribute.indexOf("month")>-1){
-    //     month.push(attribute);
-    //   };
-    // };
 
     for (var attribute in properties){
       attributes.push(attribute);
@@ -199,47 +139,30 @@ function processData(data){
     return attributes;
 };
 
-//create proportional sybols form geojson data properties
+//create proportional symbols form geojson data properties
 function createSymbols(response, map, attributes, tempType, month, year){
     //create an array for temperatures of given day
     var temps = [];
-    console.log(month);
     //create a Leaflet GeoJSON layer and add it to the map
     var geojson = L.geoJson(response,{
         //point to layer converts each point feature to layer to use circle marker
         pointToLayer: function(feature, latlng, attributes, year, month){
-          console.log(feature.properties);
             //push temps for that day into the temps array from above
-<<<<<<< HEAD
-<<<<<<< HEAD
+            console.log(feature.properties[tempType]);
             if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){
-=======
-            if (feature.properties.year == Number(year) && feature.properties.month == Number(month) && feature.properties.day == 19){
->>>>>>> refs/remotes/origin/master
-=======
-
-            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){
->>>>>>> origin/Kayne's-Branch
                 temps.push(feature.properties[tempType]);
             };
             return pointToLayer(feature, latlng, attributes, tempType, month, year);
         },
         //filtering the data for default date - make this interactive at some point
         filter: function(feature, layer){
-<<<<<<< HEAD
-<<<<<<< HEAD
             if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19) {
-=======
-            if (feature.properties.year == Number(year) && feature.properties.month == Number(month) && feature.properties.day == 19) {
->>>>>>> refs/remotes/origin/master
-=======
-            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19) {
->>>>>>> origin/Kayne's-Branch
                 return true
             // return feature.properties.year == 2016?  Will need to remove one/two of these constraints (day, month, year)?
             }
         }
     }).addTo(map);
+    console.log(temps);
     //get color scale breaks via function
     var colorBreaks = calcColorBreaks(temps);
     geojson.eachLayer(function(layer){
@@ -405,23 +328,27 @@ by the sequence slider */
 	});
 }; */
 
-function setChart(data, tempType, month, year){
-  //filter data based on day, month, year and tempType
-  // function isSID(obj){
-  //     return obj == day && obj == month && obj == year;
-  // }
-  //
-  // function filterbyDate(data){
-  //   if (isSID(data)) {
-  //     return true;
-  //   }
-  //   alert("There is a current erro with the chaart");
-  //   return false;
-  // }
-
-  console.log(tempType);
-  console.log(month);
+function setChart(data, tempType, day, month, year){
   $("#panelContainer").empty();
+  day = 19;
+  console.log(day);
+  console.log(data.features.length);
+  dataArray = [];
+
+  for (i=0;i<data.features.length;i++){
+    if (data.features[i].properties["month"]==Number(month) && data.features[i].properties["year"]==Number(year) && data.features[i].properties["day"]==19){
+      tempVal = data.features[i].properties[tempType];
+      dataArray.push(parseFloat(tempVal).toFixed(2));
+    };
+  };
+
+  console.log(dataArray.length);
+  // console.log(Math.max(dataArray));
+  // Loading data into function
+  // Filtering data based on inputs for day, month, year.  Return SID (x axis) and tempType (y axis)
+
+
+
 
   var chartWidth = $("#panelContainer").width(),
       chartHeight = $("#panelContainer").height();
@@ -478,19 +405,20 @@ function setChart(data, tempType, month, year){
       .attr("transform", translate);
 
   var bar = chart.selectAll(".bar")
-      .data(data)
+      .data(dataArray)
       .enter()
       .append("rect")
       .attr("class", function(d){
         return "bars " + d.SID;
       })
-      .attr("width", chartInnerWidth / data.length-1)
+      .attr("width", chartInnerWidth / dataArray.length-1)
       .attr("x", function(d, i){
-        return i * (chartInnerWidth/ data.length);
+        return i * (chartInnerWidth/ dataArray.length);
       })
       .attr("height", chartInnerHeight)
       .attr("y", 0);
 
+  console.log(dataArray.length);
   var chartTitle = chart.append("text")
       .attr("x", 85)
       .attr("y", 30)
@@ -499,9 +427,5 @@ function setChart(data, tempType, month, year){
 
   // updateChart(bars, dataChart.length);
 };
-
-
-
-
 
 $(document).ready(initialize);
