@@ -41,30 +41,26 @@ function createMap(){
     control.addTo(map)
 
     L.control.layers(baseMaps).addTo(map);
-    baseMaps["Satellite"].addTo(map);    
+    baseMaps["Satellite"].addTo(map);
     baseMaps["Streets"].addTo(map);
     //load data based on default selections
-    loadData(map);
+    //loadData(map);
 
     //create radio buttons for selecting temps attributes to display
     $('#tempCalc').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
     $('#tempAgg').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
 
-    $('#dropdown').append('<h5> 3) Select a Time: </h5><p>');
+    $('#dropdown').append('<h5> 3) Select a Month and Year:</h5><p>');
      //dropdown for month
     $('#dropdown').append("<select id='monthdd'><option value='01'>January</option><option value='02'>February</option><option value='03'>March</option><option value='04'>April</option><option value='05'>May</option><option value='06'>June</option><option value='07'>July</option><option value='08'>August</option><option value='09'>September</option><option value='10'>October</option><option value='11'>November</option><option value='12'>December</option></select>");
     //dropdown for year
     $('#dropdown').append("<select id='yeardd'><option value='2012'>2012</option><option value='2013'>2013</option><option value='2014'>2014</option><option value='2015'>2015</option><option value='2016'>2016</option></select>");
-    
     //submit button
     $('#dropdown').append("<br><br><center><input type='submit' name='Update' value='Update'></input>");
     
-    //load data based on default selections
-    loadData(map);  
-    
-    //submit button listener
     $(':submit').on('click', function(){
-        loadData(map);
+        //load data based on default selections
+        loadData(map);  
     });
     // $('#legendid').append('<form><h5> Select A Date:</h5><p><input type = "text" id = "date" name="calcdate" value = "03-19-2012" data-format="DD/MM/YYYY" data-template = "MMM D YYYY">');
 
@@ -90,13 +86,12 @@ function loadData(map){
     };
     //start loading affordance
     $('#ajaxloader').show();
-    //load the Means data via ajax with specified file
+    //load the Means data via ajax
     $.ajax(file, {
         dataType: "json",
         success: function(response){
             //create attribute array
             var attributes = processData(response);
-            //month and year set from the user via dropdown boxes
             //month and year set from the user via dropdown boxes
             var month = $('#monthdd').val();
             var year = $('#yeardd').val();
@@ -104,11 +99,8 @@ function loadData(map){
             createSymbols(response,map,attributes,tempType, month, year);
             var newDate = createSlider(response, map, attributes);
             //updateChart(attributes, tempType);
-            // setChart(meanAtts);
             var day = createSlider(response, map, attributes);
-            setChart(response, tempType, month, year);
-            var day = createSlider(response, map, attributes);
-            setChart(response, tempType, month, year);
+            //setChart(response, tempType, month, year);
             //hide loading affordance
             $('#ajaxloader').hide();
         }
@@ -162,20 +154,22 @@ function createSymbols(response, map, attributes, tempType, month, year){
     //create a Leaflet GeoJSON layer and add it to the map
     var geojson = L.geoJson(response,{
         //point to layer converts each point feature to layer to use circle marker
-        pointToLayer: function(feature, latlng, attributes, year, month){
+        pointToLayer: function(feature, latlng, attributes){
             //push temps for that day into the temps array from above
-            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){ //change to day variable
+            console.log(month);
+            console.log(year);
+            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 10){ //change to day variable
                 temps.push(feature.properties[tempType]);
-                return pointToLayer(feature, latlng, attributes, tempType, month, year);
             };
-        },
-        //filtering the data for date
-        filter: function(feature, layer, year, month){
-            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){
+            return pointToLayer(feature, latlng, attributes, tempType);
+        },//filtering the data for date
+        filter: function(feature, layer){
+            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 10){
                 return true;
             };
-        },
+        }
     }).addTo(map);
+    console.log(temps);
     //get color scale breaks via function
     var colorBreaks = calcColorBreaks(temps);
     geojson.eachLayer(function(layer){
@@ -219,7 +213,7 @@ function getColor(colorBreaks, temp){
 };
 
 //initial symbolization when map loads for first time
-function pointToLayer(feature, latlng, attributes, tempType, month, year){
+function pointToLayer(feature, latlng, attributes, tempType){
     //grab the properties of the attribute tair - default
     var attValue = feature.properties[tempType];
     //create marker options w/ defualt styling
