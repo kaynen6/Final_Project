@@ -41,10 +41,6 @@ function createMap(){
     control.addTo(map)
 
     L.control.layers(baseMaps).addTo(map);
-<<<<<<< HEAD
-    baseMaps["Satellite"].addTo(map);
-=======
->>>>>>> origin/Jon's-Branch
     baseMaps["Streets"].addTo(map);
     //load data based on default selections
     loadData(map);
