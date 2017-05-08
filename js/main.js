@@ -41,7 +41,10 @@ function createMap(){
     control.addTo(map)
 
     L.control.layers(baseMaps).addTo(map);
+<<<<<<< HEAD
     baseMaps["Satellite"].addTo(map);
+=======
+>>>>>>> origin/Jon's-Branch
     baseMaps["Streets"].addTo(map);
     //load data based on default selections
     loadData(map);
@@ -339,6 +342,7 @@ by the sequence slider */
 }; */
 
 function setChart(data, tempType, month, year){
+  console.log(data.features[0].properties);
   //filter data based on day, month, year and tempType
   // function isSID(obj){
   //     return obj == day && obj == month && obj == year;
