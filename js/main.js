@@ -41,18 +41,26 @@ function createMap(){
     control.addTo(map)
 
     L.control.layers(baseMaps).addTo(map);
+<<<<<<< HEAD
     baseMaps["Satellite"].addTo(map);  
+=======
+>>>>>>> refs/remotes/origin/master
     baseMaps["Streets"].addTo(map);
-    
+    //load data based on default selections
+    loadData(map);
+
+    // baseMaps["Streets"].addTo(map);
+
     //create radio buttons for selecting temps attributes to display
     $('#tempCalc').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
     $('#tempAgg').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
-    
+
     $('#dropdown').append('<h5> 3) Select a Time: </h5><p>');
      //dropdown for month
-    $('#dropdown').append("<select id='monthdd'><option value='01'>January</option><option value='02'>February</option><option value='03'>March</option><option value='04'>April</option><option value='05'>May</option><option value='06'>June</option><option value='07'>July</option><option value='08'>August</option><option value='09'>September</option><option value='10'>October</option><option value='11'>November</option><option value='12'>December</option></select>");
+    $('#dropdown').append("<select id='monthdd'><option value='1'>January</option><option value='2'>February</option><option value='3'>March</option><option value='4'>April</option><option value='5'>May</option><option value='6'>June</option><option value='7'>July</option><option value='8'>August</option><option value='9'>September</option><option value='10'>October</option><option value='11'>November</option><option value='12'>December</option></select>");
     //dropdown for year
     $('#dropdown').append("<select id='yeardd'><option value='2012'>2012</option><option value='2013'>2013</option><option value='2014'>2014</option><option value='2015'>2015</option><option value='2016'>2016</option></select>");
+<<<<<<< HEAD
     //submit button
     $('#dropdown').append("<br><br><center><input type='submit' name='Update' value='Update'></input>");
     
@@ -61,6 +69,25 @@ function createMap(){
     
     //submit button listener
     $(':submit').on('click', function(){
+=======
+
+    //set listeners for radio buttons for temp calculation type (heat index, apparent temp, air temp)
+    $(':radio[name=calcradio]').change(function(){
+        //function to load data from files
+        loadData(map);
+    });
+
+    //listener for data set radio buttons (temperature aggregation - min,max,mean)
+    $(':radio[name=tempradio]').change(function(){
+        //function to load data from files
+        loadData(map);
+    });
+    //listener for dropdowns
+    $('#monthdd').change(function(){
+        loadData(map);
+    });
+    $('#yeardd').change(function(){
+>>>>>>> refs/remotes/origin/master
         loadData(map);
     });
     // $('#legendid').append('<form><h5> Select A Date:</h5><p><input type = "text" id = "date" name="calcdate" value = "03-19-2012" data-format="DD/MM/YYYY" data-template = "MMM D YYYY">');
@@ -93,14 +120,22 @@ function loadData(map){
         success: function(response){
             //create attribute array
             var attributes = processData(response);
+<<<<<<< HEAD
             //month and year set from the user via dropdown boxes
+=======
+>>>>>>> refs/remotes/origin/master
             var month = $('#monthdd').val();
             var year = $('#yeardd').val();
             //create the point symbols
             createSymbols(response,map,attributes,tempType, month, year);
+<<<<<<< HEAD
             var newDate = createSlider(response, map, attributes);
             updateChart(attributes, tempType);
             // setChart(meanAtts);
+=======
+            var day = createSlider(response, map, attributes);
+            setChart(response, tempType, month, year);
+>>>>>>> refs/remotes/origin/master
             //hide loading affordance
             $('#ajaxloader').hide();
         }
@@ -125,24 +160,21 @@ function getTempType(){
     return type;
 };
 
-
 //create an attributes array from data
 function processData(data){
     //empty array to hold attribute index names
-    var year = [];
-    var month = [];
     var attributes = [];
     //properties of the first feature in the dataset
     var properties = data.features[0].properties;
     //push each attribute name into attributes array
     // Right now pushing HI & tair, but test for interactions
-    for (var attribute in properties){
-      if (attribute.indexOf("year")>-1){
-        year.push(attribute);
-      } else if (attribute.indexOf("month")>-1){
-        month.push(attribute);
-      };
-    };
+    // for (var attribute in properties){
+    //   if (attribute.indexOf("year")>-1){
+    //     year.push(attribute);
+    //   } else if (attribute.indexOf("month")>-1){
+    //     month.push(attribute);
+    //   };
+    // };
 
     for (var attribute in properties){
       attributes.push(attribute);
@@ -154,19 +186,29 @@ function processData(data){
 function createSymbols(response, map, attributes, tempType, month, year){
     //create an array for temperatures of given day
     var temps = [];
+    console.log(month);
     //create a Leaflet GeoJSON layer and add it to the map
     var geojson = L.geoJson(response,{
         //point to layer converts each point feature to layer to use circle marker
-        pointToLayer: function(feature, latlng, attributes){
+        pointToLayer: function(feature, latlng, attributes, year, month){
+          console.log(feature.properties);
             //push temps for that day into the temps array from above
+<<<<<<< HEAD
             if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){
+=======
+            if (feature.properties.year == Number(year) && feature.properties.month == Number(month) && feature.properties.day == 19){
+>>>>>>> refs/remotes/origin/master
                 temps.push(feature.properties[tempType]);
             };
-            return pointToLayer(feature, latlng, attributes, tempType);
+            return pointToLayer(feature, latlng, attributes, tempType, month, year);
         },
         //filtering the data for default date - make this interactive at some point
         filter: function(feature, layer){
+<<<<<<< HEAD
             if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19) {
+=======
+            if (feature.properties.year == Number(year) && feature.properties.month == Number(month) && feature.properties.day == 19) {
+>>>>>>> refs/remotes/origin/master
                 return true
             // return feature.properties.year == 2016?  Will need to remove one/two of these constraints (day, month, year)?
             }
@@ -266,6 +308,7 @@ function pointToLayer(feature, latlng, attributes, tempType){
 };
 
 function createSlider(data, map, attributes){
+  var day;
   // remove slider if the slider already exists
   $(".sequence-control-container.leaflet-control").removeClass();
   $(".range-slider").remove();
@@ -282,47 +325,29 @@ function createSlider(data, map, attributes){
           L.DomEvent.stopPropagation(e);
         });
 
-				// $(container).append('<button class="skip" id="reverse" title="Reverse"><b>Previous Year</b></button>');
-				// $(container).append('<button class="skip" id="forward" title="Forward"><b>Next Year</b></button>');
-
-
 				return container;
 			}
 	});
 
 		map.addControl(new SequenceControl());
 
-		// $('#reverse').html('<img src="img/reverse.png">');
-		// $('#forward').html('<img src="img/forward.png">');
-    //   var minDate = new Date(data.features[0].properties["date"]);
-    var minDate = new Date(2012, 02, 19);
-
-    minDate = minDate.getTime()
-    var maxDate = new Date(2016, 03, 30);
-    maxDate = maxDate.getTime()
-
 		$('.range-slider').attr({'type':'range',
-												'max': maxDate,
-												'min': minDate,
-												'step': 86400000,
-												'value': minDate
+												'max': 31,
+												'min': 1,
+												'step': 1,
+												'value': 1
 											});
 
     // Preventing any mouse event listeners on the map to occur
-  	$('.range-slider').on('input', function(){
-  	var newDate = $('.range-slider').on('input', function(){
-      	var datestep = $(this).val();
-        datestep = parseFloat(datestep);
-        var newDate = new Date(datestep);
-        newDate = newDate.toLocaleDateString();
-        $('.range-slider').val(datestep);
-        // updatePropSymbols(map, attributes, datestep);
+    $('.range-slider').on('mousedown', function(e){
+      L.DomEvent.stopPropagation(e);
     });
-    // console.log(newDate);
-  //Return datestep into date (m/d/Y) to send date to update chart and update symbols.
-    // return newDate;
-    // setChart(data);
-	});
+
+  	$('.range-slider').on('input', function(){
+      	day = $(this).val();
+    });
+
+    return day;
 };
 
 /* Creating a function to update the proportional symbols when activated
@@ -354,11 +379,26 @@ by the sequence slider */
 	});
 }; */
 
-function setChart(data){
+function setChart(data, tempType, month, year){
+  //filter data based on day, month, year and tempType
+  // function isSID(obj){
+  //     return obj == day && obj == month && obj == year;
+  // }
+  //
+  // function filterbyDate(data){
+  //   if (isSID(data)) {
+  //     return true;
+  //   }
+  //   alert("There is a current erro with the chaart");
+  //   return false;
+  // }
+
+  console.log(tempType);
+  console.log(month);
   $("#panelContainer").empty();
 
   var chartWidth = $("#panelContainer").width(),
-      chartHeight = $("#panelContainer").height(),
+      chartHeight = $("#panelContainer").height();
       leftPadding = 40,
       rightPadding = 2,
       topBottomPadding = 5,
@@ -411,149 +451,28 @@ function setChart(data){
       .attr("height", chartInnerHeight)
       .attr("transform", translate);
 
-  var bars = chart.selectAll(".bars")
+  var bar = chart.selectAll(".bar")
       .data(data)
       .enter()
       .append("rect")
       .attr("class", function(d){
         return "bars " + d.SID;
       })
-      .attr("width", chartInnerWidth / data.length);
+      .attr("width", chartInnerWidth / data.length-1)
+      .attr("x", function(d, i){
+        return i * (chartInnerWidth/ data.length);
+      })
+      .attr("height", chartInnerHeight)
+      .attr("y", 0);
 
   var chartTitle = chart.append("text")
       .attr("x", 85)
       .attr("y", 30)
       .attr("class", "chartTitle")
-      .text("Chart Area for Stations");
+      .text("The " + tempType + " for " + month+"/"+year);
 
-  updateChart(bars, data.length);
+  // updateChart(bars, dataChart.length);
 };
-
-
-
-/*function createDropdown(data){
-  $("#dropdown").remove(".dropdown1");
-  $('#dropdown').remove(".dropdown2");
-
-  var year = ["2012", "2013","2014","2015","2016"];
-  var month = ["1","2","3","4","5","6","7","8","9","10","11","12"];
-
-  currentYear = year[0];
-  currentMonth = month[0];
-
-  expressed = [currentMonth, currentYear];
-
-  var dropdownyear = d3.select('#dropdown')
-        .append('select')
-        .attr("class", "dropdown1")
-        .on("change", function(){
-          changeDate(this.value, data)
-        });
-
-  var titleOption = dropdownyear.append("option")
-        .attr("class", "titleOption")
-        .attr("disabled", "true")
-        .text("Select Year");
-
-  var attrOptions = dropdownyear.selectAll("attrOptions")
-        .data(year)
-        .enter()
-        .append("option")
-        .attr("value", function(data){
-          return data.properties
-        })
-        .text(function(d){
-          return d
-        });
-
-  var dropdownmonth = d3.select('#dropdown')
-        .append('select')
-        .attr("class", "dropdown2")
-        .on("change", function(){
-          changeDate(this.value, data)
-        })
-
-  var titleOption2 = dropdownmonth.append("option")
-        .attr("class", "titleOption2")
-        .attr("disabled", "true")
-        .text("Select Month");
-
-  var attrOptions2 = dropdownmonth.selectAll("attrOptions")
-        .data(month)
-        .enter()
-        .append("option")
-        .attr("value", function(data){
-          return data.properties
-        })
-        .text(function(d){
-        return d
-        });
-    console.log(currentYear);
-    console.log(currentMonth);
-};
-
-function changeDate(attribute, data){
-  if (attribute.indexOf("20") > -1){
-    currentYear = attribute
-  } else {
-    currentMonth = attribute
-  };
-
-  expressed = [currentYear, currentMonth];
- 
-  // var bars = d3.selectAll(".bar")
-  //   .sort(function(a, b){
-  //     return b[expressed][1] - a[expressed][1];
-  //   })
-  //   // .attr("x", function(d, i){
-  //   //   return i * chartInnerWidth/data.length + leftPadding;
-  //   // })
-  //   // .attr("height", function(d, i){
-  //   //   return 500-yScale(parseFloat(d[expressed[1]]));
-  //   // })
-  //   // .attr("y", function(d, i){
-  //   //   return yScale(parseFloat(d[expressed][1]))+ topBottomPadding;
-  //   // })
-  //   .transition()
-  //   .delay(function(d, i){
-  //     return i * 20
-  //   })
-  //   .duration(1000);
-  //
-  // updateChart(bars, data.length);
-
-};
-*/
-function updateChart(bars, n){
-
-  var chartWidth = $("#panelContainer").width(),
-      chartHeight = $("#panelContainer").height(),
-      leftPadding = 40,
-      rightPadding = 2,
-      topBottomPadding = 5,
-      chartInnerWidth = chartWidth - leftPadding - rightPadding,
-      chartInnerHeight = chartHeight - topBottomPadding * 2,
-      translate = "translate(" + leftPadding * 1.5 + "," + topBottomPadding + ")";
-
-  var yScale = d3.scaleLinear()
-      .range([chartInnerHeight, 0])
-      .domain([-20,100]);
-
-  bars.attr("x", function(d, i){
-        return i * (chartInnerWidth / n) + leftPadding;
-    })
-    //size/resize bars
-    .attr("height", function(d, i){
-        return chartInnerHeight - yScale(parseFloat(d[expressed]=="currentMonth"));
-    })
-    .attr("y", function(d, i){
-        return yScale(parseFloat(d[expressed]=="currentMonth")) + topBottomPadding;
-    });
-    // //color/recolor bars
-    // .style("fill", function(d){
-    //     return choropleth(d, colorBreaks);
-    // });
-}
 
 
 
