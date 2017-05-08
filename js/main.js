@@ -334,11 +334,11 @@ function setChart(data, attributes, tempType, day, month, year){
   dataArray = [];
 
   for (i=0;i<data.features.length;i++){
-    if (data.features[i].properties["month"]==Number(month) && data.features[i].properties["year"]==Number(year)){
-      console.log(data.features[i].properties["month"], month);
+    if (data.features[i].properties["month"]==Number(month) && data.features[i].properties["year"]==Number(year) ){
       sid = data.features[i].properties["SID"];
       newDay = data.features[i].properties["day"];
       tempVal = parseFloat(data.features[i].properties[tempType]).toFixed(2);
+
       var tempObject = {
         SID: sid,
         day: newDay,
@@ -360,12 +360,10 @@ function setChart(data, attributes, tempType, day, month, year){
     };
   };
 
+  console.log(dataArray);
   console.log(tempTotal/tempTotalCount);
   console.log(tempTotalCount);
 
-  console.log(typeof dataArray[1].value);
-
-  console.log(dataArray.length);
   // console.log(Math.max(dataArray));
   // Loading data into function
   // Filtering data based on inputs for day, month, year.  Return SID (x axis) and tempType (y axis)
@@ -432,20 +430,15 @@ function setChart(data, attributes, tempType, day, month, year){
       .attr("class", function(d){
         return "bars " + d.day;
       })
-      .attr("width", chartInnerWidth / dataArray.length-1)
+      .attr("width", chartInnerWidth / tempTotalCount.length-1)
       .attr("x", function(d, i){
-        return d.day * (chartInnerWidth/ dataArray.length);
+        return d.day * (chartInnerWidth/ tempTotalCount.length);
       })
       .attr("height", function(d){
-        if (d == "NaN"){
-          d == 0
-        };
-        return yScale(d);
+        return yScale(tempTotal);
       })
       .attr("y", function(d){
-        if (d == "Nan"){
-          d = 0
-        };
+        console.log(d);
         return chartInnerHeight - yScale(d);
       });
 
