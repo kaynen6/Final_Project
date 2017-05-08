@@ -41,14 +41,7 @@ function createMap(){
     control.addTo(map)
 
     L.control.layers(baseMaps).addTo(map);
-<<<<<<< HEAD
-<<<<<<< HEAD
-    baseMaps["Satellite"].addTo(map);  
-=======
->>>>>>> refs/remotes/origin/master
-=======
-    baseMaps["Satellite"].addTo(map);  
->>>>>>> origin/Kayne's-Branch
+    baseMaps["Satellite"].addTo(map);    
     baseMaps["Streets"].addTo(map);
     //load data based on default selections
     loadData(map);
@@ -61,13 +54,10 @@ function createMap(){
 
     $('#dropdown').append('<h5> 3) Select a Time: </h5><p>');
      //dropdown for month
-    $('#dropdown').append("<select id='monthdd'><option value='1'>January</option><option value='2'>February</option><option value='3'>March</option><option value='4'>April</option><option value='5'>May</option><option value='6'>June</option><option value='7'>July</option><option value='8'>August</option><option value='9'>September</option><option value='10'>October</option><option value='11'>November</option><option value='12'>December</option></select>");
+    $('#dropdown').append("<select id='monthdd'><option value='01'>January</option><option value='02'>February</option><option value='03'>March</option><option value='04'>April</option><option value='05'>May</option><option value='06'>June</option><option value='07'>July</option><option value='08'>August</option><option value='09'>September</option><option value='10'>October</option><option value='11'>November</option><option value='12'>December</option></select>");
     //dropdown for year
     $('#dropdown').append("<select id='yeardd'><option value='2012'>2012</option><option value='2013'>2013</option><option value='2014'>2014</option><option value='2015'>2015</option><option value='2016'>2016</option></select>");
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> origin/Kayne's-Branch
+    
     //submit button
     $('#dropdown').append("<br><br><center><input type='submit' name='Update' value='Update'></input>");
     
@@ -76,28 +66,6 @@ function createMap(){
     
     //submit button listener
     $(':submit').on('click', function(){
-<<<<<<< HEAD
-=======
-
-    //set listeners for radio buttons for temp calculation type (heat index, apparent temp, air temp)
-    $(':radio[name=calcradio]').change(function(){
-        //function to load data from files
-        loadData(map);
-    });
-
-    //listener for data set radio buttons (temperature aggregation - min,max,mean)
-    $(':radio[name=tempradio]').change(function(){
-        //function to load data from files
-        loadData(map);
-    });
-    //listener for dropdowns
-    $('#monthdd').change(function(){
-        loadData(map);
-    });
-    $('#yeardd').change(function(){
->>>>>>> refs/remotes/origin/master
-=======
->>>>>>> origin/Kayne's-Branch
         loadData(map);
     });
     // $('#legendid').append('<form><h5> Select A Date:</h5><p><input type = "text" id = "date" name="calcdate" value = "03-19-2012" data-format="DD/MM/YYYY" data-template = "MMM D YYYY">');
@@ -130,31 +98,19 @@ function loadData(map){
         success: function(response){
             //create attribute array
             var attributes = processData(response);
-<<<<<<< HEAD
-<<<<<<< HEAD
             //month and year set from the user via dropdown boxes
-=======
->>>>>>> refs/remotes/origin/master
-=======
             //month and year set from the user via dropdown boxes
->>>>>>> origin/Kayne's-Branch
             var month = $('#monthdd').val();
             var year = $('#yeardd').val();
             //create the point symbols
             createSymbols(response,map,attributes,tempType, month, year);
-<<<<<<< HEAD
-<<<<<<< HEAD
             var newDate = createSlider(response, map, attributes);
             updateChart(attributes, tempType);
             // setChart(meanAtts);
-=======
             var day = createSlider(response, map, attributes);
             setChart(response, tempType, month, year);
->>>>>>> refs/remotes/origin/master
-=======
             var day = createSlider(response, map, attributes);
             setChart(response, tempType, month, year);
->>>>>>> origin/Kayne's-Branch
             //hide loading affordance
             $('#ajaxloader').hide();
         }
@@ -205,42 +161,22 @@ function processData(data){
 function createSymbols(response, map, attributes, tempType, month, year){
     //create an array for temperatures of given day
     var temps = [];
-    console.log(month);
     //create a Leaflet GeoJSON layer and add it to the map
     var geojson = L.geoJson(response,{
         //point to layer converts each point feature to layer to use circle marker
         pointToLayer: function(feature, latlng, attributes, year, month){
-          console.log(feature.properties);
             //push temps for that day into the temps array from above
-<<<<<<< HEAD
-<<<<<<< HEAD
-            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){
-=======
-            if (feature.properties.year == Number(year) && feature.properties.month == Number(month) && feature.properties.day == 19){
->>>>>>> refs/remotes/origin/master
-=======
-
-            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){
->>>>>>> origin/Kayne's-Branch
+            if (feature.properties.year == Number(year) && feature.properties.month == Number(month) && feature.properties.day == 19){ //change to day variable
                 temps.push(feature.properties[tempType]);
+                return pointToLayer(feature, latlng, attributes, tempType, month, year);
             };
-            return pointToLayer(feature, latlng, attributes, tempType, month, year);
         },
         //filtering the data for default date - make this interactive at some point
-        filter: function(feature, layer){
-<<<<<<< HEAD
-<<<<<<< HEAD
-            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19) {
-=======
-            if (feature.properties.year == Number(year) && feature.properties.month == Number(month) && feature.properties.day == 19) {
->>>>>>> refs/remotes/origin/master
-=======
-            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19) {
->>>>>>> origin/Kayne's-Branch
-                return true
-            // return feature.properties.year == 2016?  Will need to remove one/two of these constraints (day, month, year)?
-            }
-        }
+        filter: function(feature, layer, year, month){
+            if (feature.properties.year == Number(year) && feature.properties.month == Number(month) && feature.properties.day == 19){
+                return true;
+            };
+        },
     }).addTo(map);
     //get color scale breaks via function
     var colorBreaks = calcColorBreaks(temps);
@@ -285,7 +221,7 @@ function getColor(colorBreaks, temp){
 };
 
 //initial symbolization when map loads for first time
-function pointToLayer(feature, latlng, attributes, tempType){
+function pointToLayer(feature, latlng, attributes, tempType, month, year){
     //grab the properties of the attribute tair - default
     var attValue = feature.properties[tempType];
     //create marker options w/ defualt styling
