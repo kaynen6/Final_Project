@@ -41,10 +41,7 @@ function createMap(){
     control.addTo(map)
 
     L.control.layers(baseMaps).addTo(map);
-    baseMaps["Satellite"].addTo(map);
-    //load data based on default selections
-    loadData(map);  
-  
+    baseMaps["Satellite"].addTo(map);  
     baseMaps["Streets"].addTo(map);
     
     //create radio buttons for selecting temps attributes to display
@@ -56,26 +53,16 @@ function createMap(){
     $('#dropdown').append("<select id='monthdd'><option value='01'>January</option><option value='02'>February</option><option value='03'>March</option><option value='04'>April</option><option value='05'>May</option><option value='06'>June</option><option value='07'>July</option><option value='08'>August</option><option value='09'>September</option><option value='10'>October</option><option value='11'>November</option><option value='12'>December</option></select>");
     //dropdown for year
     $('#dropdown').append("<select id='yeardd'><option value='2012'>2012</option><option value='2013'>2013</option><option value='2014'>2014</option><option value='2015'>2015</option><option value='2016'>2016</option></select>");
+    //submit button
+    $('#dropdown').append("<br><br><center><input type='submit' name='Update' value='Update'></input>");
     
-    //set listeners for radio buttons for temp calculation type (heat index, apparent temp, air temp)
-    $(':radio[name=calcradio]').change(function(){
-        //function to load data from files
+    //load data based on default selections
+    loadData(map);  
+    
+    //submit button listener
+    $(':submit').on('click', function(){
         loadData(map);
     });
-
-    //listener for data set radio buttons (temperature aggregation - min,max,mean)
-    $(':radio[name=tempradio]').change(function(){
-        //function to load data from files
-        loadData(map);
-    });
-    //listener for dropdowns
-    $('#monthdd').change(function(){
-        loadData(map);
-    });
-    $('#yeardd').change(function(){
-        loadData(map);
-    });
-
     // $('#legendid').append('<form><h5> Select A Date:</h5><p><input type = "text" id = "date" name="calcdate" value = "03-19-2012" data-format="DD/MM/YYYY" data-template = "MMM D YYYY">');
 
     $('#ajaxloader').hide();
@@ -100,19 +87,19 @@ function loadData(map){
     };
     //start loading affordance
     $('#ajaxloader').show();
-    //load the Means data via ajax
+    //load the Means data via ajax with specified file
     $.ajax(file, {
         dataType: "json",
         success: function(response){
             //create attribute array
             var attributes = processData(response);
-            //create the point symbols
-            createSymbols(response,map,attributes,tempType);
-            var newDate = createSlider(response, map, attributes);
+            //month and year set from the user via dropdown boxes
             var month = $('#monthdd').val();
             var year = $('#yeardd').val();
+            //create the point symbols
+            createSymbols(response,map,attributes,tempType, month, year);
+            var newDate = createSlider(response, map, attributes);
             updateChart(attributes, tempType);
-            createDropdown(response);
             // setChart(meanAtts);
             //hide loading affordance
             $('#ajaxloader').hide();
@@ -164,7 +151,7 @@ function processData(data){
 };
 
 //create proportional sybols form geojson data properties
-function createSymbols(response, map, attributes, tempType){
+function createSymbols(response, map, attributes, tempType, month, year){
     //create an array for temperatures of given day
     var temps = [];
     //create a Leaflet GeoJSON layer and add it to the map
@@ -172,14 +159,14 @@ function createSymbols(response, map, attributes, tempType){
         //point to layer converts each point feature to layer to use circle marker
         pointToLayer: function(feature, latlng, attributes){
             //push temps for that day into the temps array from above
-            if (feature.properties.year == 2012 && feature.properties.month == 03 && feature.properties.day == 19){
+            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){
                 temps.push(feature.properties[tempType]);
             };
             return pointToLayer(feature, latlng, attributes, tempType);
         },
         //filtering the data for default date - make this interactive at some point
         filter: function(feature, layer){
-            if (feature.properties.year == 2012 && feature.properties.month == 03 && feature.properties.day == 19) {
+            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19) {
                 return true
             // return feature.properties.year == 2016?  Will need to remove one/two of these constraints (day, month, year)?
             }
