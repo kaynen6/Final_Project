@@ -54,19 +54,18 @@ function createMap(){
 
     $('#dropdown').append('<h5> 3) Select a Time: </h5><p>');
      //dropdown for month
-    $('#dropdown').append("<select id='monthdd'><option value='1'>January</option><option value='2'>February</option><option value='3'>March</option><option value='4'>April</option><option value='5'>May</option><option value='6'>June</option><option value='7'>July</option><option value='8'>August</option><option value='9'>September</option><option value='10'>October</option><option value='11'>November</option><option value='12'>December</option></select>");
+    $('#dropdown').append("<select id='monthdd'><option value='01'>January</option><option value='02'>February</option><option value='03'>March</option><option value='04'>April</option><option value='05'>May</option><option value='06'>June</option><option value='07'>July</option><option value='08'>August</option><option value='09'>September</option><option value='10'>October</option><option value='11'>November</option><option value='12'>December</option></select>");
     //dropdown for year
     $('#dropdown').append("<select id='yeardd'><option value='2012'>2012</option><option value='2013'>2013</option><option value='2014'>2014</option><option value='2015'>2015</option><option value='2016'>2016</option></select>");
-
-
-    //load data based on default selections
+    //submit button
+    $('#dropdown').append("<br><br><center><input type='submit' name='Update' value='Update'></input>");
+        //load data based on default selections
     loadData(map);
 
     //submit button listener
     $(':submit').on('click', function(){
         loadData(map);
     });
-
     $('#ajaxloader').hide();
 };
 
@@ -144,7 +143,6 @@ function processData(data){
 function createSymbols(response, map, attributes, tempType, month, year){
     //create an array for temperatures of given day
     var temps = [];
-
     //create a Leaflet GeoJSON layer and add it to the map
     var geojson = L.geoJson(response,{
         //point to layer converts each point feature to layer to use circle marker
@@ -152,8 +150,8 @@ function createSymbols(response, map, attributes, tempType, month, year){
             //push temps for that day into the temps array from above
             if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){
                 temps.push(feature.properties[tempType]);
+                return pointToLayer(feature, latlng, attributes, tempType, month, year);
             };
-            return pointToLayer(feature, latlng, attributes, tempType, month, year);
         },
         //filtering the data for default date - make this interactive at some point
         filter: function(feature, layer){
