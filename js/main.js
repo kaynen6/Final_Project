@@ -332,35 +332,36 @@ function setChart(data, attributes, tempType, day, month, year){
   $("#panelContainer").empty();
   day = 19;
   dataArray = [];
+  tempTotal = 0;
+  tempTotalCount = 0;
+  stationCount = 0;
 
   for (i=0;i<data.features.length;i++){
     if (data.features[i].properties["month"]==Number(month) && data.features[i].properties["year"]==Number(year) ){
       sid = data.features[i].properties["SID"];
       newDay = data.features[i].properties["day"];
       tempVal = parseFloat(data.features[i].properties[tempType]).toFixed(2);
-
+        if (data.features[i].properties["day"] == Number(day)){
+          if (!isNaN (Number(tempVal))){
+            tempTotal += Number(tempVal);
+            tempTotalCount += 1;
+          };
+        }
+      console.log(tempTotal);
+      console.log(tempTotalCount);
       var tempObject = {
-        SID: sid,
+        // SID: sid,
         day: newDay,
-        value: tempVal
+        // SID: sid,
+        value: (tempTotal/tempTotalCount)
       };
       dataArray.push(tempObject);
     };
   };
 
-  tempTotal = 0;
-  tempTotalCount = 0;
-
-  for (i=0;i<dataArray.length;i++){
-    if (dataArray[i].day = 19){
-      if (!isNaN (Number(dataArray[i].value))){
-      tempTotal += Number(dataArray[i].value);
-      tempTotalCount += 1;
-      }
-    };
-  };
-
   console.log(dataArray);
+
+
   console.log(tempTotal/tempTotalCount);
   console.log(tempTotalCount);
 
@@ -369,85 +370,85 @@ function setChart(data, attributes, tempType, day, month, year){
   // Filtering data based on inputs for day, month, year.  Return SID (x axis) and tempType (y axis)
 
 
-  var chartWidth = $("#panelContainer").width(),
-      chartHeight = $("#panelContainer").height();
-      leftPadding = 40,
-      rightPadding = 2,
-      topBottomPadding = 5,
-      chartInnerWidth = chartWidth - leftPadding - rightPadding,
-      chartInnerHeight = chartHeight - topBottomPadding * 2,
-      translate = "translate(" + leftPadding * 1.5 + "," + topBottomPadding + ")";
-
-  var yScale = d3.scaleLinear()
-      .range([chartInnerHeight, 0])
-      .domain([-20,100]);
-
-  // Creating the chart svg
-  var chart = d3.select("#panelContainer")
-    .append("svg")
-    .attr("width", chartWidth)
-    .attr("height", chartHeight)
-    .attr("class", "chart");
-
-  // Creating a vertical axis generator for the bar chart
-  var yAxis = d3.axisLeft()
-      .scale(yScale);
-
-  // Placing the axis
-  var axis = chart.append("g")
-      .attr("class", "axis")
-      .attr("transform", translate)
-      .call(yAxis);
-
-  // Placing background for the chart
-  var chartBackground = chart.append("rect")
-      .attr("class", "chartBackground")
-      .attr("width", chartInnerWidth)
-      .attr("height", chartInnerHeight)
-      .attr("transform", translate);
-
-  // Creating a vertical axis generator for the bar chart
-  var yAxis = d3.axisLeft()
-      .scale(yScale);
-
-  // Placing the axis
-  var axis = chart.append("g")
-      .attr("class", "axis")
-      .attr("transform", translate)
-      .call(yAxis);
-
-  // Creating a frame for the chart border
-  var chartFrame = chart.append("rect")
-      .attr("class", "chartFrame")
-      .attr("width", chartInnerWidth-25)
-      .attr("height", chartInnerHeight)
-      .attr("transform", translate);
-
-  var bar = chart.selectAll(".bar")
-      .data(dataArray)
-      .enter()
-      .append("rect")
-      .attr("class", function(d){
-        return "bars " + d.day;
-      })
-      .attr("width", chartInnerWidth / tempTotalCount.length-1)
-      .attr("x", function(d, i){
-        return d.day * (chartInnerWidth/ tempTotalCount.length);
-      })
-      .attr("height", function(d){
-        return yScale(tempTotal);
-      })
-      .attr("y", function(d){
-        console.log(d);
-        return chartInnerHeight - yScale(d);
-      });
-
-  console.log(dataArray.length);
-  var chartTitle = chart.append("text")
-      .attr("x", 85)
-      .attr("y", 30)
-      .attr("class", "chartTitle")
-      .text("The " + tempType + " for " + month+"/"+year);
+  // var chartWidth = $("#panelContainer").width(),
+  //     chartHeight = $("#panelContainer").height();
+  //     leftPadding = 40,
+  //     rightPadding = 2,
+  //     topBottomPadding = 5,
+  //     chartInnerWidth = chartWidth - leftPadding - rightPadding,
+  //     chartInnerHeight = chartHeight - topBottomPadding * 2,
+  //     translate = "translate(" + leftPadding * 1.5 + "," + topBottomPadding + ")";
+  //
+  // var yScale = d3.scaleLinear()
+  //     .range([chartInnerHeight, 0])
+  //     .domain([-20,100]);
+  //
+  // // Creating the chart svg
+  // var chart = d3.select("#panelContainer")
+  //   .append("svg")
+  //   .attr("width", chartWidth)
+  //   .attr("height", chartHeight)
+  //   .attr("class", "chart");
+  //
+  // // Creating a vertical axis generator for the bar chart
+  // var yAxis = d3.axisLeft()
+  //     .scale(yScale);
+  //
+  // // Placing the axis
+  // var axis = chart.append("g")
+  //     .attr("class", "axis")
+  //     .attr("transform", translate)
+  //     .call(yAxis);
+  //
+  // // Placing background for the chart
+  // var chartBackground = chart.append("rect")
+  //     .attr("class", "chartBackground")
+  //     .attr("width", chartInnerWidth)
+  //     .attr("height", chartInnerHeight)
+  //     .attr("transform", translate);
+  //
+  // // Creating a vertical axis generator for the bar chart
+  // var yAxis = d3.axisLeft()
+  //     .scale(yScale);
+  //
+  // // Placing the axis
+  // var axis = chart.append("g")
+  //     .attr("class", "axis")
+  //     .attr("transform", translate)
+  //     .call(yAxis);
+  //
+  // // Creating a frame for the chart border
+  // var chartFrame = chart.append("rect")
+  //     .attr("class", "chartFrame")
+  //     .attr("width", chartInnerWidth-25)
+  //     .attr("height", chartInnerHeight)
+  //     .attr("transform", translate);
+  //
+  // var bar = chart.selectAll(".bar")
+  //     .data(dataArray)
+  //     .enter()
+  //     .append("rect")
+  //     .attr("class", function(d){
+  //       return "bars " + d.day;
+  //     })
+  //     .attr("width", chartInnerWidth / tempTotalCount.length-1)
+  //     .attr("x", function(d, i){
+  //       return d.day * (chartInnerWidth/ tempTotalCount.length);
+  //     })
+  //     .attr("height", function(d){
+  //       return yScale(tempTotal);
+  //     })
+  //     .attr("y", function(d){
+  //       console.log(d);
+  //       return chartInnerHeight - yScale(d);
+  //     });
+  //
+  // console.log(dataArray.length);
+  // var chartTitle = chart.append("text")
+  //     .attr("x", 85)
+  //     .attr("y", 30)
+  //     .attr("class", "chartTitle")
+  //     .text("The " + tempType + " for " + month+"/"+year);
 
   // updateChart(bars, dataChart.length);
 };
