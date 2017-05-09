@@ -37,6 +37,12 @@ body {
 .control{
   font-family: 'Roboto Condensed', sans-serif;
 }
+/*div for our names to be aligned to bottom*/
+#authors{
+
+ position: absolute;
+  bottom: 0px;
+}
 
 #form{
   font-size: 10px;
@@ -49,7 +55,7 @@ body {
 }
 
 #mapid {
-    height: 500px;
+    height: 600px;
     width: 60%;
     margin-left: 10px;
     margin-top: -10px;
@@ -69,8 +75,9 @@ body {
   padding: 10px;
   border: 3px solid #000000;
   background-color: #e8e8e8;
+  position:relative;
 }
-
+/*for the temperature calculation box*/
 #tempCalc {
   right: 20%;
   height: 150px;
@@ -86,7 +93,7 @@ body {
   overflow: auto;
   font-size: 1em
 }
-
+/*for the temperature aggregation box*/
 #tempAgg {
   right: 20px;
   height: 150px;
@@ -102,7 +109,7 @@ body {
   overflow: auto;
   font-size: 1em
 }
-
+/*for time selection drop down*/
 #dropdown {
   right: 20%;
   height: 100px;
@@ -117,7 +124,20 @@ body {
   background-color: white;
   overflow: auto;
 }
-
+#updateInstructions{
+  right: 20%;
+  height: 100px;
+  width: 84%;
+  top: 10px;
+  display: inline-block;
+  text-align: left;
+  padding: 10px;
+  z-index: 10;
+  border: 3px solid #000000;
+  margin-top:10px;
+  background-color: white;
+  overflow: auto;
+}
 /* Panel & Panel container*/
 #panelContainer{
   display: inline-block;
@@ -131,7 +151,7 @@ body {
   border: 3px solid #000000;
   background-color: #e8e8e8;
 }
-
+/*chart panel*/
 #panel1 {
   left: 0px;
   height: 100px;
