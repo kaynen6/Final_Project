@@ -103,7 +103,7 @@ function loadData(map){
                 day = $('.range-slider').val()
                 createSymbols(response, map, attributes, tempType, day, month, year);
             });
-            // setChart(response, attributes, tempType, month, year);
+            setChart(response, attributes, tempType, day, month, year);
             //hide loading affordance
             $('#ajaxloader').hide();
         }
@@ -298,7 +298,7 @@ function createSlider(data, map, attributes, month, year){
             'max': dayArray.length,
             'min': dayArray[0],
             'step': 1,
-            'value': 1
+            'value': dayArray[0]
         });
 
     // Preventing any mouse event listeners on the map to occur
@@ -307,127 +307,123 @@ function createSlider(data, map, attributes, month, year){
     });
 };
 
-// function setChart(data, attributes, tempType, day, month, year){
-//   $("#panelContainer").empty();
-//   day = 19;
-//   dataArray = [];
-//   tempTotal = 0;
-//   tempTotalCount = 0;
-//   stationCount = 0;
-//
-//   for (i=0;i<data.features.length;i++){
-//     if (data.features[i].properties["month"]==Number(month) && data.features[i].properties["year"]==Number(year) ){
-//       sid = data.features[i].properties["SID"];
-//       newDay = data.features[i].properties["day"];
-//       tempVal = parseFloat(data.features[i].properties[tempType]).toFixed(2);
-//         if (data.features[i].properties["day"] == Number(day)){
-//           if (!isNaN (Number(tempVal))){
-//             tempTotal += Number(tempVal);
-//             tempTotalCount += 1;
-//           };
-//         }
-//       console.log(tempTotal);
-//       console.log(tempTotalCount);
-//       var tempObject = {
-//         day: newDay,
-//         // SID: sid,
-//         value: tempVal
-//       };
-//       dataArray.push(tempObject);
-//     };
-//   };
-//
-//   console.log(dataArray);
-//
-//
-//   console.log(tempTotal/tempTotalCount);
-//   console.log(tempTotalCount);
-//
-//   console.log(Math.max(dataArray));
-//   // Loading data into function
-//   // Filtering data based on inputs for day, month, year.  Return SID (x axis) and tempType (y axis)
-//
-//
-//   var chartWidth = $("#panelContainer").width(),
-//       chartHeight = $("#panelContainer").height();
-//       leftPadding = 40,
-//       rightPadding = 2,
-//       topBottomPadding = 5,
-//       chartInnerWidth = chartWidth - leftPadding - rightPadding,
-//       chartInnerHeight = chartHeight - topBottomPadding * 2,
-//       translate = "translate(" + leftPadding * 1.5 + "," + topBottomPadding + ")";
-//
-//   var yScale = d3.scaleLinear()
-//       .range([chartInnerHeight, 0])
-//       .domain([-20,100]);
-//
-//   // Creating the chart svg
-//   var chart = d3.select("#panelContainer")
-//     .append("svg")
-//     .attr("width", chartWidth)
-//     .attr("height", chartHeight)
-//     .attr("class", "chart");
-//
-//   // Creating a vertical axis generator for the bar chart
-//   var yAxis = d3.axisLeft()
-//       .scale(yScale);
-//
-//   // Placing the axis
-//   var axis = chart.append("g")
-//       .attr("class", "axis")
-//       .attr("transform", translate)
-//       .call(yAxis);
-//
-//   // Placing background for the chart
-//   var chartBackground = chart.append("rect")
-//       .attr("class", "chartBackground")
-//       .attr("width", chartInnerWidth)
-//       .attr("height", chartInnerHeight)
-//       .attr("transform", translate);
-//
-//   // Creating a vertical axis generator for the bar chart
-//   var yAxis = d3.axisLeft()
-//       .scale(yScale);
-//
-//   // Placing the axis
-//   var axis = chart.append("g")
-//       .attr("class", "axis")
-//       .attr("transform", translate)
-//       .call(yAxis);
-//
-//   // Creating a frame for the chart border
-//   var chartFrame = chart.append("rect")
-//       .attr("class", "chartFrame")
-//       .attr("width", chartInnerWidth-25)
-//       .attr("height", chartInnerHeight)
-//       .attr("transform", translate);
-//
-//   var bar = chart.selectAll(".bar")
-//       .data(dataArray)
-//       .enter()
-//       .append("rect")
-//       .attr("class", function(d){
-//         return "bars " + d.day;
-//       })
-//       .attr("width", chartInnerWidth / ((tempTotalCount.length)/151)-1)
-//       .attr("x", function(d, i){
-//         return d.day * (chartInnerWidth/ ((tempTotalCount.length)/151));
-//       })
-//       .attr("height", function(d){
-//         return yScale(d.tempTotal);
-//       })
-//       .attr("y", function(d){
-//         console.log(d);
-//         return chartInnerHeight - yScale(d.tempTotal);
-//       });
-//
-//   console.log(dataArray.length);
-//   var chartTitle = chart.append("text")
-//       .attr("x", 85)
-//       .attr("y", 30)
-//       .attr("class", "chartTitle")
-//       .text("The " + tempType + " for " + month+"/"+year);
-//
-// };
+function setChart(data, attributes, tempType, day, month, year){
+  $("#panelContainer").empty();
+
+  dataArray = [];
+  tempTotal = 0;
+  tempTotalCount = 0;
+
+  for (i=0;i<data.features.length;i++){
+    if (data.features[i].properties["month"]==Number(month) && data.features[i].properties["year"]==Number(year)){
+      sid = data.features[i].properties["SID"];
+      newDay = data.features[i].properties["day"];
+      tempVal = parseFloat(data.features[i].properties[tempType]).toFixed(2);
+        if (data.features[i].properties["day"] == Number(day)){
+          if (!isNaN (Number(tempVal))){
+            tempTotal += Number(tempVal);
+            tempTotalCount += 1;
+          };
+        }
+      var tempObject = {
+        day: newDay,
+        // SID: sid,
+        value: tempVal
+      };
+      dataArray.push(tempObject);
+    };
+  };
+
+  console.log(dataArray);
+
+  console.log(tempTotal/tempTotalCount);
+  console.log(tempTotalCount);
+
+  console.log(Math.max(dataArray));
+  // Loading data into function
+  // Filtering data based on inputs for day, month, year.  Return SID (x axis) and tempType (y axis)
+
+
+  var chartWidth = $("#panelContainer").width(),
+      chartHeight = $("#panelContainer").height();
+      leftPadding = 40,
+      rightPadding = 2,
+      topBottomPadding = 5,
+      chartInnerWidth = chartWidth - leftPadding - rightPadding,
+      chartInnerHeight = chartHeight - topBottomPadding * 2,
+      translate = "translate(" + leftPadding * 1.5 + "," + topBottomPadding + ")";
+
+  var yScale = d3.scaleLinear()
+      .range([chartInnerHeight, 0])
+      .domain([-20,100]);
+
+  // Creating the chart svg
+  var chart = d3.select("#panelContainer")
+    .append("svg")
+    .attr("width", chartWidth)
+    .attr("height", chartHeight)
+    .attr("class", "chart");
+
+  // Creating a vertical axis generator for the bar chart
+  var yAxis = d3.axisLeft()
+      .scale(yScale);
+
+  // Placing the axis
+  var axis = chart.append("g")
+      .attr("class", "axis")
+      .attr("transform", translate)
+      .call(yAxis);
+
+  // Placing background for the chart
+  var chartBackground = chart.append("rect")
+      .attr("class", "chartBackground")
+      .attr("width", chartInnerWidth)
+      .attr("height", chartInnerHeight)
+      .attr("transform", translate);
+
+  // Creating a vertical axis generator for the bar chart
+  var yAxis = d3.axisLeft()
+      .scale(yScale);
+
+  // Placing the axis
+  var axis = chart.append("g")
+      .attr("class", "axis")
+      .attr("transform", translate)
+      .call(yAxis);
+
+  // Creating a frame for the chart border
+  var chartFrame = chart.append("rect")
+      .attr("class", "chartFrame")
+      .attr("width", chartInnerWidth-25)
+      .attr("height", chartInnerHeight)
+      .attr("transform", translate);
+
+  var bar = chart.selectAll(".bar")
+      .data(dataArray)
+      .enter()
+      .append("rect")
+      .attr("class", function(d){
+        return "bars " + d.day;
+      })
+      .attr("width", chartInnerWidth / ((tempTotalCount.length)/151)-1)
+      .attr("x", function(d, i){
+        return d.day * (chartInnerWidth/ ((tempTotalCount.length)/151));
+      })
+      .attr("height", function(d){
+        return yScale(d.tempTotal);
+      })
+      .attr("y", function(d){
+        console.log(d);
+        return chartInnerHeight - yScale(d.tempTotal);
+      });
+
+  console.log(dataArray.length);
+  var chartTitle = chart.append("text")
+      .attr("x", 85)
+      .attr("y", 30)
+      .attr("class", "chartTitle")
+      .text("The " + tempType + " for " + month+"/"+year);
+
+};
 
 $(document).ready(initialize);
