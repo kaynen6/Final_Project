@@ -21,7 +21,7 @@ h2 {
 
 h5 {
   display: inline;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 18px;
   font-variant: normal;
   text-align: left;
@@ -49,7 +49,7 @@ body {
 }
 
 #mapid {
-    height: 600px;
+    height: 500px;
     width: 60%;
     margin-left: 10px;
     margin-top: -10px;
@@ -74,7 +74,7 @@ body {
 #tempCalc {
   right: 20%;
   height: 150px;
-  width: 80%;
+  width: 84%;
   top: 20px;
   display: inline-block;
   padding: 12px;
@@ -82,14 +82,15 @@ body {
   border: 3px solid #000000;
   text-align: left;
   background-color: white;
-  margin-top: 50px;
+  margin-top: 20px;
   overflow: auto;
+  font-size: 1em
 }
 
 #tempAgg {
   right: 20px;
-  height: 200px;
-  width: 80%;
+  height: 150px;
+  width: 84%;
   top: 20px;
   display: inline-block;
   padding: 12px;
@@ -99,19 +100,20 @@ body {
   background-color: white;
   margin-top: 10px;
   overflow: auto;
+  font-size: 1em
 }
 
 #dropdown {
   right: 20%;
   height: 100px;
-  width: 80%;
+  width: 84%;
   top: 10px;
   display: inline-block;
   text-align: left;
   padding: 10px;
   z-index: 10;
   border: 3px solid #000000;
-  margin-top:10%;
+  margin-top:10px;
   background-color: white;
   overflow: auto;
 }
