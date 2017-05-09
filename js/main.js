@@ -9,7 +9,7 @@ function createMap(){
     $('#ajaxloader').show();
     var map = L.map('mapid', {
         center: [43.0731,-89.4012],
-        zoom: 13,
+        zoom: 12,
         maxZoom: 18,
         minZoom: 8
     });
@@ -45,9 +45,6 @@ function createMap(){
     //load data based on default selections
     loadData(map);
 
-    //submit button
-    $('#legendContainer').append("<center><input type='submit' name='Update' value='Update'></input>");
-
     //create radio buttons for selecting temps attributes to display
     $('#tempCalc').append('<form><h5>1) Select A Temperature Calculation to Display:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
     $('#tempAgg').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
@@ -57,6 +54,8 @@ function createMap(){
     $('#dropdown').append("<select id='monthdd'><option value='01'>January</option><option value='02'>February</option><option value='03'>March</option><option value='04'>April</option><option value='05'>May</option><option value='06'>June</option><option value='07'>July</option><option value='08'>August</option><option value='09'>September</option><option value='10'>October</option><option value='11'>November</option><option value='12'>December</option></select>");
     //dropdown for year
     $('#dropdown').append("<select id='yeardd'><option value='2012'>2012</option><option value='2013'>2013</option><option value='2014'>2014</option><option value='2015'>2015</option><option value='2016'>2016</option></select>");
+    //submit button
+    $('#dropdown').append("<center><input type='submit' name='Update' value='Update'></input>");
     //load data based on default selections
     loadData(map);
 
@@ -237,7 +236,7 @@ function pointToLayer(feature, latlng, attributes, tempType, day, month, year){
             tempLabel = "Air Temperature"
         };
     //create popup content string
-    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p>" + "<p><b>Date: </b>" + feature.properties.month + "/" + feature.properties.day + "/" + feature.properties.year + "</p>" + "<p><b>" + tempLabel + " =</b> " + parseFloat(feature.properties[tempType]).toFixed(2) + "</p>";
+    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p>" + "<p><b>Date: </b>" + feature.properties.month + "/" + feature.properties.day + "/" + feature.properties.year + "</p>" + "<p><b>" + tempLabel + " =</b> " + parseFloat(feature.properties[tempType]).toFixed(2) + " Degrees Celcius</p>";
     // //add panel content variable
     // var panelContent = "";
     //add text and year and value to panelcontent
