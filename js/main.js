@@ -9,7 +9,7 @@ function createMap(){
     $('#ajaxloader').show();
     var map = L.map('mapid', {
         center: [43.0731,-89.4012],
-        zoom: 14,
+        zoom: 15,
         maxZoom: 18,
         minZoom: 8
     });
@@ -41,26 +41,26 @@ function createMap(){
     control.addTo(map)
 
     L.control.layers(baseMaps).addTo(map);
-    baseMaps["Satellite"].addTo(map);
     baseMaps["Streets"].addTo(map);
-    //load data based on default selections
-    //loadData(map);
-
+    
     //create radio buttons for selecting temps attributes to display
     $('#tempCalc').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
     $('#tempAgg').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
 
-    $('#dropdown').append('<h5> 3) Select a Month and Year:</h5><p>');
+    $('#dropdown').append('<h5> 3) Select a Time: </h5><p>');
      //dropdown for month
     $('#dropdown').append("<select id='monthdd'><option value='01'>January</option><option value='02'>February</option><option value='03'>March</option><option value='04'>April</option><option value='05'>May</option><option value='06'>June</option><option value='07'>July</option><option value='08'>August</option><option value='09'>September</option><option value='10'>October</option><option value='11'>November</option><option value='12'>December</option></select>");
     //dropdown for year
     $('#dropdown').append("<select id='yeardd'><option value='2012'>2012</option><option value='2013'>2013</option><option value='2014'>2014</option><option value='2015'>2015</option><option value='2016'>2016</option></select>");
     //submit button
     $('#dropdown').append("<br><br><center><input type='submit' name='Update' value='Update'></input>");
-    
+
+    //load data based on default selections
+    loadData(map);
+
+    //submit button listener
     $(':submit').on('click', function(){
-        //load data based on default selections
-        loadData(map);  
+        loadData(map);
     });
     // $('#legendid').append('<form><h5> Select A Date:</h5><p><input type = "text" id = "date" name="calcdate" value = "03-19-2012" data-format="DD/MM/YYYY" data-template = "MMM D YYYY">');
 
@@ -86,7 +86,7 @@ function loadData(map){
     };
     //start loading affordance
     $('#ajaxloader').show();
-    //load the Means data via ajax
+    //load the Means data via ajax with specified file
     $.ajax(file, {
         dataType: "json",
         success: function(response){
@@ -97,10 +97,8 @@ function loadData(map){
             var year = $('#yeardd').val();
             //create the point symbols
             createSymbols(response,map,attributes,tempType, month, year);
-            var newDate = createSlider(response, map, attributes);
-            //updateChart(attributes, tempType);
             var day = createSlider(response, map, attributes);
-            //setChart(response, tempType, month, year);
+            setChart(response, tempType, day, month, year);
             //hide loading affordance
             $('#ajaxloader').hide();
         }
@@ -132,14 +130,6 @@ function processData(data){
     //properties of the first feature in the dataset
     var properties = data.features[0].properties;
     //push each attribute name into attributes array
-    // Right now pushing HI & tair, but test for interactions
-    // for (var attribute in properties){
-    //   if (attribute.indexOf("year")>-1){
-    //     year.push(attribute);
-    //   } else if (attribute.indexOf("month")>-1){
-    //     month.push(attribute);
-    //   };
-    // };
 
     for (var attribute in properties){
       attributes.push(attribute);
@@ -147,26 +137,27 @@ function processData(data){
     return attributes;
 };
 
-//create proportional sybols form geojson data properties
+//create proportional symbols form geojson data properties
 function createSymbols(response, map, attributes, tempType, month, year){
     //create an array for temperatures of given day
     var temps = [];
     //create a Leaflet GeoJSON layer and add it to the map
     var geojson = L.geoJson(response,{
         //point to layer converts each point feature to layer to use circle marker
-        pointToLayer: function(feature, latlng, attributes){
+        pointToLayer: function(feature, latlng, attributes, year, month){
             //push temps for that day into the temps array from above
-            console.log(month);
-            console.log(year);
-            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 10){ //change to day variable
+            console.log(feature.properties[tempType]);
+            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){
                 temps.push(feature.properties[tempType]);
             };
-            return pointToLayer(feature, latlng, attributes, tempType);
-        },//filtering the data for date
+            return pointToLayer(feature, latlng, attributes, tempType, month, year);
+        },
+        //filtering the data for default date - make this interactive at some point
         filter: function(feature, layer){
-            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 10){
-                return true;
-            };
+            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19) {
+                return true
+            // return feature.properties.year == 2016?  Will need to remove one/two of these constraints (day, month, year)?
+            }
         }
     }).addTo(map);
     console.log(temps);
@@ -309,11 +300,9 @@ function createSlider(data, map, attributes){
 /* Creating a function to update the proportional symbols when activated
 by the sequence slider */
 /*function updatePropSymbols(data, map, attribute, datestep){
-
     map.eachLayer(function(layer){
 		if (layer.feature && layer.feature.properties[attribute] ){
       consol.log(layer.feature);
-
 			var props = layer.feature.properties;
 			var options = { radius: 8,
                             fillColor: "lightblue",
@@ -327,7 +316,6 @@ by the sequence slider */
 			var popupContent = "<p><b>Temperature:</b> " + parseFloat(props.HI).toFixed(2) + "</p>";
 			// console.log(attribute);
 			popupContent += "<p><b>Temperature for " + month + "/" + day + "/" + year + ":</b> " + parseFloat(props[attribute]).toFixed(2)+ " %</p>";
-
 			layer.bindPopup(popupContent, {
 				offset: new L.Point(0,-layer.options.radius)
 			});
@@ -335,23 +323,27 @@ by the sequence slider */
 	});
 }; */
 
-function setChart(data, tempType, month, year){
-  //filter data based on day, month, year and tempType
-  // function isSID(obj){
-  //     return obj == day && obj == month && obj == year;
-  // }
-  //
-  // function filterbyDate(data){
-  //   if (isSID(data)) {
-  //     return true;
-  //   }
-  //   alert("There is a current erro with the chaart");
-  //   return false;
-  // }
-
-  console.log(tempType);
-  console.log(month);
+function setChart(data, tempType, day, month, year){
   $("#panelContainer").empty();
+  day = 19;
+  console.log(day);
+  console.log(data.features.length);
+  dataArray = [];
+
+  for (i=0;i<data.features.length;i++){
+    if (data.features[i].properties["month"]==Number(month) && data.features[i].properties["year"]==Number(year) && data.features[i].properties["day"]==19){
+      tempVal = data.features[i].properties[tempType];
+      dataArray.push(parseFloat(tempVal).toFixed(2));
+    };
+  };
+
+  console.log(dataArray.length);
+  // console.log(Math.max(dataArray));
+  // Loading data into function
+  // Filtering data based on inputs for day, month, year.  Return SID (x axis) and tempType (y axis)
+
+
+
 
   var chartWidth = $("#panelContainer").width(),
       chartHeight = $("#panelContainer").height();
@@ -408,19 +400,20 @@ function setChart(data, tempType, month, year){
       .attr("transform", translate);
 
   var bar = chart.selectAll(".bar")
-      .data(data)
+      .data(dataArray)
       .enter()
       .append("rect")
       .attr("class", function(d){
         return "bars " + d.SID;
       })
-      .attr("width", chartInnerWidth / data.length-1)
+      .attr("width", chartInnerWidth / dataArray.length-1)
       .attr("x", function(d, i){
-        return i * (chartInnerWidth/ data.length);
+        return i * (chartInnerWidth/ dataArray.length);
       })
       .attr("height", chartInnerHeight)
       .attr("y", 0);
 
+  console.log(dataArray.length);
   var chartTitle = chart.append("text")
       .attr("x", 85)
       .attr("y", 30)
@@ -429,9 +422,5 @@ function setChart(data, tempType, month, year){
 
   // updateChart(bars, dataChart.length);
 };
-
-
-
-
 
 $(document).ready(initialize);
