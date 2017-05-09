@@ -42,12 +42,16 @@ function createMap(){
 
     L.control.layers(baseMaps).addTo(map);
     baseMaps["Streets"].addTo(map);
+<<<<<<< HEAD
+    
+=======
     //load data based on default selections
     loadData(map);
 
     //submit button
     $('#legendContainer').append("<br><br><center><input type='submit' name='Update' value='Update'></input>");
 
+>>>>>>> origin/Kayne's-Branch
     //create radio buttons for selecting temps attributes to display
     $('#tempCalc').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
     $('#tempAgg').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
@@ -59,7 +63,12 @@ function createMap(){
     $('#dropdown').append("<select id='yeardd'><option value='2012'>2012</option><option value='2013'>2013</option><option value='2014'>2014</option><option value='2015'>2015</option><option value='2016'>2016</option></select>");
     //submit button
     $('#dropdown').append("<br><br><center><input type='submit' name='Update' value='Update'></input>");
+<<<<<<< HEAD
+
+    //load data based on default selections
+=======
         //load data based on default selections
+>>>>>>> origin/Kayne's-Branch
     loadData(map);
 
     //submit button listener
@@ -98,9 +107,15 @@ function loadData(map){
             var month = $('#monthdd').val();
             var year = $('#yeardd').val();
             //create the point symbols
+<<<<<<< HEAD
+            createSymbols(response,map,attributes,tempType, month, year);
+            var day = createSlider(response, map, attributes);
+            setChart(response, tempType, day, month, year);
+=======
             createSymbols(response, map, attributes, tempType, month, year);
             createSlider(response, map, attributes, month, year);
             // setChart(response, attributes, tempType, month, year);
+>>>>>>> origin/Kayne's-Branch
             //hide loading affordance
             $('#ajaxloader').hide();
         }
@@ -148,10 +163,14 @@ function createSymbols(response, map, attributes, tempType, month, year){
         //point to layer converts each point feature to layer to use circle marker
         pointToLayer: function(feature, latlng, attributes){
             //push temps for that day into the temps array from above
+<<<<<<< HEAD
+            console.log(feature.properties[tempType]);
+=======
+>>>>>>> origin/Kayne's-Branch
             if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){
                 temps.push(feature.properties[tempType]);
-                return pointToLayer(feature, latlng, attributes, tempType, month, year);
             };
+            return pointToLayer(feature, latlng, attributes, tempType, month, year);
         },
         //filtering the data for default date - make this interactive at some point
         filter: function(feature, layer){
@@ -161,7 +180,11 @@ function createSymbols(response, map, attributes, tempType, month, year){
             }
         }
     }).addTo(map);
+<<<<<<< HEAD
+    console.log(temps);
+=======
     console.log(temps)
+>>>>>>> origin/Kayne's-Branch
     //get color scale breaks via function
     var colorBreaks = calcColorBreaks(temps);
     geojson.eachLayer(function(layer){
@@ -205,7 +228,7 @@ function getColor(colorBreaks, temp){
 };
 
 //initial symbolization when map loads for first time
-function pointToLayer(feature, latlng, attributes, tempType, month, year){
+function pointToLayer(feature, latlng, attributes, tempType){
     //grab the properties of the attribute tair - default
     var attValue = feature.properties[tempType];
     //create marker options w/ defualt styling
@@ -316,6 +339,138 @@ function createSlider(data, map, attributes, month, year){
         // console.log(day);
     });
 
+<<<<<<< HEAD
+    return day;
+};
+
+/* Creating a function to update the proportional symbols when activated
+by the sequence slider */
+/*function updatePropSymbols(data, map, attribute, datestep){
+    map.eachLayer(function(layer){
+		if (layer.feature && layer.feature.properties[attribute] ){
+      consol.log(layer.feature);
+			var props = layer.feature.properties;
+			var options = { radius: 8,
+                            fillColor: "lightblue",
+                            color: "#000",
+                            weight: 0.5,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        };
+            layer.setStyle(options);
+            // Creating a popup for each of the data points with information
+			var popupContent = "<p><b>Temperature:</b> " + parseFloat(props.HI).toFixed(2) + "</p>";
+			// console.log(attribute);
+			popupContent += "<p><b>Temperature for " + month + "/" + day + "/" + year + ":</b> " + parseFloat(props[attribute]).toFixed(2)+ " %</p>";
+			layer.bindPopup(popupContent, {
+				offset: new L.Point(0,-layer.options.radius)
+			});
+		};
+	});
+}; */
+
+function setChart(data, tempType, day, month, year){
+  $("#panelContainer").empty();
+  day = 19;
+  console.log(day);
+  console.log(data.features.length);
+  dataArray = [];
+
+  for (i=0;i<data.features.length;i++){
+    if (data.features[i].properties["month"]==Number(month) && data.features[i].properties["year"]==Number(year) && data.features[i].properties["day"]==19){
+      tempVal = data.features[i].properties[tempType];
+      dataArray.push(parseFloat(tempVal).toFixed(2));
+    };
+  };
+
+  console.log(dataArray.length);
+  // console.log(Math.max(dataArray));
+  // Loading data into function
+  // Filtering data based on inputs for day, month, year.  Return SID (x axis) and tempType (y axis)
+
+
+
+
+  var chartWidth = $("#panelContainer").width(),
+      chartHeight = $("#panelContainer").height();
+      leftPadding = 40,
+      rightPadding = 2,
+      topBottomPadding = 5,
+      chartInnerWidth = chartWidth - leftPadding - rightPadding,
+      chartInnerHeight = chartHeight - topBottomPadding * 2,
+      translate = "translate(" + leftPadding * 1.5 + "," + topBottomPadding + ")";
+
+  var yScale = d3.scaleLinear()
+      .range([chartInnerHeight, 0])
+      .domain([-20,100]);
+
+  // Creating the chart svg
+  var chart = d3.select("#panelContainer")
+    .append("svg")
+    .attr("width", chartWidth)
+    .attr("height", chartHeight)
+    .attr("class", "chart");
+
+  // Creating a vertical axis generator for the bar chart
+  var yAxis = d3.axisLeft()
+      .scale(yScale);
+
+  // Placing the axis
+  var axis = chart.append("g")
+      .attr("class", "axis")
+      .attr("transform", translate)
+      .call(yAxis);
+
+  // Placing background for the chart
+  var chartBackground = chart.append("rect")
+      .attr("class", "chartBackground")
+      .attr("width", chartInnerWidth)
+      .attr("height", chartInnerHeight)
+      .attr("transform", translate);
+
+  // Creating a vertical axis generator for the bar chart
+  var yAxis = d3.axisLeft()
+      .scale(yScale);
+
+  // Placing the axis
+  var axis = chart.append("g")
+      .attr("class", "axis")
+      .attr("transform", translate)
+      .call(yAxis);
+
+  // Creating a frame for the chart border
+  var chartFrame = chart.append("rect")
+      .attr("class", "chartFrame")
+      .attr("width", chartInnerWidth-25)
+      .attr("height", chartInnerHeight)
+      .attr("transform", translate);
+
+  var bar = chart.selectAll(".bar")
+      .data(dataArray)
+      .enter()
+      .append("rect")
+      .attr("class", function(d){
+        return "bars " + d.SID;
+      })
+      .attr("width", chartInnerWidth / dataArray.length-1)
+      .attr("x", function(d, i){
+        return i * (chartInnerWidth/ dataArray.length);
+      })
+      .attr("height", chartInnerHeight)
+      .attr("y", 0);
+
+  console.log(dataArray.length);
+  var chartTitle = chart.append("text")
+      .attr("x", 85)
+      .attr("y", 30)
+      .attr("class", "chartTitle")
+      .text("The " + tempType + " for " + month+"/"+year);
+
+  // updateChart(bars, dataChart.length);
+};
+
+$(document).ready(initialize);
+=======
     console.log(day);
     // return day;
 };
@@ -444,3 +599,4 @@ function createSlider(data, map, attributes, month, year){
 // };
 
 $(document).ready(initialize);
+>>>>>>> origin/Kayne's-Branch
