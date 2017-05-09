@@ -202,9 +202,12 @@ function getColor(colorBreaks, temp){
     else if (temp <= colorBreaks[4]){
         return colorScale[3];
     }
-    else {
+    else if (temp <= colorBreaks[5]){
         return colorScale[4];
-    };
+    }
+    else if (temp == "NA"){
+        return "000000";
+    }
 };
 
 //initial symbolization when map loads for first time
@@ -261,13 +264,11 @@ function pointToLayer(feature, latlng, attributes, tempType, day, month, year){
 function createSlider(data, map, attributes, month, year){
   dayArray = [];
     for (i=0;i<data.features.length;i++){
-      if (data.features[i].properties["month"]==Number(month) && data.features[i].properties["year"]==Number(year) && data.features[i].properties["SID"] == "S.001.R"){
+      if (data.features[i].properties["month"]== month && data.features[i].properties["year"]== year && data.features[i].properties["SID"] == "S.001.R"){
         newDay = data.features[i].properties["day"];
         dayArray.push(newDay);
       };
     };
-
-    console.log(dayArray);
     if (dayArray.length < 1){
       alert("No information was collected for " + month + "/" + year)
     };
@@ -292,7 +293,6 @@ function createSlider(data, map, attributes, month, year){
 				return container;
 			}
 	});
-
     map.addControl(new SequenceControl());
 		$('.range-slider').attr({'type':'range',
             'max': dayArray.length,
@@ -300,7 +300,6 @@ function createSlider(data, map, attributes, month, year){
             'step': 1,
             'value': dayArray[0]
         });
-
     // Preventing any mouse event listeners on the map to occur
     $('.range-slider').on('mousedown', function(e){
       L.DomEvent.stopPropagation(e);
