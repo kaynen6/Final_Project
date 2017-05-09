@@ -100,7 +100,7 @@ function loadData(map){
             var year = $('#yeardd').val();
             //create the point symbols
             createSymbols(response, map, attributes, tempType, month, year);
-            // createSlider(response, map, attributes, month, year);
+            createSlider(response, map, attributes, month, year);
             // setChart(response, attributes, tempType, month, year);
             //hide loading affordance
             $('#ajaxloader').hide();
@@ -144,7 +144,7 @@ function processData(data){
 function createSymbols(response, map, attributes, tempType, month, year){
     //create an array for temperatures of given day
     var temps = [];
-    console.log(year);
+
     //create a Leaflet GeoJSON layer and add it to the map
     var geojson = L.geoJson(response,{
         //point to layer converts each point feature to layer to use circle marker
@@ -233,7 +233,7 @@ function pointToLayer(feature, latlng, attributes, tempType, month, year){
             tempLabel = "Air Temperature"
         };
     //create popup content string
-    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p>" + "<p><b>Date: </b>" + feature.properties.month + "/" + feature.properties.year + "</p>" + "<p><b>" + tempLabel + " =</b> " + parseFloat(feature.properties[tempType]).toFixed(2) + "</p>";
+    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p>" + "<p><b>Date: </b>" + feature.properties.month + "/" + feature.properties.day + "/" + feature.properties.year + "</p>" + "<p><b>" + tempLabel + " =</b> " + parseFloat(feature.properties[tempType]).toFixed(2) + "</p>";
     // //add panel content variable
     // var panelContent = "";
     //add text and year and value to panelcontent
@@ -259,6 +259,23 @@ function pointToLayer(feature, latlng, attributes, tempType, month, year){
 
 function createSlider(data, map, attributes, month, year){
   var day;
+
+  console.log(month);
+  console.log(year);
+  dayArray = [];
+
+    for (i=0;i<data.features.length;i++){
+      if (data.features[i].properties["month"]==Number(month) && data.features[i].properties["year"]==Number(year) && data.features[i].properties["SID"] == "S.001.R"){
+        newDay = data.features[i].properties["day"];
+        dayArray.push(newDay);
+      };
+    };
+
+    console.log(dayArray);
+    if (dayArray.length < 1){
+      alert("No information was collected for " + month + "/" + year)
+    };
+
   // remove slider if the slider already exists
   $(".sequence-control-container.leaflet-control").removeClass();
   $(".range-slider").remove();
@@ -272,7 +289,8 @@ function createSlider(data, map, attributes, month, year){
 				var container = L.DomUtil.create('div', 'sequence-control-container');
 				$(container).append('<input class="range-slider" type="range">');
         $(container).on('mousedown', function(e){
-          L.DomEvent.stopPropagation(e);
+          e.stopPropagation();
+          return false;
         });
 
 				return container;
@@ -281,21 +299,11 @@ function createSlider(data, map, attributes, month, year){
 
 		map.addControl(new SequenceControl());
 
-    if (Number(month) == 1 || Number(month) == 3 || Number(month) == 5 || Number(month) == 7 || Number(month) == 8 || Number(month) == 10 || Number(month) == 12){
-      maxDate = 31
-    } else if (Number(month) == 2 && Number(year) == 2012 || Number(month) == 2 && Number(year) == 2016) {
-      maxDate = 29
-    } else if (Number(month) == 4 || Number(month) == 6 || Number(month) == 9 || Number(month) == 11) {
-      maxDate = 30
-    } else {
-      maxDate = 28
-    };
-
     console.log(year);
 
 		$('.range-slider').attr({'type':'range',
-												'max': maxDate,
-												'min': 1,
+												'max': dayArray.length,
+												'min': dayArray[0],
 												'step': 1,
 												'value': 1
 											});
@@ -306,11 +314,12 @@ function createSlider(data, map, attributes, month, year){
     });
 
   	$('.range-slider').on('input', function(){
-      	day = $(this).val();
-        console.log(day);
+      	day = $('.range-slider').val()
+        // console.log(day);
     });
 
-    return day;
+    console.log(day);
+    // return day;
 };
 
 // function setChart(data, attributes, tempType, day, month, year){
