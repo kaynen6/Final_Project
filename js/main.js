@@ -151,7 +151,6 @@ function createSymbols(response, map, attributes, tempType, month, year){
         pointToLayer: function(feature, latlng, attributes){
             //push temps for that day into the temps array from above
             if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){
-
                 temps.push(feature.properties[tempType]);
             };
             return pointToLayer(feature, latlng, attributes, tempType, month, year);
