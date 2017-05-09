@@ -45,6 +45,9 @@ function createMap(){
     //load data based on default selections
     loadData(map);
 
+    //submit button
+    $('#legendContainer').append("<br><br><center><input type='submit' name='Update' value='Update'></input>");
+
     //create radio buttons for selecting temps attributes to display
     $('#tempCalc').append('<form><h5>1) Select A Temperature Calculation to Desplay:</h5><p><input type="radio" name="calcradio" value="HI">Heat Index Temperatures<br><input type="radio" name="calcradio" value="AT">Apparent Temperature<br><input type="radio" name="calcradio" value="tair">Air Temperature</form>');
     $('#tempAgg').append('<form><h5>2) Select A Temperature Aggregation to Display:</h5><p><input type="radio" name="tempradio" value="max">Maximum Daily Temperatures<br><input type="radio" name="tempradio" value="mean">Mean Daily Temperatures<br><input type="radio" name="tempradio" value="min">Minimum Daily Temperatures</form>');
@@ -54,8 +57,7 @@ function createMap(){
     $('#dropdown').append("<select id='monthdd'><option value='1'>January</option><option value='2'>February</option><option value='3'>March</option><option value='4'>April</option><option value='5'>May</option><option value='6'>June</option><option value='7'>July</option><option value='8'>August</option><option value='9'>September</option><option value='10'>October</option><option value='11'>November</option><option value='12'>December</option></select>");
     //dropdown for year
     $('#dropdown').append("<select id='yeardd'><option value='2012'>2012</option><option value='2013'>2013</option><option value='2014'>2014</option><option value='2015'>2015</option><option value='2016'>2016</option></select>");
-    //submit button
-    $('#dropdown').append("<br><br><center><input type='submit' name='Update' value='Update'></input>");
+
 
     //load data based on default selections
     loadData(map);
@@ -98,9 +100,9 @@ function loadData(map){
             var month = $('#monthdd').val();
             var year = $('#yeardd').val();
             //create the point symbols
-            createSymbols(response,map,attributes,tempType, month, year);
-            var day = createSlider(response, map, attributes);
-            setChart(response, tempType, day, month, year);
+            createSymbols(response,map, attributes, tempType, month, year);
+            createSlider(response, map, attributes);
+            // setChart(response, attributes, tempType, day, month, year);
             //hide loading affordance
             $('#ajaxloader').hide();
         }
@@ -146,17 +148,16 @@ function createSymbols(response, map, attributes, tempType, month, year){
     //create a Leaflet GeoJSON layer and add it to the map
     var geojson = L.geoJson(response,{
         //point to layer converts each point feature to layer to use circle marker
-        pointToLayer: function(feature, latlng, attributes, year, month){
+        pointToLayer: function(feature, latlng, attributes, month, year){
             //push temps for that day into the temps array from above
-            console.log(feature.properties[tempType]);
-            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19){
+            if (feature.properties.year == Number(year) && feature.properties.month == Number(month) && feature.properties.day == 30){
                 temps.push(feature.properties[tempType]);
             };
             return pointToLayer(feature, latlng, attributes, tempType, month, year);
         },
         //filtering the data for default date - make this interactive at some point
         filter: function(feature, layer){
-            if (feature.properties.year == year && feature.properties.month == month && feature.properties.day == 19) {
+            if (feature.properties.year == Number(year) && feature.properties.month == Number(month) && feature.properties.day == 30) {
                 return true
             // return feature.properties.year == 2016?  Will need to remove one/two of these constraints (day, month, year)?
             }
@@ -180,6 +181,7 @@ function calcColorBreaks(temps){
     //chroma.js determines class breaks from the array of temperatures (or any data)
     // here we use quantile classes, 5 classes.
     var colorBreaks = chroma.limits(temps,'q',5);
+    console.log(colorBreaks);
     return colorBreaks;
 };
 
@@ -206,7 +208,7 @@ function getColor(colorBreaks, temp){
 };
 
 //initial symbolization when map loads for first time
-function pointToLayer(feature, latlng, attributes, tempType){
+function pointToLayer(feature, latlng, attributes, tempType, month, year){
     //grab the properties of the attribute tair - default
     var attValue = feature.properties[tempType];
     //create marker options w/ defualt styling
@@ -232,7 +234,7 @@ function pointToLayer(feature, latlng, attributes, tempType){
             tempLabel = "Air Temperature"
         };
     //create popup content string
-    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p><p><b>" + tempLabel + " =</b> " + parseFloat(feature.properties[tempType]).toFixed(2) + "</p>";
+    var popupContent = "<p><b>Station:</b> " + feature.properties.SID + "</p>" + "<p><b>Date: </b>" + feature.properties.month + "/" + feature.properties.year + "</p>" + "<p><b>" + tempLabel + " =</b> " + parseFloat(feature.properties[tempType]).toFixed(2) + "</p>";
     // //add panel content variable
     // var panelContent = "";
     //add text and year and value to panelcontent
@@ -299,133 +301,127 @@ function createSlider(data, map, attributes){
     return day;
 };
 
-/* Creating a function to update the proportional symbols when activated
-by the sequence slider */
-/*function updatePropSymbols(data, map, attribute, datestep){
-
-    map.eachLayer(function(layer){
-		if (layer.feature && layer.feature.properties[attribute] ){
-      consol.log(layer.feature);
-
-			var props = layer.feature.properties;
-			var options = { radius: 8,
-                            fillColor: "lightblue",
-                            color: "#000",
-                            weight: 0.5,
-                            opacity: 1,
-                            fillOpacity: 0.8
-                        };
-            layer.setStyle(options);
-            // Creating a popup for each of the data points with information
-			var popupContent = "<p><b>Temperature:</b> " + parseFloat(props.HI).toFixed(2) + "</p>";
-			// console.log(attribute);
-			popupContent += "<p><b>Temperature for " + month + "/" + day + "/" + year + ":</b> " + parseFloat(props[attribute]).toFixed(2)+ " %</p>";
-
-			layer.bindPopup(popupContent, {
-				offset: new L.Point(0,-layer.options.radius)
-			});
-		};
-	});
-}; */
-
-function setChart(data, tempType, day, month, year){
-  $("#panelContainer").empty();
-  day = 19;
-  console.log(day);
-  console.log(data.features.length);
-  dataArray = [];
-
-  for (i=0;i<data.features.length;i++){
-    if (data.features[i].properties["month"]==Number(month) && data.features[i].properties["year"]==Number(year) && data.features[i].properties["day"]==19){
-      tempVal = data.features[i].properties[tempType];
-      dataArray.push(parseFloat(tempVal).toFixed(2));
-    };
-  };
-
-  console.log(dataArray.length);
-  // console.log(Math.max(dataArray));
-  // Loading data into function
-  // Filtering data based on inputs for day, month, year.  Return SID (x axis) and tempType (y axis)
-
-
-
-
-  var chartWidth = $("#panelContainer").width(),
-      chartHeight = $("#panelContainer").height();
-      leftPadding = 40,
-      rightPadding = 2,
-      topBottomPadding = 5,
-      chartInnerWidth = chartWidth - leftPadding - rightPadding,
-      chartInnerHeight = chartHeight - topBottomPadding * 2,
-      translate = "translate(" + leftPadding * 1.5 + "," + topBottomPadding + ")";
-
-  var yScale = d3.scaleLinear()
-      .range([chartInnerHeight, 0])
-      .domain([-20,100]);
-
-  // Creating the chart svg
-  var chart = d3.select("#panelContainer")
-    .append("svg")
-    .attr("width", chartWidth)
-    .attr("height", chartHeight)
-    .attr("class", "chart");
-
-  // Creating a vertical axis generator for the bar chart
-  var yAxis = d3.axisLeft()
-      .scale(yScale);
-
-  // Placing the axis
-  var axis = chart.append("g")
-      .attr("class", "axis")
-      .attr("transform", translate)
-      .call(yAxis);
-
-  // Placing background for the chart
-  var chartBackground = chart.append("rect")
-      .attr("class", "chartBackground")
-      .attr("width", chartInnerWidth)
-      .attr("height", chartInnerHeight)
-      .attr("transform", translate);
-
-  // Creating a vertical axis generator for the bar chart
-  var yAxis = d3.axisLeft()
-      .scale(yScale);
-
-  // Placing the axis
-  var axis = chart.append("g")
-      .attr("class", "axis")
-      .attr("transform", translate)
-      .call(yAxis);
-
-  // Creating a frame for the chart border
-  var chartFrame = chart.append("rect")
-      .attr("class", "chartFrame")
-      .attr("width", chartInnerWidth-25)
-      .attr("height", chartInnerHeight)
-      .attr("transform", translate);
-
-  var bar = chart.selectAll(".bar")
-      .data(dataArray)
-      .enter()
-      .append("rect")
-      .attr("class", function(d){
-        return "bars " + d.SID;
-      })
-      .attr("width", chartInnerWidth / dataArray.length-1)
-      .attr("x", function(d, i){
-        return i * (chartInnerWidth/ dataArray.length);
-      })
-      .attr("height", chartInnerHeight)
-      .attr("y", 0);
-
-  console.log(dataArray.length);
-  var chartTitle = chart.append("text")
-      .attr("x", 85)
-      .attr("y", 30)
-      .attr("class", "chartTitle")
-      .text("The " + tempType + " for " + month+"/"+year);
-
-  // updateChart(bars, dataChart.length);
-};
+// function setChart(data, attributes, tempType, day, month, year){
+//   $("#panelContainer").empty();
+//   day = 19;
+//   dataArray = [];
+//   tempTotal = 0;
+//   tempTotalCount = 0;
+//   stationCount = 0;
+//
+//   for (i=0;i<data.features.length;i++){
+//     if (data.features[i].properties["month"]==Number(month) && data.features[i].properties["year"]==Number(year) ){
+//       sid = data.features[i].properties["SID"];
+//       newDay = data.features[i].properties["day"];
+//       tempVal = parseFloat(data.features[i].properties[tempType]).toFixed(2);
+//         if (data.features[i].properties["day"] == Number(day)){
+//           if (!isNaN (Number(tempVal))){
+//             tempTotal += Number(tempVal);
+//             tempTotalCount += 1;
+//           };
+//         }
+//       console.log(tempTotal);
+//       console.log(tempTotalCount);
+//       var tempObject = {
+//         day: newDay,
+//         // SID: sid,
+//         value: tempVal
+//       };
+//       dataArray.push(tempObject);
+//     };
+//   };
+//
+//   console.log(dataArray);
+//
+//
+//   console.log(tempTotal/tempTotalCount);
+//   console.log(tempTotalCount);
+//
+//   console.log(Math.max(dataArray));
+//   // Loading data into function
+//   // Filtering data based on inputs for day, month, year.  Return SID (x axis) and tempType (y axis)
+//
+//
+//   var chartWidth = $("#panelContainer").width(),
+//       chartHeight = $("#panelContainer").height();
+//       leftPadding = 40,
+//       rightPadding = 2,
+//       topBottomPadding = 5,
+//       chartInnerWidth = chartWidth - leftPadding - rightPadding,
+//       chartInnerHeight = chartHeight - topBottomPadding * 2,
+//       translate = "translate(" + leftPadding * 1.5 + "," + topBottomPadding + ")";
+//
+//   var yScale = d3.scaleLinear()
+//       .range([chartInnerHeight, 0])
+//       .domain([-20,100]);
+//
+//   // Creating the chart svg
+//   var chart = d3.select("#panelContainer")
+//     .append("svg")
+//     .attr("width", chartWidth)
+//     .attr("height", chartHeight)
+//     .attr("class", "chart");
+//
+//   // Creating a vertical axis generator for the bar chart
+//   var yAxis = d3.axisLeft()
+//       .scale(yScale);
+//
+//   // Placing the axis
+//   var axis = chart.append("g")
+//       .attr("class", "axis")
+//       .attr("transform", translate)
+//       .call(yAxis);
+//
+//   // Placing background for the chart
+//   var chartBackground = chart.append("rect")
+//       .attr("class", "chartBackground")
+//       .attr("width", chartInnerWidth)
+//       .attr("height", chartInnerHeight)
+//       .attr("transform", translate);
+//
+//   // Creating a vertical axis generator for the bar chart
+//   var yAxis = d3.axisLeft()
+//       .scale(yScale);
+//
+//   // Placing the axis
+//   var axis = chart.append("g")
+//       .attr("class", "axis")
+//       .attr("transform", translate)
+//       .call(yAxis);
+//
+//   // Creating a frame for the chart border
+//   var chartFrame = chart.append("rect")
+//       .attr("class", "chartFrame")
+//       .attr("width", chartInnerWidth-25)
+//       .attr("height", chartInnerHeight)
+//       .attr("transform", translate);
+//
+//   var bar = chart.selectAll(".bar")
+//       .data(dataArray)
+//       .enter()
+//       .append("rect")
+//       .attr("class", function(d){
+//         return "bars " + d.day;
+//       })
+//       .attr("width", chartInnerWidth / ((tempTotalCount.length)/151)-1)
+//       .attr("x", function(d, i){
+//         return d.day * (chartInnerWidth/ ((tempTotalCount.length)/151));
+//       })
+//       .attr("height", function(d){
+//         return yScale(d.tempTotal);
+//       })
+//       .attr("y", function(d){
+//         console.log(d);
+//         return chartInnerHeight - yScale(d.tempTotal);
+//       });
+//
+//   console.log(dataArray.length);
+//   var chartTitle = chart.append("text")
+//       .attr("x", 85)
+//       .attr("y", 30)
+//       .attr("class", "chartTitle")
+//       .text("The " + tempType + " for " + month+"/"+year);
+//
+// };
 
 $(document).ready(initialize);
